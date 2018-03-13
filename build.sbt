@@ -1,7 +1,7 @@
 name := """flux-server"""
 organization := "ch.hsr.flux"
 
-version := "1.0-SNAPSHOT"
+version := "0.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
@@ -16,3 +16,10 @@ val guiceDeps = Seq(
 libraryDependencies ++= Seq(
   guice
 ) ++ guiceDeps
+
+jacocoReportSettings := JacocoReportSettings()
+  .withTitle("Flux Server JACOCO Report")
+  .withFormats(JacocoReportFormats.XML)
+
+jacocoExcludes := Seq("views*", "*Routes*", "controllers*routes*", "controllers*Reverse*", "controllers*javascript*", "controller*ref*")
+jacocoDirectory := baseDirectory.value /"target/jacoco"
