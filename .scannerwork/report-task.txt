@@ -1,0 +1,7 @@
+organization=flux-coordinator
+projectKey=flux-server
+serverUrl=https://sonarcloud.io
+serverVersion=7.1.0.37735
+dashboardUrl=https://sonarcloud.io/dashboard/index/flux-server
+ceTaskId=AWIhS3KNi0ZusgP9FK7S
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWIhS3KNi0ZusgP9FK7S

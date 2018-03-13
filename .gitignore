@@ -1,3 +1,5 @@
+/jacoco
+
 # Created by https://www.gitignore.io/api/jetbrains,playframework
 
 ### JetBrains ###
@@ -21,6 +23,7 @@
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+.gradle
 
 # CMake
 cmake-build-debug/
@@ -76,6 +79,7 @@ bin/
 /project/project
 /project/target
 /target
+/build
 tmp/
 test-result
 server.pid
