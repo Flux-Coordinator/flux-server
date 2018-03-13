@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
 
 jacocoReportSettings := JacocoReportSettings()
   .withTitle("Flux Server JACOCO Report")
-  .withFormats(JacocoReportFormats.XML)
+  .withFormats(JacocoReportFormats.ScalaHTML)
 
 jacocoExcludes := Seq("views*", "*Routes*", "controllers*routes*", "controllers*Reverse*", "controllers*javascript*", "controller*ref*")
 jacocoDirectory := baseDirectory.value /"target/jacoco"
+
