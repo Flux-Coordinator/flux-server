@@ -13,8 +13,7 @@
         <entry key="root">
           <value>
             <ProjectSettingsEntry>
-              <option name="sourceDir" value="F:\Development\FluxCoordinator\flux-server\app" />
-              <option name="confDir" value="F:\Development\FluxCoordinator\flux-server\app" />
+              <option name="confDir" value="C:\Development\FluxCoordinator\flux-server\app" />
               <option name="templateImports">
                 <list>
                   <option value="_root_.play.twirl.api.TwirlFeatureImports._" />
@@ -45,7 +44,7 @@
                   <option value="play.libs.F" />
                 </list>
               </option>
-              <option name="uri" value="/F:/Development/FluxCoordinator/flux-server" />
+              <option name="uri" value="/C:/Development/FluxCoordinator/flux-server" />
             </ProjectSettingsEntry>
           </value>
         </entry>
