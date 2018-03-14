@@ -16,6 +16,9 @@ cache:
 addons:
   sonarqube:
     organization: flux-coordinator
+    branches:
+      - master
+      - development
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
