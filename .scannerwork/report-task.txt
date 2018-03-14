@@ -3,5 +3,5 @@ projectKey=flux-server
 serverUrl=https://sonarcloud.io
 serverVersion=7.1.0.37735
 dashboardUrl=https://sonarcloud.io/dashboard/index/flux-server
-ceTaskId=AWIj4CbuHZ5p85WycQLU
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWIj4CbuHZ5p85WycQLU
+ceTaskId=AWIkqnf8V4Tcj4EG2Xnt
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWIkqnf8V4Tcj4EG2Xnt
