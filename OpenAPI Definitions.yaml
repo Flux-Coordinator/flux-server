@@ -23,7 +23,7 @@ tags:
 paths:
   /projects:
     get:
-      summary: Gets a list with all the projects
+      summary: Get a list with all the projects
       description: Returns a list of all the available projects.
       responses:
         '200':
@@ -37,8 +37,8 @@ paths:
       tags:
         - projects
     post:
-      summary: Creates a new project
-      description: Creates a new project with the desired properties.
+      summary: Create a new project
+      description: Create a new project with the desired properties.
       requestBody:
         description: The parameters used to create a new project.
         required: true
@@ -48,12 +48,12 @@ paths:
               $ref: '#/components/schemas/Project'
       responses:
         '200':
-          description: Project created successfully
+          description: Project was created successfully
       tags:
         - projects
   /projects/{projectId}:
     get:
-      summary: Gets a single project
+      summary: Get a single project
       description: Return a single project
       parameters:
         - name: projectId
@@ -75,8 +75,8 @@ paths:
         - projects
   /projects/{projectId}/rooms:
     get:
-      summary: Gets all the rooms in the project
-      description: Gets a list of all the available rooms in the corresponding project.
+      summary: Get all the rooms in the project
+      description: Get a list of all the available rooms in the corresponding project.
       parameters:
         - name: projectId
           in: path
@@ -96,6 +96,27 @@ paths:
           description: Project not found
       tags:
         - projects
+    post:
+      summary: Create a new room
+      description: Create a new room inside an existing project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The database ID of the project that should contain the room.
+          schema:
+            type: string
+      requestBody:
+        description: The parameters used to create the new room.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '200':
+          description: Room was created successfully
+      tags:
+        - projects
   /projects/{projectId}/rooms/{roomId}:
     get:
       summary: Get a single room in the project
@@ -103,12 +124,12 @@ paths:
       parameters:
         - name: projectId
           in: path
-          description: The database ID of the projet you are referring to.
+          description: The database ID of the project you are referring to.
           schema:
             type: string
         - name: roomId
           in: path
-          description: The database ID of the room you are referring to.
+          description: The database ID of the room to get.
           schema:
             type: string
       responses:
@@ -122,9 +143,44 @@ paths:
           description: Project or Room not found
       tags:
         - projects
+  /measurements/{measurementId}:
+    get:
+      summary: Get a single measurement
+      description: Return a single measurement with the ID corresponding to the measurementId paramter.
+      parameters:
+        - name: measurementId
+          in: path
+          description: The database ID of the measurement to get.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeasurementReadings'
+      tags:
+        - measurements
+  /measurements:
+    post:
+      summary: Create a new measurement
+      description: Create a new measurement with the desired properties.
+      requestBody:
+        description: The parameters used to create a new measurement.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeasurementMetadata'
+      responses:
+        '200':
+          description: Measurement was created successfully.
+      tags:
+        - measurements
   /auth/login:
     get:
-      summary: Logs user into the system
+      summary: Log user into the system
       description: The user is logged into the system
       parameters:
         - name: username
@@ -143,7 +199,7 @@ paths:
         - auth
   /auth/logout:
     get:
-      summary: Logs out the current user logged in user session
+      summary: Log out the current user logged in user session
       description: The user that's logged in, is stored in the session of the browser and sent to the server.
       tags:
         - auth
