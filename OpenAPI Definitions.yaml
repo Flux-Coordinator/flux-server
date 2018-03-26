@@ -1,0 +1,256 @@
+openapi: 3.0.0
+info:
+  title: FLUX-Coordinator
+  description: This is the API documentation for the REST API of the Flux-Coordinator project.
+  version: 0.0.1
+  license:
+    name: MIT
+    url: "https://github.com/Flux-Coordinator/flux-frontend/blob/master/LICENSE"
+servers:
+  - url: https://flux-coordinator.herokuapp.com/v1
+    description: Production Server
+  - url: https://flux-coordinator-staging.herokuapp.com/v1
+    description: Staging Server
+  - url: localhost/v1
+    description: Development Server
+tags:
+- name: projects
+  description: Everything that has to do with projects
+- name: measurements
+  description: Everything that has to do with measurements
+- name: auth
+  description: Authentication functionality
+paths:
+  /projects:
+    get:
+      summary: Gets a list with all the projects
+      description: Returns a list of all the available projects.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+      tags:
+        - projects
+    post:
+      summary: Creates a new project
+      description: Creates a new project with the desired properties.
+      requestBody:
+        description: The parameters used to create a new project.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Project created successfully
+      tags:
+        - projects
+  /projects/{projectId}:
+    get:
+      summary: Gets a single project
+      description: Return a single project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The database ID of the project you want to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+      tags:
+        - projects
+  /projects/{projectId}/rooms:
+    get:
+      summary: Gets all the rooms in the project
+      description: Gets a list of all the available rooms in the corresponding project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The database ID of the project you are referring to.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+        '404':
+          description: Project not found
+      tags:
+        - projects
+  /projects/{projectId}/rooms/{roomId}:
+    get:
+      summary: Get a single room in the project
+      description: Returns a single room with the ID corresponding to the roomId parameter.
+      parameters:
+        - name: projectId
+          in: path
+          description: The database ID of the projet you are referring to.
+          schema:
+            type: string
+        - name: roomId
+          in: path
+          description: The database ID of the room you are referring to.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Room'
+        '404':
+          description: Project or Room not found
+      tags:
+        - projects
+  /auth/login:
+    get:
+      summary: Logs user into the system
+      description: The user is logged into the system
+      parameters:
+        - name: username
+          in: query
+          description: The username that should be logged in
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password of the username trying to log in
+          required: true
+          schema:
+            type: password
+      tags:
+        - auth
+  /auth/logout:
+    get:
+      summary: Logs out the current user logged in user session
+      description: The user that's logged in, is stored in the session of the browser and sent to the server.
+      tags:
+        - auth
+components:
+  schemas:
+    ProjectMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    Project:
+      type: object
+      properties:
+        projectId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+    Room:
+      type: object
+      properties:
+        roomId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        floorPlan:
+          type: string
+        width:
+          type: number
+        length:
+          type: number
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeasurementMetadata'
+    MeasurementMetadata:
+      type: object
+      properties:
+        measurementId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        creator:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        state:
+          type: string
+          enum: [done, running, ready]
+        offset:
+          type: number
+        factor:
+          type: number
+    MeasurementReadings:
+      type: object
+      properties:
+        measurementId:
+          type: string
+        anchorPositions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnchorPosition'
+        readings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reading'
+    AnchorPosition:
+      type: object
+      properties:
+        anchorId:
+          type: string
+        name:
+          type: string
+        xPosition:
+          type: number
+        yPosition:
+          type: number
+        zPosition:
+          type: number
+    Reading:
+      type: object
+      properties:
+        readingId:
+          type: string
+        luxValue:
+          type: number
+        xPosition:
+          type: number
+        yPosition:
+          type: number
+        zPosition:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
