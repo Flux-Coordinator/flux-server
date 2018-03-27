@@ -80,6 +80,7 @@ paths:
       parameters:
         - name: projectId
           in: path
+          required: true
           description: The database ID of the project you are referring to.
           schema:
             type: string
@@ -102,6 +103,7 @@ paths:
       parameters:
         - name: projectId
           in: path
+          required: true
           description: The database ID of the project that should contain the room.
           schema:
             type: string
@@ -115,6 +117,8 @@ paths:
       responses:
         '200':
           description: Room was created successfully
+        '404':
+          description: Project not found
       tags:
         - projects
   /projects/{projectId}/rooms/{roomId}:
@@ -124,11 +128,13 @@ paths:
       parameters:
         - name: projectId
           in: path
+          required: true
           description: The database ID of the project you are referring to.
           schema:
             type: string
         - name: roomId
           in: path
+          required: true
           description: The database ID of the room to get.
           schema:
             type: string
@@ -150,6 +156,7 @@ paths:
       parameters:
         - name: measurementId
           in: path
+          required: true
           description: The database ID of the measurement to get.
           schema:
             type: string
@@ -160,6 +167,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MeasurementReadings'
+        '404':
+          description: Measurement not found
       tags:
         - measurements
   /measurements:
@@ -199,8 +208,8 @@ paths:
         - auth
   /auth/logout:
     get:
-      summary: Log out the current user logged in user session
-      description: The user that's logged in, is stored in the session of the browser and sent to the server.
+      summary: Log out the current user logged in the user session
+      description: The user that's logged in, is stored in the session of the browser, which is sent to the server. The server-side session must be deleted to log out the user.
       tags:
         - auth
 components:
