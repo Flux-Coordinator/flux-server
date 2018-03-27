@@ -18,7 +18,7 @@ addons:
     organization: flux-coordinator
     branches:
       - master
-      - development
+      - develop
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
