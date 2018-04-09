@@ -13,9 +13,18 @@ val guiceDeps = Seq(
   "com.google.inject.extensions" % "guice-assistedinject" % guiceVersion
 )
 
+//val appDependencies = Seq(
+//  "uk.co.panaxiom" %% "play-jongo" % "2.1.0-jongo1.3",
+//  "org.mongodb" % "mongo-java-driver" % "3.6.3"
+//)
+
 libraryDependencies ++= Seq(
   guice
 ) ++ guiceDeps
+
+libraryDependencies ++= Seq(
+  "org.mongodb" % "mongodb-driver" % "3.6.3"
+)
 
 jacocoReportSettings := JacocoReportSettings()
   .withTitle("Flux Server JACOCO Report")

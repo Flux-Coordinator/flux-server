@@ -203,13 +203,19 @@ paths:
           description: The password of the username trying to log in
           required: true
           schema:
-            type: password
+            type: string
+      responses:
+        '200':
+          description: Logged in successfully.
       tags:
         - auth
   /auth/logout:
     get:
       summary: Log out the current user logged in the user session
       description: The user that's logged in, is stored in the session of the browser, which is sent to the server. The server-side session must be deleted to log out the user.
+      responses:
+        '200':
+          description: Logged out successfully.
       tags:
         - auth
 components:
