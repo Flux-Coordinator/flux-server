@@ -30,7 +30,7 @@ public class MeasurementReadings {
         return anchorPositions;
     }
 
-    public void setAnchorPositions(List<AnchorPosition> anchorPositions) {
+    public void setAnchorPositions(final List<AnchorPosition> anchorPositions) {
         this.anchorPositions = anchorPositions;
     }
 
@@ -38,7 +38,7 @@ public class MeasurementReadings {
         return readings;
     }
 
-    public void setReadings(List<Reading> readings) {
+    public void setReadings(final List<Reading> readings) {
         this.readings = readings;
     }
 

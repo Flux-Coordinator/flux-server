@@ -12,11 +12,16 @@ import org.bson.types.ObjectId;
 
 import javax.inject.Inject;
 
+import java.util.Iterator;
+import java.util.List;
+
 import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MeasurementsRepositoryJPA implements MeasurementsRepository {
+    private final static String DATABASE_NAME = "flux";
+    private final static String COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
 
@@ -25,20 +30,25 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         this.mongoClient = mongoClient;
     }
 
+    private MongoCollection<MeasurementReadings> getCollection() {
+        final MongoDatabase mongoDatabase = mongoClient.getDatabase(DATABASE_NAME);
+        return mongoDatabase.getCollection(COLLECTION_NAME, MeasurementReadings.class);
+    }
+
+    @Override
+    public Iterator<MeasurementReadings> getMeasurementReadings() {
+        return getCollection().find().iterator();
+    }
+
     @Override
     public MeasurementReadings getMeasurementReadingsById(final ObjectId measurementId) {
-        final MongoDatabase database = mongoClient.getDatabase("flux");
-        final MongoCollection<MeasurementReadings> collection
-                = database.getCollection("measurements", MeasurementReadings.class);
+        final MongoCollection<MeasurementReadings> collection = getCollection();
         return collection.find(eq("_id", measurementId)).first();
     }
 
     @Override
     public void addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
-        final MongoDatabase database = mongoClient.getDatabase("flux");
-        final MongoCollection<MeasurementReadings> collection
-                = database.getCollection("measurements", MeasurementReadings.class);
-
+        final MongoCollection<MeasurementReadings> collection = getCollection();
         collection.insertOne(readings);
     }
 }

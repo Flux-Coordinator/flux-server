@@ -1,26 +1,26 @@
 package controllers;
 
-import com.mongodb.MongoClient;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 import play.libs.Json;
+import play.libs.typedmap.TypedKey;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
-import repositories.measurements.MeasurementsRepositoryJPA;
 
 import javax.inject.Inject;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MeasurementsController extends Controller {
-    private static Random random = new Random();
-
     private final MeasurementsRepository measurementsRepository;
 
     @Inject
-    public MeasurementsController(final MongoClient mongoClient) {
-        measurementsRepository = new MeasurementsRepositoryJPA(mongoClient);
+    public MeasurementsController(final MeasurementsRepository measurementsRepository) {
+        this.measurementsRepository = measurementsRepository;
     }
 
     public Result getMeasurementById(final String measurementId) {
@@ -34,19 +34,28 @@ public class MeasurementsController extends Controller {
         return ok(Json.toJson(readings));
     }
 
+    public Result getMeasurements(final int limit) {
+        final List<MeasurementReadings> readings = new ArrayList<>(limit);
+        final Iterator<MeasurementReadings> readingsIterator = measurementsRepository.getMeasurementReadings();
+
+        while(readingsIterator.hasNext() && readings.size() < limit) {
+            readings.add(readingsIterator.next());
+        }
+
+        return ok(Json.toJson(readings));
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
     public Result createMeasurement() {
-        final MeasurementReadings readings = new MeasurementReadings();
 
-        for(int i = 0; i < 5; i++) {
-            readings.getReadings().add(DataGenerator.generateReading());
-        }
-
-        for(int i = 0; i < 3; i++) {
-            readings.getAnchorPositions().add(DataGenerator.generateAnchorPosition());
-        }
-
+        final JsonNode json = request().body().asJson();
+        final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
         measurementsRepository.addMeasurement(null, readings);
 
         return ok();
+    }
+
+    static class Attrs {
+        static final TypedKey<Integer> QUERY_LIMIT = TypedKey.create("limit");
     }
 }
