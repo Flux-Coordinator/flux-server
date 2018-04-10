@@ -3,7 +3,6 @@ package repositories.generator;
 import models.AnchorPosition;
 import models.MeasurementReadings;
 import models.Reading;
-import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
