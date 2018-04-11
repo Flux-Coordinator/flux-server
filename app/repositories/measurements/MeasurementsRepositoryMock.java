@@ -5,7 +5,6 @@ import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 import repositories.generator.DataGenerator;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

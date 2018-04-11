@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 public class DataGenerator {
-    private static Random random = new Random();
+    private final static Random random = new Random();
 
     public static List<MeasurementReadings> generateMeasurements(final int amount) {
         final List<MeasurementReadings> measurementReadings = new ArrayList<>();

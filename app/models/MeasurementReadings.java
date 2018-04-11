@@ -2,7 +2,6 @@ package models;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
-import repositories.measurements.MeasurementsRepository;
 
 import java.util.ArrayList;
 import java.util.List;

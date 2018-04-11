@@ -1,23 +1,16 @@
 package repositories.measurements;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import models.MeasurementMetadata;
 import models.MeasurementReadings;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.types.ObjectId;
 
 import javax.inject.Inject;
-
 import java.util.Iterator;
-import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     private final static String DATABASE_NAME = "flux";

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 import play.libs.Json;
-import play.libs.typedmap.TypedKey;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
