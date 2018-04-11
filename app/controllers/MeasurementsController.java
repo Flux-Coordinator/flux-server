@@ -47,15 +47,10 @@ public class MeasurementsController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public Result createMeasurement() {
-
         final JsonNode json = request().body().asJson();
         final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
         measurementsRepository.addMeasurement(null, readings);
 
         return ok();
-    }
-
-    static class Attrs {
-        static final TypedKey<Integer> QUERY_LIMIT = TypedKey.create("limit");
     }
 }
