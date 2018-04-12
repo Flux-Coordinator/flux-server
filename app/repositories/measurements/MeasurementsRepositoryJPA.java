@@ -1,5 +1,6 @@
 package repositories.measurements;
 
+import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 
 import static com.mongodb.client.model.Filters.eq;
 
+@Singleton
 public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     private final static String DATABASE_NAME = "flux";
     private final static String COLLECTION_NAME = "measurements";

@@ -1,5 +1,6 @@
 package repositories.measurements;
 
+import com.google.inject.Singleton;
 import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
@@ -8,12 +9,14 @@ import repositories.generator.DataGenerator;
 import java.util.Iterator;
 import java.util.List;
 
+@Singleton
 public class MeasurementsRepositoryMock implements MeasurementsRepository {
 
     private final List<MeasurementReadings> readingsList;
 
     public MeasurementsRepositoryMock() {
         readingsList = DataGenerator.generateMeasurements(10);
+        readingsList.forEach(measurementReadings -> measurementReadings.setMeasurementId(new ObjectId()));
     }
 
     @Override

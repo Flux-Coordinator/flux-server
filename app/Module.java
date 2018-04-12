@@ -3,6 +3,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoTimeoutException;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;

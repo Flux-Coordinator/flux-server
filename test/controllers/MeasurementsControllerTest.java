@@ -15,7 +15,6 @@ import repositories.measurements.MeasurementsRepositoryMock;
 
 import static org.junit.Assert.assertEquals;
 import static play.inject.Bindings.bind;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 public class MeasurementsControllerTest extends WithApplication {
@@ -45,7 +44,7 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.resultToJSON(result, MeasurementReadings[].class);
+        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
         assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
     }
 
@@ -57,7 +56,29 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements?limit=" + desiredLimitOfMeasurements);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.resultToJSON(result, MeasurementReadings[].class);
+        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
         assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
+    }
+
+    @Test
+    public void getMeasurementById_GetExisting_OK() {
+        final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final MeasurementReadings expectedReading = repository.getMeasurementReadings().next();
+        final Http.RequestBuilder request = new Http.RequestBuilder()
+                .method(GET)
+                .uri("/measurements/" + expectedReading.getMeasurementId());
+        final Result result = route(app, request);
+        assertEquals(OK, result.status());
+        final MeasurementReadings actualReading = Helpers.convertFromJSON(result, MeasurementReadings.class);
+        assertEquals(expectedReading, actualReading);
+    }
+
+    @Test
+    public void getMeasurementById_GetNotExisting_Error404() {
+        final Http.RequestBuilder request = new Http.RequestBuilder()
+                .method(GET)
+                .uri("/measurements/12345623");
+        final Result result = route(app, request);
+        assertEquals(NOT_FOUND, result.status());
     }
 }
