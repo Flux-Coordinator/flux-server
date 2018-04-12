@@ -3,6 +3,8 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
+import play.Application;
+import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
@@ -40,6 +42,7 @@ public class MeasurementsController extends Controller {
                 return ok(Json.toJson(readings));
             }
             catch(Exception ex) {
+                Logger.error("Error when getting measurement", ex);
                 return notFound("Measurement not found");
             }
         }, httpExecutionContext.current());
@@ -47,14 +50,20 @@ public class MeasurementsController extends Controller {
 
     public CompletionStage<Result> getMeasurements(final int limit) {
         return CompletableFuture.supplyAsync(() -> {
-            final List<MeasurementReadings> readings = new ArrayList<>(limit);
-            final Iterator<MeasurementReadings> readingsIterator = measurementsRepository.getMeasurementReadings();
+            try {
+                final List<MeasurementReadings> readings = new ArrayList<>(limit);
+                final Iterator<MeasurementReadings> readingsIterator = measurementsRepository.getMeasurementReadings();
 
-            while(readingsIterator.hasNext() && readings.size() < limit) {
-                readings.add(readingsIterator.next());
+                while (readingsIterator.hasNext() && readings.size() < limit) {
+                    readings.add(readingsIterator.next());
+                }
+
+                return ok(Json.toJson(readings));
             }
-
-            return ok(Json.toJson(readings));
+            catch(Exception ex) {
+                Logger.error("Error getting measurements", ex);
+                return internalServerError();
+            }
         }, httpExecutionContext.current());
     }
 

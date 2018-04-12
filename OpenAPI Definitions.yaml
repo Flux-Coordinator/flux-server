@@ -187,6 +187,27 @@ paths:
           description: Measurement was created successfully.
       tags:
         - measurements
+    get:
+      summary: Gets measurements
+      description: Gets some measurements.
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Limits the amount of measurements that are returned by this query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+      tags:
+        - measurements
   /auth/login:
     get:
       summary: Log user into the system
@@ -220,13 +241,6 @@ paths:
         - auth
 components:
   schemas:
-    ProjectMetadata:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
     Project:
       type: object
       properties:
