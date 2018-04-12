@@ -5,7 +5,7 @@ import play.libs.Json;
 import play.mvc.Result;
 
 public class Helpers {
-    public static <T> T resultToJSON(final Result result, Class<T> clazz) {
+    public static <T> T convertFromJSON(final Result result, Class<T> clazz) {
         final JsonNode node = Json.parse(play.test.Helpers.contentAsString(result));
         return Json.fromJson(node, clazz);
     }
