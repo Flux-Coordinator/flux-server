@@ -40,7 +40,7 @@ public class MeasurementsController extends Controller {
 
                 return ok(Json.toJson(readings));
             }
-            catch(Exception ex) {
+            catch(final Exception ex) {
                 Logger.error("Error when getting measurement", ex);
                 return notFound("Measurement not found");
             }
@@ -59,7 +59,7 @@ public class MeasurementsController extends Controller {
 
                 return ok(Json.toJson(readings));
             }
-            catch(Exception ex) {
+            catch(final Exception ex) {
                 Logger.error("Error getting measurements", ex);
                 return internalServerError();
             }
@@ -72,7 +72,6 @@ public class MeasurementsController extends Controller {
             final JsonNode json = request().body().asJson();
             final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
             measurementsRepository.addMeasurement(null, readings);
-
             return ok();
         }, httpExecutionContext.current());
     }
