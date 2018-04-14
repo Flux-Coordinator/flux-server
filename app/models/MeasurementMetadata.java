@@ -89,6 +89,7 @@ public class MeasurementMetadata {
     public void setFactor(double factor) {
         this.factor = factor;
     }
+
 //endregion Getters/Setters
 
     @Override

@@ -3,11 +3,12 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoTimeoutException;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;
-import repositories.measurements.MeasurementsRepositoryJPA;
+import repositories.measurements.MeasurementsRepositoryMongo;
+import repositories.projects.ProjectsRepository;
+import repositories.projects.ProjectsRepositoryMongo;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -28,7 +29,8 @@ public class Module extends AbstractModule {
     protected void configure() {
         super.configure();
 
-        bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
+        bind(MeasurementsRepository.class).to(MeasurementsRepositoryMongo.class);
+        bind(ProjectsRepository.class).to(ProjectsRepositoryMongo.class);
     }
 
     @Provides @Singleton

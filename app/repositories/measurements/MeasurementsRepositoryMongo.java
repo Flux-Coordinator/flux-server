@@ -14,14 +14,14 @@ import java.util.Iterator;
 import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
-public class MeasurementsRepositoryJPA implements MeasurementsRepository {
+public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     private final static String DATABASE_NAME = "flux";
     private final static String COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
 
     @Inject
-    public MeasurementsRepositoryJPA(final MongoClient mongoClient) {
+    public MeasurementsRepositoryMongo(final MongoClient mongoClient) {
         this.mongoClient = mongoClient;
     }
 

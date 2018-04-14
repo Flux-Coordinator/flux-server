@@ -43,7 +43,7 @@ public class MeasurementsController extends Controller {
                 return ok(Json.toJson(readings));
             }
             catch(final Exception ex) {
-                Logger.error("Error when getting measurement", ex);
+                Logger.error("Error when getting measurement with the id: " + measurementId, ex);
                 return notFound("Measurement not found");
             }
         }, httpExecutionContext.current());

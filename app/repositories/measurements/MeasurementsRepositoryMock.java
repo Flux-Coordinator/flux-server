@@ -11,12 +11,13 @@ import java.util.List;
 
 @Singleton
 public class MeasurementsRepositoryMock implements MeasurementsRepository {
+    private final static int AMOUNT_OF_MEASUREMENTS = 10;
 
     private final List<MeasurementReadings> readingsList;
 
     public MeasurementsRepositoryMock() {
-        readingsList = DataGenerator.generateMeasurements(10);
-        readingsList.forEach(measurementReadings -> measurementReadings.setMeasurementId(new ObjectId()));
+        this.readingsList = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS);
+        this.readingsList.forEach(measurementReadings -> measurementReadings.setMeasurementId(new ObjectId()));
     }
 
     @Override

@@ -76,7 +76,6 @@ public class Reading {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getReadingId(), getLuxValue(), xPosition, yPosition, zPosition, getTimestamp());
     }
 }

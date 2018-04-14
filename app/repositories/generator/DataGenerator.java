@@ -1,10 +1,14 @@
 package repositories.generator;
 
-import models.AnchorPosition;
-import models.MeasurementReadings;
-import models.Reading;
+import models.*;
+import repositories.projects.ProjectsRepository;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -13,6 +17,65 @@ import java.util.Random;
  */
 public class DataGenerator {
     private final static Random random = new Random();
+
+    public static List<Project> generateProjects(final int amount) {
+        try {
+            final List<Project> projects = new ArrayList<>(amount);
+
+            for(int i = 0; i < amount; i++) {
+                projects.add(generateProject());
+            }
+
+            return projects;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a batch of projects", ex);
+        }
+    }
+
+    public static Project generateProject() {
+        try {
+            final Project project = new Project();
+
+            project.setName("Project-" + Math.abs(random.nextInt()));
+            project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
+            project.setRooms(generateRooms(5));
+
+            return project;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single project", ex);
+        }
+    }
+
+    public static List<Room> generateRooms(final int amount) {
+        try {
+            final List<Room> rooms = new ArrayList<>(amount);
+
+            for(int i = 0; i < amount; i++) {
+                rooms.add(generateRoom());
+            }
+
+            return rooms;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a batch of rooms", ex);
+        }
+    }
+
+    public static Room generateRoom() {
+        try {
+            final Room room = new Room();
+
+            room.setName("Room-" + Math.abs(random.nextInt()));
+            room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
+            room.setLength(random.nextDouble() * 100);
+            room.setWidth(random.nextDouble() * 100);
+
+            //TODO: Set measurements
+
+            return room;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single room", ex);
+        }
+    }
 
     public static List<MeasurementReadings> generateMeasurements(final int amount) {
         try {
@@ -24,7 +87,7 @@ public class DataGenerator {
 
             return measurementReadings;
         }
-        catch(Exception ex) {
+        catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
         }
     }
@@ -40,7 +103,7 @@ public class DataGenerator {
 
             return reading;
         }
-        catch(Exception ex) {
+        catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating readings", ex);
         }
     }
@@ -49,14 +112,14 @@ public class DataGenerator {
         try {
             final AnchorPosition position = new AnchorPosition();
 
-            position.setName("Anker" + random.nextInt());
+            position.setName("Anker" + Math.abs(random.nextInt()));
             position.setXPosition(random.nextDouble());
             position.setYPosition(random.nextDouble());
             position.setZPosition(random.nextDouble());
 
             return position;
         }
-        catch(Exception ex) {
+        catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating anchor positions", ex);
         }
     }
@@ -75,8 +138,12 @@ public class DataGenerator {
 
             return measurementReadings;
         }
-        catch(Exception ex) {
+        catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating single measurement", ex);
         }
+    }
+
+    private static String getLocalDateTime() {
+        return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }
