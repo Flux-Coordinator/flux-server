@@ -22,6 +22,8 @@ public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
     private final MeasurementsRepository measurementsRepository;
 
+    private MeasurementReadings activeMeasurement;
+
     @Inject
     public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository) {
         this.httpExecutionContext = httpExecutionContext;
@@ -74,5 +76,18 @@ public class MeasurementsController extends Controller {
             measurementsRepository.addMeasurement(null, readings);
             return ok();
         }, httpExecutionContext.current());
+    }
+
+    public CompletableFuture<Result> startMeasurement(final String measurementId) {
+        return CompletableFuture.supplyAsync(() -> {
+            final ObjectId objectId = new ObjectId(measurementId);
+            this.activeMeasurement = measurementsRepository.getMeasurementReadingsById(objectId);
+            return ok();
+        }, httpExecutionContext.current());
+    }
+
+    public Result stopMeasurement() {
+        this.activeMeasurement = null;
+        return ok();
     }
 }
