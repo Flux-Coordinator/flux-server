@@ -4,7 +4,6 @@ import models.Project;
 import org.bson.types.ObjectId;
 import repositories.generator.DataGenerator;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,5 +32,10 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
                 .filter(project -> project.getProjectId().equals(projectId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public void resetRepository() {
+        this.projects.clear();
     }
 }

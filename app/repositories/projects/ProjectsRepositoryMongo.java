@@ -3,7 +3,6 @@ package repositories.projects;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import models.MeasurementReadings;
 import models.Project;
 import org.bson.types.ObjectId;
 
@@ -42,5 +41,11 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
     public Project getProjectById(final ObjectId projectId) {
         final MongoCollection<Project> collection = getCollection();
         return collection.find(eq("_id", projectId)).first();
+    }
+
+    @Override
+    public void resetRepository() {
+        getCollection().drop();
+        this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);
     }
 }

@@ -11,4 +11,6 @@ public interface ProjectsRepository {
     void addProject(final Project project);
 
     Project getProjectById(final ObjectId projectId);
+
+    void resetRepository();
 }

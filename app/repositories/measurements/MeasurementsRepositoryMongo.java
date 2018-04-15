@@ -46,4 +46,10 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
         final MongoCollection<MeasurementReadings> collection = getCollection();
         collection.insertOne(readings);
     }
+
+    @Override
+    public void resetRepository() {
+        getCollection().drop();
+        this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);
+    }
 }

@@ -38,4 +38,9 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
         readings.setMeasurementId(new ObjectId());
         readingsList.add(readings);
     }
+
+    @Override
+    public void resetRepository() {
+        this.readingsList.clear();
+    }
 }
