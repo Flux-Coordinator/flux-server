@@ -5,6 +5,7 @@
 # An example controller showing a sample home page
 GET     /                                   controllers.HomeController.index
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
+POST    /projects                           controllers.ProjectsController.addProject
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: String)
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : String)
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)

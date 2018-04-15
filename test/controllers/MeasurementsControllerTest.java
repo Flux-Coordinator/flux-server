@@ -2,6 +2,7 @@ package controllers;
 
 import helpers.Helpers;
 import models.MeasurementReadings;
+import org.bson.types.ObjectId;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -12,6 +13,8 @@ import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.measurements.MeasurementsRepositoryMock;
+import repositories.projects.ProjectsRepository;
+import repositories.projects.ProjectsRepositoryMock;
 
 import static org.junit.Assert.assertEquals;
 import static play.inject.Bindings.bind;
@@ -22,6 +25,7 @@ public class MeasurementsControllerTest extends WithApplication {
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
                 .overrides(bind(MeasurementsRepository.class).to(MeasurementsRepositoryMock.class))
+                .overrides(bind(ProjectsRepository.class).to(ProjectsRepositoryMock.class))
                 .build();
     }
 
@@ -33,7 +37,7 @@ public class MeasurementsControllerTest extends WithApplication {
                 .bodyJson(Json.toJson(measurementReadings))
                 .uri("/measurements");
         final Result result = route(app, request);
-        assertEquals(OK, result.status());
+        assertEquals(CREATED, result.status());
     }
 
     @Test
@@ -74,11 +78,20 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     @Test
-    public void getMeasurementById_GetNotExisting_Error404() {
+    public void getMeasurementById_GetNotExisting_NoContent() {
+        final ObjectId objectId = new ObjectId();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/12345623");
+                .uri("/measurements/" + objectId);
         final Result result = route(app, request);
-        assertEquals(NOT_FOUND, result.status());
+        assertEquals(NO_CONTENT, result.status());
+    }
+
+    public void getMeasurementById_InvalidObjectId_BadRequest() {
+        final Http.RequestBuilder request = new Http.RequestBuilder()
+                .method(GET)
+                .uri("/measurements/1234");
+        final Result result = route(app, request);
+        assertEquals(BAD_REQUEST, result.status());
     }
 }

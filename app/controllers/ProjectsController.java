@@ -1,10 +1,12 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import models.Project;
 import org.bson.types.ObjectId;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import repositories.generator.DataGenerator;
@@ -50,13 +52,28 @@ public class ProjectsController extends Controller {
                 final Project project = this.projectsRepository.getProjectById(objectId);
 
                 if(project == null) {
-                    throw new NullPointerException("Project was not found or was null");
+                    return noContent();
                 }
 
                 return ok(Json.toJson(project));
             } catch(final Exception ex) {
                 Logger.error("Error while getting project with the id " + projectId, ex);
                 return notFound("Project not found");
+            }
+        }, httpExecutionContext.current());
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> addProject() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                final JsonNode jsonNode = request().body().asJson();
+                final Project project = Json.fromJson(jsonNode, Project.class);
+                this.projectsRepository.addProject(project);
+                return created();
+            } catch(final Exception ex) {
+                Logger.error("Error while creating a new project.", ex);
+                return badRequest("Error while creating a new project.");
             }
         }, httpExecutionContext.current());
     }
