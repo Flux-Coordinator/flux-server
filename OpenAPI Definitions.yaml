@@ -47,7 +47,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Project'
       responses:
-        '200':
+        '201':
           description: Project was created successfully
       tags:
         - projects
@@ -69,8 +69,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-        '404':
-          description: Project not found
+        '204':
+          description: Request was successful, but no project was found.
       tags:
         - projects
   /projects/{projectId}/rooms:
@@ -145,7 +145,7 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/Room'
-        '404':
+        '204':
           description: Project or Room not found
       tags:
         - projects
@@ -167,8 +167,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MeasurementReadings'
-        '404':
-          description: Measurement not found
+        '204':
+          description: Measurement not found.
+        '400':
+          description: Failed retrieving the measurement.s
       tags:
         - measurements
   /measurements/active/{measurementId}:
