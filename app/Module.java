@@ -1,8 +1,11 @@
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
+import com.typesafe.config.Config;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;
@@ -33,15 +36,15 @@ public class Module extends AbstractModule {
         bind(ProjectsRepository.class).to(ProjectsRepositoryMongo.class);
     }
 
-    @Provides @Singleton
-    MongoClient provideMongoClient() {
+    @Provides @Singleton @Inject
+    MongoClient provideMongoClient(final Config config) {
         final CodecRegistry codecRegistry = fromRegistries(MongoClient.getDefaultCodecRegistry(),
                 fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-        final MongoClientOptions mongoClientOptions = MongoClientOptions.builder()
-                .codecRegistry(codecRegistry)
-                .build();
-
-        return new MongoClient("localhost", mongoClientOptions);
+        final MongoClientOptions.Builder mongoClientOptions = MongoClientOptions.builder()
+                .codecRegistry(codecRegistry);
+        final String uri = config.getString("flux.mongodb.uri");
+        final MongoClientURI mongoUri = new MongoClientURI(uri, mongoClientOptions);
+        return new MongoClient(mongoUri);
     }
 }

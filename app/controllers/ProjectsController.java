@@ -11,6 +11,9 @@ import repositories.generator.DataGenerator;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -22,6 +25,22 @@ public class ProjectsController extends Controller {
     public ProjectsController(final HttpExecutionContext httpExecutionContext, final ProjectsRepository projectsRepository) {
         this.httpExecutionContext = httpExecutionContext;
         this.projectsRepository = projectsRepository;
+    }
+
+    public CompletionStage<Result> getProjects(final int limit) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                final List<Project> projects = new ArrayList<>(limit);
+                final Iterator<Project> iterator = this.projectsRepository.getProjects();
+                for(int i = 0; (i < limit) && iterator.hasNext(); i++) {
+                    projects.add(iterator.next());
+                }
+                return ok(Json.toJson(projects));
+            } catch(final Exception ex) {
+                Logger.error("Failed getting " + limit + " projects", ex);
+                return internalServerError();
+            }
+        }, httpExecutionContext.current());
     }
 
     public CompletionStage<Result> getProjectById(final String projectId) {
