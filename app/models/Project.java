@@ -1,12 +1,14 @@
 package models;
 
 import org.bson.types.ObjectId;
+import org.bson.codecs.pojo.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Project {
+    @BsonId
     private ObjectId projectId;
     private String name;
     private String description;
