@@ -1,26 +1,18 @@
 package models;
 
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import java.util.Date;
 import java.util.Objects;
 
 public class Reading {
-    private ObjectId readingId;
+    @JsonSerialize(using = ToStringSerializer.class)
     private double luxValue;
     private double xPosition;
     private double yPosition;
     private double zPosition;
     private Date timestamp;
-
-    public ObjectId getReadingId() {
-        return readingId;
-    }
-
-    public void setReadingId(ObjectId readingId) {
-        this.readingId = readingId;
-    }
 
     public double getLuxValue() {
         return luxValue;
@@ -71,12 +63,11 @@ public class Reading {
                 Double.compare(reading.xPosition, xPosition) == 0 &&
                 Double.compare(reading.yPosition, yPosition) == 0 &&
                 Double.compare(reading.zPosition, zPosition) == 0 &&
-                Objects.equals(getReadingId(), reading.getReadingId()) &&
                 Objects.equals(getTimestamp(), reading.getTimestamp());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getReadingId(), getLuxValue(), xPosition, yPosition, zPosition, getTimestamp());
+        return Objects.hash(getLuxValue(), xPosition, yPosition, zPosition, getTimestamp());
     }
 }

@@ -1,12 +1,13 @@
 package models;
 
-import org.bson.codecs.pojo.annotations.BsonId;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 
 import java.util.Objects;
 
 public class AnchorPosition {
-    @BsonId
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId anchorId;
     private String name;
     private double xPosition;

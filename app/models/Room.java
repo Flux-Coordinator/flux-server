@@ -1,14 +1,10 @@
 package models;
 
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Room {
-    private ObjectId roomId;
     private String name;
     private String description;
     private String floorPlan;
@@ -18,14 +14,6 @@ public class Room {
 
     public Room() {
         this.measurements = new ArrayList<>();
-    }
-
-    public ObjectId getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(ObjectId roomId) {
-        this.roomId = roomId;
     }
 
     public String getName() {
@@ -83,7 +71,6 @@ public class Room {
         Room room = (Room) o;
         return Double.compare(room.getWidth(), getWidth()) == 0 &&
                 Double.compare(room.getLength(), getLength()) == 0 &&
-                Objects.equals(getRoomId(), room.getRoomId()) &&
                 Objects.equals(getName(), room.getName()) &&
                 Objects.equals(getDescription(), room.getDescription()) &&
                 Objects.equals(getFloorPlan(), room.getFloorPlan()) &&
@@ -92,7 +79,6 @@ public class Room {
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(getRoomId(), getName(), getDescription(), getFloorPlan(), getWidth(), getLength(), getMeasurements());
+        return Objects.hash(getName(), getDescription(), getFloorPlan(), getWidth(), getLength(), getMeasurements());
     }
 }
