@@ -1,11 +1,14 @@
 package models;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
 import java.util.Objects;
 
 public class MeasurementMetadata {
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId measurementId;
     private String name;
     private String description;
@@ -89,6 +92,7 @@ public class MeasurementMetadata {
     public void setFactor(double factor) {
         this.factor = factor;
     }
+
 //endregion Getters/Setters
 
     @Override

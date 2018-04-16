@@ -14,14 +14,14 @@ import java.util.Iterator;
 import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
-public class MeasurementsRepositoryJPA implements MeasurementsRepository {
+public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     private final static String DATABASE_NAME = "flux";
     private final static String COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
 
     @Inject
-    public MeasurementsRepositoryJPA(final MongoClient mongoClient) {
+    public MeasurementsRepositoryMongo(final MongoClient mongoClient) {
         this.mongoClient = mongoClient;
     }
 
@@ -42,8 +42,16 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public void addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
-        final MongoCollection<MeasurementReadings> collection = getCollection();
-        collection.insertOne(readings);
+    public ObjectId addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
+        final ObjectId newId = new ObjectId();
+        readings.setMeasurementId(newId);
+        getCollection().insertOne(readings);
+        return newId;
+    }
+
+    @Override
+    public void resetRepository() {
+        getCollection().drop();
+        this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);
     }
 }

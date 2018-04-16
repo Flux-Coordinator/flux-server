@@ -37,14 +37,14 @@ public class MeasurementsController extends Controller {
                 final MeasurementReadings readings = measurementsRepository.getMeasurementReadingsById(objectId);
 
                 if (readings == null) {
-                    throw new NullPointerException("MeasurementReadings not found and is null");
+                    return noContent();
                 }
 
                 return ok(Json.toJson(readings));
             }
             catch(final Exception ex) {
-                Logger.error("Error when getting measurement", ex);
-                return notFound("Measurement not found");
+                Logger.error("Error when getting measurement with the id: " + measurementId, ex);
+                return badRequest("Failed retrieving the measurement.");
             }
         }, httpExecutionContext.current());
     }
@@ -73,8 +73,9 @@ public class MeasurementsController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             final JsonNode json = request().body().asJson();
             final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
-            measurementsRepository.addMeasurement(null, readings);
-            return ok();
+            final ObjectId createdId = measurementsRepository.addMeasurement(null, readings);
+            final String absoluteUrl = routes.MeasurementsController.getMeasurementById(createdId.toString()).absoluteURL(request());
+            return created(absoluteUrl);
         }, httpExecutionContext.current());
     }
 

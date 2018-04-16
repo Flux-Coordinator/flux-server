@@ -9,5 +9,6 @@ import java.util.Iterator;
 public interface MeasurementsRepository {
     Iterator<MeasurementReadings> getMeasurementReadings();
     MeasurementReadings getMeasurementReadingsById(final ObjectId measurementId);
-    void addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings);
+    ObjectId addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings);
+    void resetRepository();
 }
