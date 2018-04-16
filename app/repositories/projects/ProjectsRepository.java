@@ -12,5 +12,7 @@ public interface ProjectsRepository {
 
     Project getProjectById(final ObjectId projectId);
 
+    long countProjects();
+
     void resetRepository();
 }

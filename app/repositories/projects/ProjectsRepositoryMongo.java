@@ -47,6 +47,11 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
     }
 
     @Override
+    public long countProjects() {
+        return getCollection().count();
+    }
+
+    @Override
     public void resetRepository() {
         getCollection().drop();
         this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);

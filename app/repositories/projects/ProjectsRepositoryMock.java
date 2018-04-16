@@ -38,6 +38,11 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     }
 
     @Override
+    public long countProjects() {
+        return this.projects.size();
+    }
+
+    @Override
     public void resetRepository() {
         this.projects.clear();
     }

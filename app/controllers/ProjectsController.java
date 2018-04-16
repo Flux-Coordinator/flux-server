@@ -32,10 +32,16 @@ public class ProjectsController extends Controller {
     public CompletionStage<Result> getProjects(final int limit) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                final List<Project> projects = new ArrayList<>(limit);
+                List<Project> projects;
                 final Iterator<Project> iterator = this.projectsRepository.getProjects();
-                for(int i = 0; (i < limit) && iterator.hasNext(); i++) {
-                    projects.add(iterator.next());
+                if(limit <= 0) {
+                    projects = new ArrayList<>((int)this.projectsRepository.countProjects());
+                    iterator.forEachRemaining(projects::add);
+                } else {
+                    projects = new ArrayList<>(limit);
+                    for (int i = 0; (i < limit) && iterator.hasNext(); i++) {
+                        projects.add(iterator.next());
+                    }
                 }
                 return ok(Json.toJson(projects));
             } catch(final Exception ex) {
