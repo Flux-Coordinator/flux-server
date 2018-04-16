@@ -48,7 +48,7 @@ paths:
               $ref: '#/components/schemas/Project'
       responses:
         '201':
-          description: Project was created successfully
+          description: Project was created successfully. Payload contains the location of the new project.
       tags:
         - projects
   /projects/{projectId}:

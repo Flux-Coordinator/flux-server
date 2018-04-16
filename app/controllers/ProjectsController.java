@@ -69,8 +69,9 @@ public class ProjectsController extends Controller {
             try {
                 final JsonNode jsonNode = request().body().asJson();
                 final Project project = Json.fromJson(jsonNode, Project.class);
-                this.projectsRepository.addProject(project);
-                return created();
+                final ObjectId createdId = this.projectsRepository.addProject(project);
+                final String absoluteUrl = routes.ProjectsController.getProjectById(createdId.toString()).absoluteURL(request());
+                return created(absoluteUrl);
             } catch(final Exception ex) {
                 Logger.error("Error while creating a new project.", ex);
                 return badRequest("Error while creating a new project.");

@@ -33,8 +33,11 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
     }
 
     @Override
-    public void addProject(final Project project) {
+    public ObjectId addProject(final Project project) {
+        final ObjectId newId = new ObjectId();
+        project.setProjectId(newId);
         getCollection().insertOne(project);
+        return newId;
     }
 
     @Override

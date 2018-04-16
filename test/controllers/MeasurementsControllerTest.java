@@ -17,6 +17,7 @@ import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryMock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.inject.Bindings.bind;
 import static play.test.Helpers.*;
 
@@ -38,6 +39,7 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
+        assertFalse(play.test.Helpers.contentAsString(result).isEmpty());
     }
 
     @Test
@@ -87,6 +89,7 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(NO_CONTENT, result.status());
     }
 
+    @Test
     public void getMeasurementById_InvalidObjectId_BadRequest() {
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)

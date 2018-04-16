@@ -7,6 +7,7 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.test.Helpers;
 import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
@@ -15,6 +16,7 @@ import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryMock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.inject.Bindings.bind;
 import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.OK;
@@ -39,5 +41,6 @@ public class ProjectsControllerTest extends WithApplication {
                 .uri("/projects");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
+        assertFalse(Helpers.contentAsString(result).isEmpty());
     }
 }

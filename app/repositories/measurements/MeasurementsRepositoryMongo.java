@@ -42,9 +42,11 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     }
 
     @Override
-    public void addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
-        final MongoCollection<MeasurementReadings> collection = getCollection();
-        collection.insertOne(readings);
+    public ObjectId addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
+        final ObjectId newId = new ObjectId();
+        readings.setMeasurementId(newId);
+        getCollection().insertOne(readings);
+        return newId;
     }
 
     @Override

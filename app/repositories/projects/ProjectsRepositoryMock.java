@@ -22,8 +22,11 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     }
 
     @Override
-    public void addProject(final Project project) {
+    public ObjectId addProject(final Project project) {
+        final ObjectId newId = new ObjectId();
+        project.setProjectId(newId);
         this.projects.add(project);
+        return newId;
     }
 
     @Override
