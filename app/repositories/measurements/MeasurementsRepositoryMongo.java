@@ -4,7 +4,6 @@ import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 
@@ -42,11 +41,12 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     }
 
     @Override
-    public ObjectId addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
-        final ObjectId newId = new ObjectId();
-        readings.setMeasurementId(newId);
+    public ObjectId createMeasurement(final MeasurementReadings readings) {
+        if(readings.getMeasurementId() != null) {
+            readings.setMeasurementId(new ObjectId());
+        }
         getCollection().insertOne(readings);
-        return newId;
+        return readings.getMeasurementId();
     }
 
     @Override

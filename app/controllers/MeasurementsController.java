@@ -73,7 +73,7 @@ public class MeasurementsController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             final JsonNode json = request().body().asJson();
             final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
-            final ObjectId createdId = measurementsRepository.addMeasurement(null, readings);
+            final ObjectId createdId = measurementsRepository.createMeasurement(readings);
             final String absoluteUrl = routes.MeasurementsController.getMeasurementById(createdId.toString()).absoluteURL(request());
             return created(absoluteUrl);
         }, httpExecutionContext.current());

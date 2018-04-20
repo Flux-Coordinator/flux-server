@@ -1,5 +1,6 @@
 package repositories.projects;
 
+import models.MeasurementMetadata;
 import models.Project;
 import org.bson.types.ObjectId;
 
@@ -11,6 +12,8 @@ public interface ProjectsRepository {
     ObjectId addProject(final Project project);
 
     Project getProjectById(final ObjectId projectId);
+
+    MeasurementMetadata createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 
     long countProjects();
 

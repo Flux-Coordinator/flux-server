@@ -1,14 +1,10 @@
 package repositories.generator;
 
 import models.*;
-import repositories.projects.ProjectsRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -18,12 +14,12 @@ import java.util.Random;
 public class DataGenerator {
     private final static Random random = new Random();
 
-    public static List<Project> generateProjects(final int amount) {
+    public static List<Project> generateProjects(final int amountOfProjects, final int roomsPerProject) {
         try {
-            final List<Project> projects = new ArrayList<>(amount);
+            final List<Project> projects = new ArrayList<>(amountOfProjects);
 
-            for(int i = 0; i < amount; i++) {
-                projects.add(generateProject());
+            for(int i = 0; i < amountOfProjects; i++) {
+                projects.add(generateProject(roomsPerProject));
             }
 
             return projects;
@@ -32,13 +28,13 @@ public class DataGenerator {
         }
     }
 
-    public static Project generateProject() {
+    public static Project generateProject(final int rooms) {
         try {
             final Project project = new Project();
 
             project.setName("Project-" + Math.abs(random.nextInt()));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            project.setRooms(generateRooms(5));
+            project.setRooms(generateRooms(rooms));
 
             return project;
         } catch(final Exception ex) {
@@ -77,15 +73,15 @@ public class DataGenerator {
         }
     }
 
-    public static List<MeasurementReadings> generateMeasurements(final int amount) {
+    public static List<MeasurementMetadata> generateMeasurements(final int amount) {
         try {
-            final List<MeasurementReadings> measurementReadings = new ArrayList<>();
+            final List<MeasurementMetadata> measurements = new ArrayList<>();
 
             for (int i = 0; i < amount; i++) {
-                measurementReadings.add(generateMeasurement());
+                measurements.add(generateMeasurementMetadata());
             }
 
-            return measurementReadings;
+            return measurements;
         }
         catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
@@ -124,7 +120,24 @@ public class DataGenerator {
         }
     }
 
-    public static MeasurementReadings generateMeasurement() {
+    public static MeasurementMetadata generateMeasurementMetadata() {
+        try {
+            final MeasurementMetadata measurementMetadata = new MeasurementMetadata();
+
+            measurementMetadata.setCreator("Generated");
+            measurementMetadata.setDescription("Generated automatically");
+            measurementMetadata.setName("AutoGen" + random.nextInt());
+            measurementMetadata.setFactor(random.nextDouble() * 10);
+            measurementMetadata.setOffset(random.nextDouble() * 100);
+            measurementMetadata.setState(MeasurementState.READY);
+
+            return measurementMetadata;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
+        }
+    }
+
+    public static MeasurementReadings generateMeasurementReadings() {
         try {
             final MeasurementReadings measurementReadings = new MeasurementReadings();
 
@@ -139,7 +152,7 @@ public class DataGenerator {
             return measurementReadings;
         }
         catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating single measurement", ex);
+            throw new DataGeneratorException("Failed generating single measurement reading", ex);
         }
     }
 

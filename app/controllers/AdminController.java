@@ -1,6 +1,7 @@
 package controllers;
 
 import com.google.inject.Inject;
+import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import models.Project;
 import play.mvc.Controller;
@@ -23,16 +24,21 @@ public class AdminController extends Controller {
 
     public Result resetData() {
         final int amountOfProjects = 10;
-        final int amountOfMeasurements = 10;
+        final int amountOfRoomsPerProject = 5;
+        final int amountOfMeasurementsPerRoom = 10;
         this.projectsRepository.resetRepository();
         this.measurementsRepository.resetRepository();
 
-        final List<Project> projects = DataGenerator.generateProjects(amountOfProjects);
-        final List<MeasurementReadings> measurementReadingsList = DataGenerator.generateMeasurements(amountOfMeasurements);
+        final List<Project> projects = DataGenerator.generateProjects(amountOfProjects, amountOfRoomsPerProject);
 
         projects.forEach(this.projectsRepository::addProject);
-        measurementReadingsList.forEach(measurementReadings -> measurementsRepository.addMeasurement(null, measurementReadings));
+        this.projectsRepository.getProjects().forEachRemaining(project -> {
+            project.getRooms().forEach(room -> {
+                final List<MeasurementMetadata> roomMeasurements = DataGenerator.generateMeasurements(amountOfMeasurementsPerRoom);
+                roomMeasurements.forEach(measurementMetadata -> this.projectsRepository.createMeasurement(project.getProjectId(), room.getName(), measurementMetadata));
+            });
+        });
 
-        return ok("Created " + amountOfProjects + " projects and " + amountOfMeasurements + " measurements.");
+        return ok("Created " + amountOfProjects + "  projects with " + amountOfRoomsPerProject + " rooms each and " + amountOfMeasurementsPerRoom + " measurements per room.");
     }
 }
