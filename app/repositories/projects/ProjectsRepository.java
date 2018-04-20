@@ -2,9 +2,11 @@ package repositories.projects;
 
 import models.MeasurementMetadata;
 import models.Project;
+import models.Reading;
 import org.bson.types.ObjectId;
 
 import java.util.Iterator;
+import java.util.List;
 
 public interface ProjectsRepository {
     Iterator<Project> getProjects();
@@ -13,7 +15,7 @@ public interface ProjectsRepository {
 
     Project getProjectById(final ObjectId projectId);
 
-    MeasurementMetadata createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
+    ObjectId createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 
     long countProjects();
 

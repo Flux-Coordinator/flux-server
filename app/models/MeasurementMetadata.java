@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class MeasurementMetadata {
@@ -16,8 +18,13 @@ public class MeasurementMetadata {
     private Date startDate;
     private Date endDate;
     private MeasurementState state;
+    private List<AnchorPosition> anchorPositions;
     private double offset;
     private double factor;
+
+    public MeasurementMetadata() {
+        this.anchorPositions = new ArrayList<>();
+    }
 
 //region Getters/Setters
 
@@ -77,6 +84,14 @@ public class MeasurementMetadata {
         this.state = state;
     }
 
+    public List<AnchorPosition> getAnchorPositions() {
+        return anchorPositions;
+    }
+
+    public void setAnchorPositions(final List<AnchorPosition> anchorPositions) {
+        this.anchorPositions = anchorPositions;
+    }
+
     public double getOffset() {
         return offset;
     }
@@ -108,11 +123,12 @@ public class MeasurementMetadata {
                 Objects.equals(getCreator(), that.getCreator()) &&
                 Objects.equals(getStartDate(), that.getStartDate()) &&
                 Objects.equals(getEndDate(), that.getEndDate()) &&
+                Objects.equals(getAnchorPositions(), that.getAnchorPositions()) &&
                 getState() == that.getState();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMeasurementId(), getName(), getDescription(), getCreator(), getStartDate(), getEndDate(), getState(), getOffset(), getFactor());
+        return Objects.hash(getMeasurementId(), getName(), getDescription(), getCreator(), getStartDate(), getEndDate(), getState(), getAnchorPositions(), getOffset(), getFactor());
     }
 }

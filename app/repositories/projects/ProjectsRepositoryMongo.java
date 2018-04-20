@@ -58,7 +58,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
         return collection.find(eq("_id", projectId)).first();
     }
 
-    public MeasurementMetadata createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
+    public ObjectId createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
         final Project project = getProjectById(projectId);
         final Optional<Room> roomOptional = project.getRooms().parallelStream()
                 .filter(room -> room.getName().equals(roomName))
@@ -86,7 +86,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
             getMeasurementsCollection().deleteOne(eq("_id", measurementId));
             throw ex;
         }
-        return measurementMetadata;
+        return measurementId;
     }
 
     @Override

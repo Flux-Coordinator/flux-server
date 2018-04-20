@@ -1,6 +1,7 @@
 package controllers;
 
 import helpers.Helpers;
+import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -32,10 +33,10 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void createMeasurements_BestCase_OK() {
-        final MeasurementReadings measurementReadings = DataGenerator.generateMeasurementReadings();
+        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurementMetadata();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
-                .bodyJson(Json.toJson(measurementReadings))
+                .bodyJson(Json.toJson(measurementMetadata))
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());

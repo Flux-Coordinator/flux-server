@@ -16,13 +16,14 @@ import java.util.Optional;
 
 public class ProjectsRepositoryMock implements ProjectsRepository {
     private final static int AMOUNT_OF_PROJECTS = 10;
+    private final static int AMOUNT_OF_ROOMS_PER_PROJECT = 5;
 
     private final List<Project> projects;
     private final MeasurementsRepository measurementsRepository;
 
     @Inject
     public ProjectsRepositoryMock(final MeasurementsRepository measurementsRepository) {
-        this.projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS);
+        this.projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS, AMOUNT_OF_ROOMS_PER_PROJECT);
         this.measurementsRepository = measurementsRepository;
     }
 
@@ -48,7 +49,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     }
 
     @Override
-    public MeasurementMetadata createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
+    public ObjectId createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
         final Project project = getProjectById(projectId);
         final Optional<Room> room = project.getRooms().parallelStream()
                 .filter(room1 -> room1.getName().equals(roomName))
@@ -62,7 +63,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
         //noinspection ConstantConditions
         room.get().getMeasurements().add(measurementMetadata);
         measurementsRepository.createMeasurement(measurementReadings);
-        return measurementMetadata;
+        return measurementId;
     }
 
     @Override

@@ -5,10 +5,13 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import models.MeasurementReadings;
+import models.Reading;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -47,6 +50,11 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
         }
         getCollection().insertOne(readings);
         return readings.getMeasurementId();
+    }
+
+    @Override
+    public void addReadings(final ObjectId measurementId, final List<Reading> readings) {
+        getCollection().updateOne(eq("_id", measurementId), new Document("$set", new Document("readings", readings)));
     }
 
     @Override
