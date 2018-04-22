@@ -98,6 +98,13 @@ public class MeasurementsController extends Controller {
         return ok();
     }
 
+    public Result isMeasurementActive() {
+        if(this.activeMeasurement != null){
+            return Results.ok();
+        }
+        return Results.noContent();
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
     public CompletableFuture<Result> addReading() {
         return CompletableFuture.supplyAsync(() -> {
