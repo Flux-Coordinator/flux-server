@@ -1,7 +1,12 @@
 package controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import java.io.IOException;
 import models.MeasurementReadings;
+import models.Reading;
 import org.bson.types.ObjectId;
 import play.Logger;
 import play.libs.Json;
@@ -9,6 +14,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Results;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
@@ -90,5 +96,26 @@ public class MeasurementsController extends Controller {
     public Result stopMeasurement() {
         this.activeMeasurement = null;
         return ok();
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletableFuture<Result> addReading() {
+        return CompletableFuture.supplyAsync(() -> {
+            if(this.activeMeasurement == null) {
+                return Results.badRequest();
+            }
+            try {
+                final JsonNode json = request().body().asJson();
+                final ObjectMapper mapper = new ObjectMapper();
+                final ObjectReader reader = mapper.readerFor(new TypeReference<List<Reading>>() {});
+                final List<Reading> readings = reader.readValue(json);
+                measurementsRepository.addReadings(activeMeasurement.getMeasurementId(), readings);
+            } catch (IOException ex) {
+                Logger.error("Error while adding new readings to measurement" + this.activeMeasurement.getMeasurementId(), ex);
+                return badRequest("Error while adding new readings.");
+            }
+
+            return Results.ok();
+        }, httpExecutionContext.current());
     }
 }
