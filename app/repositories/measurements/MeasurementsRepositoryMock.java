@@ -51,7 +51,6 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
         measurementReadings.get().getReadings().addAll(readings);
     }
 
-    @Override
     public void resetRepository() {
         this.readingsList.clear();
     }

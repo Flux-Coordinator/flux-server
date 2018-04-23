@@ -73,5 +73,6 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     @Override
     public void resetRepository() {
         this.projects.clear();
+        this.measurementsRepository.resetRepository();
     }
 }

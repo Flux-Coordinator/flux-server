@@ -29,7 +29,6 @@ public class AdminController extends Controller {
 
     public Result resetData() {
         this.projectsRepository.resetRepository();
-        this.measurementsRepository.resetRepository();
 
         final List<Project> projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS, AMOUNT_OF_ROOMS_PER_PROJECT);
 

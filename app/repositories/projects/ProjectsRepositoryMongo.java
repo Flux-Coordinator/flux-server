@@ -10,6 +10,7 @@ import models.Project;
 import models.Room;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -23,10 +24,12 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
     private final static String MEASUREMENT_COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
+    private final MeasurementsRepository measurementsRepository;
 
     @Inject
-    public ProjectsRepositoryMongo(final MongoClient mongoClient) {
+    public ProjectsRepositoryMongo(final MongoClient mongoClient, final MeasurementsRepository measurementsRepository) {
         this.mongoClient = mongoClient;
+        this.measurementsRepository = measurementsRepository;
     }
 
     private MongoCollection<Project> getProjectsCollection() {
@@ -96,6 +99,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
     @Override
     public void resetRepository() {
+        this.measurementsRepository.resetRepository();
         getProjectsCollection().drop();
         this.mongoClient.getDatabase(DATABASE_NAME).createCollection(PROJECTS_COLLECTION_NAME);
     }
