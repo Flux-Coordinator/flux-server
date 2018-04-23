@@ -7,7 +7,6 @@ import models.Room;
 import org.bson.types.ObjectId;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
-import repositories.measurements.MeasurementsRepositoryMock;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -49,7 +48,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     }
 
     @Override
-    public ObjectId createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
+    public ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
         final Project project = getProjectById(projectId);
         final Optional<Room> room = project.getRooms().parallelStream()
                 .filter(room1 -> room1.getName().equals(roomName))
@@ -62,7 +61,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
 
         //noinspection ConstantConditions
         room.get().getMeasurements().add(measurementMetadata);
-        measurementsRepository.createMeasurement(measurementReadings);
+        measurementsRepository.addMeasurement(measurementReadings);
         return measurementId;
     }
 

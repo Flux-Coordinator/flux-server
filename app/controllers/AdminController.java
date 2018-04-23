@@ -39,7 +39,7 @@ public class AdminController extends Controller {
             project.getRooms().forEach(room -> {
                 final List<MeasurementMetadata> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
                 roomMeasurements.forEach(measurementMetadata -> {
-                    final ObjectId measurementId = this.projectsRepository.createMeasurement(project.getProjectId(), room.getName(), measurementMetadata);
+                    final ObjectId measurementId = this.projectsRepository.addMeasurement(project.getProjectId(), room.getName(), measurementMetadata);
                     this.measurementsRepository.addReadings(measurementId, DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
                 });
             });

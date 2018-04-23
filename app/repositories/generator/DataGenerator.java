@@ -97,7 +97,7 @@ public class DataGenerator {
 
             return readings;
         } catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating a multiple readings", ex);
+            throw new DataGeneratorException("Failed generating multiple readings", ex);
         }
     }
 
@@ -157,22 +157,6 @@ public class DataGenerator {
             throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
         }
     }
-
-//    public static MeasurementReadings generateMeasurementReadings(int amountOfReadings) {
-//
-//        try {
-//            final MeasurementReadings measurementReadings = new MeasurementReadings();
-//
-//            for (int i = 0; i < amountOfReadings; i++) {
-//                measurementReadings.getReadings().add(generateReading());
-//            }
-//
-//            return measurementReadings;
-//        }
-//        catch(final Exception ex) {
-//            throw new DataGeneratorException("Failed generating single measurement reading", ex);
-//        }
-//    }
 
     private static String getLocalDateTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);

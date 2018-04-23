@@ -14,7 +14,7 @@ public interface MeasurementsRepository {
 
     MeasurementReadings getMeasurementReadingsById(final ObjectId measurementId);
 
-    ObjectId createMeasurement(final MeasurementReadings readings);
+    ObjectId addMeasurement(final MeasurementReadings readings);
 
     void addReadings(final ObjectId measurementId, final List<Reading> readings);
 

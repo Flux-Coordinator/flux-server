@@ -15,7 +15,7 @@ public interface ProjectsRepository {
 
     Project getProjectById(final ObjectId projectId);
 
-    ObjectId createMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
+    ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 
     long countProjects();
 

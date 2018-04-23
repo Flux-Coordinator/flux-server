@@ -34,7 +34,7 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
     }
 
     @Override
-    public ObjectId createMeasurement(final MeasurementReadings readings) {
+    public ObjectId addMeasurement(final MeasurementReadings readings) {
         if(readings.getMeasurementId() == null) {
             readings.setMeasurementId(new ObjectId());
         }

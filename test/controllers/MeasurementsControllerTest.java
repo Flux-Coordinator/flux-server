@@ -51,7 +51,7 @@ public class MeasurementsControllerTest extends WithApplication {
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
             final MeasurementReadings measurementReadings = new MeasurementReadings();
             measurementReadings.setMeasurementId(new ObjectId());
-            repository.createMeasurement(measurementReadings);
+            repository.addMeasurement(measurementReadings);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -71,7 +71,7 @@ public class MeasurementsControllerTest extends WithApplication {
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
             final MeasurementReadings measurementReadings = new MeasurementReadings();
             measurementReadings.setMeasurementId(new ObjectId());
-            repository.createMeasurement(measurementReadings);
+            repository.addMeasurement(measurementReadings);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -87,7 +87,7 @@ public class MeasurementsControllerTest extends WithApplication {
     public void getMeasurementById_GetExisting_OK() {
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final ObjectId newMeasurementId = repository.createMeasurement(measurementReadings);
+        final ObjectId newMeasurementId = repository.addMeasurement(measurementReadings);
         final MeasurementReadings expectedReading = repository.getMeasurementReadings().next();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
