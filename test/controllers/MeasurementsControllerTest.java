@@ -1,6 +1,7 @@
 package controllers;
 
 import helpers.Helpers;
+import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -32,10 +33,10 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void createMeasurements_BestCase_OK() {
-        final MeasurementReadings measurementReadings = DataGenerator.generateMeasurement();
+        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurementMetadata();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
-                .bodyJson(Json.toJson(measurementReadings))
+                .bodyJson(Json.toJson(measurementMetadata))
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
@@ -44,7 +45,15 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurements_GetDefault_OK() {
+        final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final int desiredLimitOfMeasurements = 5;
+
+        for(int i = 0; i < desiredLimitOfMeasurements; i++) {
+            final MeasurementReadings measurementReadings = new MeasurementReadings();
+            measurementReadings.setMeasurementId(new ObjectId());
+            repository.addMeasurement(measurementReadings);
+        }
+
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements");
@@ -56,7 +65,15 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurements_Get2_OK() {
+        final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final int desiredLimitOfMeasurements = 2;
+
+        for(int i = 0; i < desiredLimitOfMeasurements; i++) {
+            final MeasurementReadings measurementReadings = new MeasurementReadings();
+            measurementReadings.setMeasurementId(new ObjectId());
+            repository.addMeasurement(measurementReadings);
+        }
+
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements?limit=" + desiredLimitOfMeasurements);
@@ -68,11 +85,13 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurementById_GetExisting_OK() {
+        final MeasurementReadings measurementReadings = new MeasurementReadings();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final ObjectId newMeasurementId = repository.addMeasurement(measurementReadings);
         final MeasurementReadings expectedReading = repository.getMeasurementReadings().next();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + expectedReading.getMeasurementId());
+                .uri("/measurements/" + newMeasurementId);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
         final MeasurementReadings actualReading = Helpers.convertFromJSON(result, MeasurementReadings.class);

@@ -7,11 +7,11 @@ info:
     name: MIT
     url: "https://github.com/Flux-Coordinator/flux-frontend/blob/master/LICENSE"
 servers:
-  - url: https://flux-coordinator.herokuapp.com/v1
+  - url: https://flux-server-prod.herokuapp.com
     description: Production Server
-  - url: https://flux-coordinator-staging.herokuapp.com/v1
+  - url: https://flux-server-staging.herokuapp.com
     description: Staging Server
-  - url: localhost/v1
+  - url: http://localhost:9000
     description: Development Server
 tags:
 - name: projects
@@ -216,49 +216,6 @@ paths:
           description: OK
       tags:
         - measurements
-  /measurements/active/{measurementId}:
-    put:
-      summary: Place a new measurement as the active measurement.
-      description: Set a new measurement as the currently active measurement. There can only be one active measurement.
-      parameters:
-        - name: measurementId
-          in: path
-          required: true
-          description: The database ID of the measurement to set as active.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-      tags:
-        - measurements
-  /measurements/active:
-    delete:
-      summary: Remove the currently active measurement
-      description: Removes the currently active measurement from the active state. There will be no more currently active measurement, until it is set again.
-      responses:
-        '200':
-          description: OK
-      tags:
-        - measurements
-  /measurements/active/readings:
-    post:
-      summary: Add a reading to the active measurement
-      description: Add new readings the currently active measurement.
-      requestBody:
-        description: The new readings that should get added to the measurement.
-        required: true
-        content:
-          application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Reading'
-      responses:
-        '200':
-          description: OK
-      tags:
-        - measurements
   /measurements:
     post:
       summary: Create a new measurement
@@ -308,13 +265,6 @@ paths:
         - auth
 components:
   schemas:
-    ProjectMetadata:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
     Project:
       type: object
       properties:

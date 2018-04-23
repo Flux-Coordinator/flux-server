@@ -14,11 +14,9 @@ public class MeasurementReadings {
     @BsonId
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId measurementId;
-    private List<AnchorPosition> anchorPositions;
     private List<Reading> readings;
 
     public MeasurementReadings() {
-        this.anchorPositions = new ArrayList<>();
         this.readings = new ArrayList<>();
     }
 
@@ -30,13 +28,6 @@ public class MeasurementReadings {
         this.measurementId = measurementId;
     }
 
-    public List<AnchorPosition> getAnchorPositions() {
-        return anchorPositions;
-    }
-
-    public void setAnchorPositions(final List<AnchorPosition> anchorPositions) {
-        this.anchorPositions = anchorPositions;
-    }
 
     public List<Reading> getReadings() {
         return readings;
@@ -52,13 +43,12 @@ public class MeasurementReadings {
         if (o == null || getClass() != o.getClass()) return false;
         MeasurementReadings that = (MeasurementReadings) o;
         return Objects.equals(getMeasurementId(), that.getMeasurementId()) &&
-                Objects.equals(getAnchorPositions(), that.getAnchorPositions()) &&
                 Objects.equals(getReadings(), that.getReadings());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(getMeasurementId(), getAnchorPositions(), getReadings());
+        return Objects.hash(getMeasurementId(), getReadings());
     }
 }

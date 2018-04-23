@@ -1,12 +1,9 @@
 package repositories.generator;
 
 import models.*;
-import repositories.projects.ProjectsRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,12 +15,12 @@ import java.util.Random;
 public class DataGenerator {
     private final static Random random = new Random();
 
-    public static List<Project> generateProjects(final int amount) {
+    public static List<Project> generateProjects(final int amountOfProjects, final int roomsPerProject) {
         try {
-            final List<Project> projects = new ArrayList<>(amount);
+            final List<Project> projects = new ArrayList<>(amountOfProjects);
 
-            for(int i = 0; i < amount; i++) {
-                projects.add(generateProject());
+            for(int i = 0; i < amountOfProjects; i++) {
+                projects.add(generateProject(roomsPerProject));
             }
 
             return projects;
@@ -32,13 +29,13 @@ public class DataGenerator {
         }
     }
 
-    public static Project generateProject() {
+    public static Project generateProject(final int rooms) {
         try {
             final Project project = new Project();
 
             project.setName("Project-" + Math.abs(random.nextInt()));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            project.setRooms(generateRooms(5));
+            project.setRooms(generateRooms(rooms));
 
             return project;
         } catch(final Exception ex) {
@@ -69,26 +66,38 @@ public class DataGenerator {
             room.setLength(random.nextDouble() * 100);
             room.setWidth(random.nextDouble() * 100);
 
-            //TODO: Set measurements
-
             return room;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a single room", ex);
         }
     }
 
-    public static List<MeasurementReadings> generateMeasurements(final int amount) {
+    public static List<MeasurementMetadata> generateMeasurements(final int amount) {
         try {
-            final List<MeasurementReadings> measurementReadings = new ArrayList<>();
+            final List<MeasurementMetadata> measurements = new ArrayList<>();
 
             for (int i = 0; i < amount; i++) {
-                measurementReadings.add(generateMeasurement());
+                measurements.add(generateMeasurementMetadata());
             }
 
-            return measurementReadings;
+            return measurements;
         }
         catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
+        }
+    }
+
+    public static List<Reading> generateReadings(final int amount) {
+        try {
+            final List<Reading> readings = new ArrayList<>(amount);
+
+            for(int i = 0; i < amount; i++) {
+                readings.add(generateReading());
+            }
+
+            return readings;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating multiple readings", ex);
         }
     }
 
@@ -101,9 +110,10 @@ public class DataGenerator {
             reading.setYPosition(random.nextDouble());
             reading.setZPosition(random.nextDouble());
 
+            reading.setTimestamp(new Date());
+
             return reading;
-        }
-        catch(final Exception ex) {
+        } catch (final Exception ex) {
             throw new DataGeneratorException("Failed generating readings", ex);
         }
     }
@@ -112,7 +122,7 @@ public class DataGenerator {
         try {
             final AnchorPosition position = new AnchorPosition();
 
-            position.setName("Anker" + Math.abs(random.nextInt()));
+            position.setName("Anker-" + Math.abs(random.nextInt()));
             position.setXPosition(random.nextDouble());
             position.setYPosition(random.nextDouble());
             position.setZPosition(random.nextDouble());
@@ -124,22 +134,27 @@ public class DataGenerator {
         }
     }
 
-    public static MeasurementReadings generateMeasurement() {
+    public static MeasurementMetadata generateMeasurementMetadata() {
+        final int amountAnchorPositions = 3;
         try {
-            final MeasurementReadings measurementReadings = new MeasurementReadings();
+            final MeasurementMetadata measurementMetadata = new MeasurementMetadata();
 
-            measurementReadings.getReadings().add(generateReading());
-            measurementReadings.getReadings().add(generateReading());
-            measurementReadings.getReadings().add(generateReading());
+            measurementMetadata.setCreator("Generated");
+            measurementMetadata.setDescription("Generated automatically");
+            measurementMetadata.setName("AutoGenenerated" + random.nextInt());
+            measurementMetadata.setFactor(random.nextDouble() * 10);
+            measurementMetadata.setOffset(random.nextDouble() * 100);
+            measurementMetadata.setState(MeasurementState.READY);
+            measurementMetadata.setStartDate(new Date());
+            measurementMetadata.setEndDate(new Date());
 
-            measurementReadings.getAnchorPositions().add(generateAnchorPosition());
-            measurementReadings.getAnchorPositions().add(generateAnchorPosition());
-            measurementReadings.getAnchorPositions().add(generateAnchorPosition());
+            for(int i = 0; i < amountAnchorPositions; i++) {
+                measurementMetadata.getAnchorPositions().add(generateAnchorPosition());
+            }
 
-            return measurementReadings;
-        }
-        catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating single measurement", ex);
+            return measurementMetadata;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
         }
     }
 

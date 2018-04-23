@@ -3,21 +3,21 @@ package repositories.measurements;
 import com.google.inject.Singleton;
 import models.MeasurementMetadata;
 import models.MeasurementReadings;
+import models.Reading;
 import org.bson.types.ObjectId;
 import repositories.generator.DataGenerator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class MeasurementsRepositoryMock implements MeasurementsRepository {
-    private final static int AMOUNT_OF_MEASUREMENTS = 10;
-
     private final List<MeasurementReadings> readingsList;
 
     public MeasurementsRepositoryMock() {
-        this.readingsList = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS);
-        this.readingsList.forEach(measurementReadings -> measurementReadings.setMeasurementId(new ObjectId()));
+        this.readingsList = new ArrayList<>();
     }
 
     @Override
@@ -34,11 +34,21 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
     }
 
     @Override
-    public ObjectId addMeasurement(final MeasurementMetadata metadata, final MeasurementReadings readings) {
-        final ObjectId newId = new ObjectId();
-        readings.setMeasurementId(newId);
+    public ObjectId addMeasurement(final MeasurementReadings readings) {
+        if(readings.getMeasurementId() == null) {
+            readings.setMeasurementId(new ObjectId());
+        }
         readingsList.add(readings);
-        return newId;
+        return readings.getMeasurementId();
+    }
+
+    @Override
+    public void addReadings(final ObjectId measurementId, final List<Reading> readings) {
+        final Optional<MeasurementReadings> measurementReadings = readingsList.parallelStream()
+                .filter(m -> m.getMeasurementId().equals(measurementId))
+                .findAny();
+
+        measurementReadings.get().getReadings().addAll(readings);
     }
 
     @Override
