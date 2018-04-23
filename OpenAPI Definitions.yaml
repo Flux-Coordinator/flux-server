@@ -7,11 +7,11 @@ info:
     name: MIT
     url: "https://github.com/Flux-Coordinator/flux-frontend/blob/master/LICENSE"
 servers:
-  - url: https://flux-coordinator.herokuapp.com/v1
+  - url: https://flux-server-prod.herokuapp.com
     description: Production Server
-  - url: https://flux-coordinator-staging.herokuapp.com/v1
+  - url: https://flux-server-staging.herokuapp.com
     description: Staging Server
-  - url: localhost/v1
+  - url: http://localhost:9000
     description: Development Server
 tags:
 - name: projects
@@ -265,13 +265,6 @@ paths:
         - auth
 components:
   schemas:
-    ProjectMetadata:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
     Project:
       type: object
       properties:
