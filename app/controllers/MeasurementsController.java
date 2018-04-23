@@ -98,9 +98,9 @@ public class MeasurementsController extends Controller {
         return ok();
     }
 
-    public Result isMeasurementActive() {
+    public Result getActiveMeasurement() {
         if(this.activeMeasurement != null){
-            return Results.ok();
+            return Results.ok(Json.toJson(this.activeMeasurement));
         }
         return Results.noContent();
     }

@@ -45,7 +45,7 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
 
     @Override
     public ObjectId addMeasurement(final MeasurementReadings readings) {
-        if(readings.getMeasurementId() != null) {
+        if(readings.getMeasurementId() == null) {
             readings.setMeasurementId(new ObjectId());
         }
         getCollection().insertOne(readings);
@@ -61,5 +61,10 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     public void resetRepository() {
         getCollection().drop();
         this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);
+    }
+
+    @Override
+    public void addMeasurements(final List<MeasurementReadings> measurementReadings) {
+        this.getCollection().insertMany(measurementReadings);
     }
 }

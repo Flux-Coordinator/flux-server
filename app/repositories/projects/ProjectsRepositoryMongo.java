@@ -14,6 +14,7 @@ import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -49,10 +50,15 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
     @Override
     public ObjectId addProject(final Project project) {
-        final ObjectId newId = new ObjectId();
-        project.setProjectId(newId);
+        if(project.getProjectId() == null) {
+            project.setProjectId(new ObjectId());
+        }
         getProjectsCollection().insertOne(project);
-        return newId;
+        return project.getProjectId();
+    }
+
+    public void addProjects(final List<Project> projects) {
+        getProjectsCollection().insertMany(projects);
     }
 
     @Override

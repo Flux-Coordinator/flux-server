@@ -1,11 +1,9 @@
 package repositories.measurements;
 
 import com.google.inject.Singleton;
-import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
-import repositories.generator.DataGenerator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,5 +51,10 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
 
     public void resetRepository() {
         this.readingsList.clear();
+    }
+
+    @Override
+    public void addMeasurements(final List<MeasurementReadings> measurementReadings) {
+        this.readingsList.addAll(measurementReadings);
     }
 }

@@ -2,7 +2,6 @@ package repositories.projects;
 
 import models.MeasurementMetadata;
 import models.Project;
-import models.Reading;
 import org.bson.types.ObjectId;
 
 import java.util.Iterator;
@@ -12,6 +11,8 @@ public interface ProjectsRepository {
     Iterator<Project> getProjects();
 
     ObjectId addProject(final Project project);
+
+    void addProjects(final List<Project> projects);
 
     Project getProjectById(final ObjectId projectId);
 
