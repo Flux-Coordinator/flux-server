@@ -17,8 +17,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
 public class MeasurementsRepositoryMongo implements MeasurementsRepository {
-    private final static String DATABASE_NAME = "flux";
-    private final static String COLLECTION_NAME = "measurements";
+    private static final String DATABASE_NAME = "flux";
+    private static final String COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
 
