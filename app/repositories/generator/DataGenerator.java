@@ -1,6 +1,7 @@
 package repositories.generator;
 
 import models.*;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -139,6 +140,7 @@ public class DataGenerator {
         try {
             final MeasurementMetadata measurementMetadata = new MeasurementMetadata();
 
+            measurementMetadata.setMeasurementId(new ObjectId());
             measurementMetadata.setCreator("Generated");
             measurementMetadata.setDescription("Generated automatically");
             measurementMetadata.setName("AutoGenenerated" + random.nextInt());
