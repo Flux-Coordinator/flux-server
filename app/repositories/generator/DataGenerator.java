@@ -14,7 +14,11 @@ import java.util.Random;
  * Helper class to generate data more easily.
  */
 public class DataGenerator {
-    private final static Random random = new Random();
+    private static final Random random = new Random();
+
+    private DataGenerator() {
+
+    }
 
     public static List<Project> generateProjects(final int amountOfProjects, final int roomsPerProject) {
         try {
