@@ -35,8 +35,7 @@ public class AdminController extends Controller {
         final List<MeasurementReadings> measurementReadings = new ArrayList<>(AMOUNT_OF_PROJECTS * AMOUNT_OF_ROOMS_PER_PROJECT * AMOUNT_OF_MEASUREMENTS_PER_ROOM);
 
         projects.parallelStream()
-                .forEach(project -> {
-                    project.getRooms().forEach(room -> {
+                .forEach(project -> project.getRooms().forEach(room -> {
                         final List<MeasurementMetadata> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
                         roomMeasurements.forEach(measurementMetadata -> {
                             room.getMeasurements().add(measurementMetadata);
@@ -45,24 +44,11 @@ public class AdminController extends Controller {
                             readings.getReadings().addAll(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
                             measurementReadings.add(readings);
                         });
-                    });
-                });
+                    })
+                );
 
         projectsRepository.addProjects(projects);
         measurementsRepository.addMeasurements(measurementReadings);
-
-
-
-//        projects.forEach(this.projectsRepository::addProject);
-//        this.projectsRepository.getProjects().forEachRemaining(project -> {
-//            project.getRooms().forEach(room -> {
-//                final List<MeasurementMetadata> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
-//                roomMeasurements.forEach(measurementMetadata -> {
-//                    final ObjectId measurementId = this.projectsRepository.addMeasurement(project.getProjectId(), room.getName(), measurementMetadata);
-//                    this.measurementsRepository.addReadings(measurementId, DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
-//                });
-//            });
-//        });
 
         return ok("Created " + AMOUNT_OF_PROJECTS + "  projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
                 " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +

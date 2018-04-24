@@ -62,8 +62,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         measurementReadings.setMeasurementId(measurementId);
 
-        //noinspection ConstantConditions
-        room.get().getMeasurements().add(measurementMetadata);
+        room.orElseThrow(() -> new NullPointerException("Room to add the measurement into was not found.")).getMeasurements().add(measurementMetadata);
         measurementsRepository.addMeasurement(measurementReadings);
         return measurementId;
     }

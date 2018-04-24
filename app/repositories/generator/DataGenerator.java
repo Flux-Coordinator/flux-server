@@ -16,9 +16,7 @@ import java.util.Random;
 public class DataGenerator {
     private static final Random random = new Random();
 
-    private DataGenerator() {
-
-    }
+    private DataGenerator() { }
 
     public static List<Project> generateProjects(final int amountOfProjects, final int roomsPerProject) {
         try {
@@ -38,7 +36,7 @@ public class DataGenerator {
         try {
             final Project project = new Project();
 
-            project.setName("Project-" + Math.abs(random.nextInt()));
+            project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
             project.setRooms(generateRooms(rooms));
 
@@ -66,7 +64,7 @@ public class DataGenerator {
         try {
             final Room room = new Room();
 
-            room.setName("Room-" + Math.abs(random.nextInt()));
+            room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
             room.setLength(random.nextDouble() * 100);
             room.setWidth(random.nextDouble() * 100);
@@ -127,7 +125,7 @@ public class DataGenerator {
         try {
             final AnchorPosition position = new AnchorPosition();
 
-            position.setName("Anker-" + Math.abs(random.nextInt()));
+            position.setName("Anker-" + random.nextInt(Integer.MAX_VALUE));
             position.setXPosition(random.nextDouble());
             position.setYPosition(random.nextDouble());
             position.setZPosition(random.nextDouble());

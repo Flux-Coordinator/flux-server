@@ -45,8 +45,7 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
         final Optional<MeasurementReadings> measurementReadings = readingsList.parallelStream()
                 .filter(m -> m.getMeasurementId().equals(measurementId))
                 .findAny();
-
-        measurementReadings.get().getReadings().addAll(readings);
+        measurementReadings.orElseThrow(() -> new NullPointerException("Measurement to add the reading was not found.")).getReadings().addAll(readings);
     }
 
     public void resetRepository() {

@@ -20,9 +20,9 @@ import java.util.Optional;
 import static com.mongodb.client.model.Filters.eq;
 
 public class ProjectsRepositoryMongo implements ProjectsRepository {
-    private final static String DATABASE_NAME = "flux";
-    private final static String PROJECTS_COLLECTION_NAME = "projects";
-    private final static String MEASUREMENT_COLLECTION_NAME = "measurements";
+    private static final String DATABASE_NAME = "flux";
+    private static final String PROJECTS_COLLECTION_NAME = "projects";
+    private static final String MEASUREMENT_COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
     private final MeasurementsRepository measurementsRepository;
@@ -75,8 +75,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
         final ObjectId measurementId = new ObjectId();
         measurementMetadata.setMeasurementId(measurementId);
-        //noinspection ConstantConditions (We want to throw here!)
-        roomOptional.get().getMeasurements().add(measurementMetadata);
+        roomOptional.orElseThrow(() -> new NullPointerException("There was no room to add the measurement")).getMeasurements().add(measurementMetadata);
 
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         measurementReadings.setMeasurementId(measurementId);
