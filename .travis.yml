@@ -22,7 +22,6 @@ services:
 
 before_script:
   - sleep 15
-  - mongo flux_test --eval 'db.createUser({user: "flux-db-user", pwd: "FMzy5WT/Bv+e", roles:["readWrite"]});'
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
