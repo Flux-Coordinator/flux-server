@@ -1,26 +1,28 @@
 package actors.measurements;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import play.mvc.WebSocket;
 
 import static actors.measurements.MeasurementActorProtocol.*;
 
 public class MeasurementActor extends AbstractActor {
-    public static Props getProps(final WebSocket socket) {
-        return Props.create(MeasurementActor.class, () -> new MeasurementActor(socket));
+    private final ActorRef out;
+
+    public static Props props(ActorRef out) {
+        return Props.create(MeasurementActor.class, out);
     }
 
-    private final WebSocket webSocket;
-
-    public MeasurementActor(final WebSocket socket) {
-        this.webSocket = socket;
+    public MeasurementActor(final ActorRef out) {
+        this.out = out;
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(PutReading.class, putReading -> {
+                    out.tell(putReading.reading, self());
                 })
                 .build();
     }
