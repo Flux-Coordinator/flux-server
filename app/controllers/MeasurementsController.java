@@ -1,5 +1,10 @@
 package controllers;
 
+import actors.measurements.MeasurementActor;
+import akka.NotUsed;
+import akka.actor.ActorSystem;
+import akka.stream.javadsl.JavaFlowSupport;
+import akka.stream.javadsl.Source;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,11 +16,10 @@ import org.bson.types.ObjectId;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.BodyParser;
-import play.mvc.Controller;
-import play.mvc.Result;
-import play.mvc.Results;
+import play.libs.streams.ActorFlow;
+import play.mvc.*;
 import repositories.measurements.MeasurementsRepository;
+import scala.compat.java8.FutureConverters;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -29,11 +33,14 @@ public class MeasurementsController extends Controller {
     private final MeasurementsRepository measurementsRepository;
 
     private MeasurementReadings activeMeasurement;
+    private MeasurementActor measurementActor;
 
     @Inject
-    public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository) {
+    public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
+                                  final ActorSystem actorSystem) {
         this.httpExecutionContext = httpExecutionContext;
         this.measurementsRepository = measurementsRepository;
+//        actorSystem.actorOf(MeasurementActor.getProps());
     }
 
     public CompletionStage<Result> getMeasurementById(final String measurementId) {
@@ -107,6 +114,12 @@ public class MeasurementsController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public CompletableFuture<Result> addReading() {
+//        final CompletableFuture<Reading> future = CompletableFuture.supplyAsync(() -> {
+//            return new Reading();
+//        });
+//
+//        Source<Reading, NotUsed> source = Source.fromCompletionStage(future);
+
         return CompletableFuture.supplyAsync(() -> {
             if(this.activeMeasurement == null) {
                 return Results.badRequest();
@@ -125,4 +138,12 @@ public class MeasurementsController extends Controller {
             return Results.ok();
         }, httpExecutionContext.current());
     }
+
+//    public WebSocket socket() {
+//        return WebSocket.Text.accept(request ->
+//                ActorFlow.actorRef(MyWebSocketActor::props,
+//                        actorSystem, materializer
+//                )
+//        );
+//    }
 }
