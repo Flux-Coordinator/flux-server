@@ -27,4 +27,10 @@ public class MeasurementActor extends AbstractActor {
                 })
                 .build();
     }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+        out = null;
+    }
 }
