@@ -1,17 +1,11 @@
 package controllers;
 
 import actors.measurements.MeasurementActor;
-import akka.NotUsed;
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
-import akka.stream.javadsl.JavaFlowSupport;
-import akka.stream.javadsl.Source;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import java.io.IOException;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
@@ -21,16 +15,14 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.streams.ActorFlow;
 import play.mvc.*;
 import repositories.measurements.MeasurementsRepository;
-import scala.compat.java8.FutureConverters;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
-import static akka.pattern.Patterns.ask;
 
 public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
@@ -39,8 +31,7 @@ public class MeasurementsController extends Controller {
     private final Materializer materializer;
 
     private MeasurementReadings activeMeasurement;
-    private MeasurementActor measurementActor;
-    private Source readingsSource;
+    private Flow measurementStreamFlow;
 
     @Inject
     public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
@@ -122,32 +113,29 @@ public class MeasurementsController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public CompletableFuture<Result> addReading() {
-        /*
-        TODO:   Tell the flow listening to the socket that there is new data incoming.
-                Maybe make new Actor from the logic below.
-        */
         return CompletableFuture.supplyAsync(() -> {
             if(this.activeMeasurement == null) {
-                return Results.badRequest();
+                return Results.badRequest("No active measurement");
             }
             try {
                 final JsonNode json = request().body().asJson();
-                final ObjectMapper mapper = new ObjectMapper();
-                final ObjectReader reader = mapper.readerFor(new TypeReference<List<Reading>>() {});
-                final List<Reading> readings = reader.readValue(json);
+                final Reading[] array = Json.fromJson(json, Reading[].class);
+                final List<Reading> readings = new ArrayList<>(Arrays.asList(array));
                 measurementsRepository.addReadings(activeMeasurement.getMeasurementId(), readings);
-            } catch (IOException ex) {
+                if(measurementStreamFlow != null && MeasurementActor.out != null) {
+                    MeasurementActor.out.tell(Json.toJson(readings), ActorRef.noSender());
+                }
+                return ok();
+            }
+            catch (final Exception ex) {
                 Logger.error("Error while adding new readings to measurement" + this.activeMeasurement.getMeasurementId(), ex);
                 return badRequest("Error while adding new readings.");
             }
-
-            return Results.ok();
         }, httpExecutionContext.current());
     }
 
-    public WebSocket socket() {
-        // The flow passes a new actor that handles the out path inside the Measurement Actor!
-        final Flow flow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
-        return WebSocket.Json.accept(request -> flow);
+    public WebSocket streamMeasurements() {
+        measurementStreamFlow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
+        return WebSocket.Json.accept(request -> measurementStreamFlow);
     }
 }
