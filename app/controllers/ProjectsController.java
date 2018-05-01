@@ -34,7 +34,7 @@ public class ProjectsController extends Controller {
                 List<Project> projects;
                 final Iterator<Project> iterator = this.projectsRepository.getProjects();
                 if(limit <= 0) {
-                    projects = new ArrayList<>((int)this.projectsRepository.countProjects());
+                    projects = new ArrayList<>();
                     iterator.forEachRemaining(projects::add);
                 } else {
                     projects = new ArrayList<>(limit);

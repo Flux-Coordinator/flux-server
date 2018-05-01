@@ -59,8 +59,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public long countProjects() {
-        return 0;
+    public CompletionStage<Long> countProjects() {
+        return CompletableFuture.supplyAsync(() -> wrap(this::countProjects), databaseExecutionContext);
     }
 
     @Override
@@ -72,14 +72,18 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return jpaApi.withTransaction(function);
     }
 
+    private Long countProjects(final EntityManager em) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
+        return typedQuery.getSingleResult();
+    }
+
     private Project getProjectById(final EntityManager em, final long projectId) {
 //        final CriteriaBuilder cb = em.getCriteriaBuilder();
 //        final CriteriaQuery<Project> criteriaQuery = cb.createQuery(Project.class);
 //        final Root<Project> projectRoot = criteriaQuery.from(Project.class);
 //        criteriaQuery.select(projectRoot);
-//        final TypedQuery<Project> typedQuery = em.createQuery(criteriaQuery);
-
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p", Project.class);
+//        final TypedQuery<Project> typedQuery = em.createQuery(criteriaQuery);$
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p where p.projectId = " + projectId, Project.class);
         return typedQuery.getSingleResult();
     }
 }

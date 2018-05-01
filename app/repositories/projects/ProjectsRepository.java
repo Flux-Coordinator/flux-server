@@ -19,7 +19,7 @@ public interface ProjectsRepository {
 
     ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 
-    long countProjects();
+    CompletionStage<Long> countProjects();
 
     void resetRepository();
 }
