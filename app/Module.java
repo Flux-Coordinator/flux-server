@@ -11,6 +11,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;
 import repositories.measurements.MeasurementsRepositoryMongo;
 import repositories.projects.ProjectsRepository;
+import repositories.projects.ProjectsRepositoryJPA;
 import repositories.projects.ProjectsRepositoryMongo;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -33,7 +34,7 @@ public class Module extends AbstractModule {
         super.configure();
 
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryMongo.class);
-        bind(ProjectsRepository.class).to(ProjectsRepositoryMongo.class);
+        bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
     }
 
     @Provides @Singleton @Inject

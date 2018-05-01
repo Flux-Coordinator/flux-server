@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 
 public class ProjectsRepositoryMock implements ProjectsRepository {
     private final List<Project> projects;
@@ -43,16 +44,13 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     }
 
     @Override
-    public Project getProjectById(final ObjectId projectId) {
-        return this.projects.stream()
-                .filter(project -> project.getProjectId().equals(projectId))
-                .findFirst()
-                .orElse(null);
+    public CompletionStage<Project> getProjectById(final ObjectId projectId) {
+        return null;
     }
 
     @Override
     public ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata) {
-        final Project project = getProjectById(projectId);
+        final Project project = null;
         final Optional<Room> room = project.getRooms().parallelStream()
                 .filter(room1 -> room1.getName().equals(roomName))
                 .findAny();

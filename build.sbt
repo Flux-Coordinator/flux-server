@@ -18,7 +18,10 @@ libraryDependencies ++= Seq(
 ) ++ guiceDeps
 
 libraryDependencies ++= Seq(
-  "org.mongodb" % "mongodb-driver" % "3.6.3"
+  "org.mongodb" % "mongodb-driver" % "3.6.3",
+  javaJpa,
+  "org.postgresql" % "postgresql" % "42.2.2",
+  "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final"
 )
 
 jacocoReportSettings := JacocoReportSettings()

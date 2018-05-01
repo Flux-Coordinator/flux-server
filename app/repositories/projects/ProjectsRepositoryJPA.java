@@ -1,0 +1,85 @@
+package repositories.projects;
+
+import models.MeasurementMetadata;
+import models.Project;
+import org.bson.types.ObjectId;
+import org.hibernate.Session;
+import play.db.jpa.JPAApi;
+import repositories.DatabaseExecutionContext;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+
+@Singleton
+public class ProjectsRepositoryJPA implements ProjectsRepository {
+    private final JPAApi jpaApi;
+    private final DatabaseExecutionContext databaseExecutionContext;
+
+    @Inject
+    public ProjectsRepositoryJPA(final JPAApi jpaApi, final DatabaseExecutionContext databaseExecutionContext) {
+        this.jpaApi = jpaApi;
+        this.databaseExecutionContext = databaseExecutionContext;
+    }
+
+    @Override
+    public Iterator<Project> getProjects() {
+
+        return null;
+    }
+
+    @Override
+    public ObjectId addProject(Project project) {
+        return null;
+    }
+
+    @Override
+    public void addProjects(List<Project> projects) {
+
+    }
+
+    @Override
+    public CompletionStage<Project> getProjectById(final ObjectId projectId) {
+        return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
+    }
+
+    @Override
+    public ObjectId addMeasurement(ObjectId projectId, String roomName, MeasurementMetadata measurementMetadata) {
+        return null;
+    }
+
+    @Override
+    public long countProjects() {
+        return 0;
+    }
+
+    @Override
+    public void resetRepository() {
+
+    }
+
+    private <T> T wrap(Function<EntityManager, T> function) {
+        return jpaApi.withTransaction(function);
+    }
+
+    private Project getProjectById(final EntityManager em, final ObjectId projectId) {
+//        final CriteriaBuilder cb = em.getCriteriaBuilder();
+//        final CriteriaQuery<Project> criteriaQuery = cb.createQuery(Project.class);
+//        final Root<Project> projectRoot = criteriaQuery.from(Project.class);
+//        criteriaQuery.select(projectRoot);
+//        final TypedQuery<Project> typedQuery = em.createQuery(criteriaQuery);
+
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p", Project.class);
+        return typedQuery.getSingleResult();
+    }
+}

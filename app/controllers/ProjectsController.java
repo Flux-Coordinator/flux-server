@@ -51,20 +51,12 @@ public class ProjectsController extends Controller {
     }
 
     public CompletionStage<Result> getProjectById(final String projectId) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final ObjectId objectId = new ObjectId(projectId);
-                final Project project = this.projectsRepository.getProjectById(objectId);
-
-                if(project == null) {
-                    return noContent();
-                }
-
-                return ok(Json.toJson(project));
-            } catch(final Exception ex) {
-                Logger.error("Error while getting project with the id " + projectId, ex);
-                return notFound("Project not found");
+        final ObjectId objectId = new ObjectId(projectId);
+        return this.projectsRepository.getProjectById(objectId).thenApplyAsync(project -> {
+            if (project == null) {
+                return noContent();
             }
+            return ok(Json.toJson(project));
         }, httpExecutionContext.current());
     }
 

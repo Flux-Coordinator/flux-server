@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class ProjectsRepositoryMongo implements ProjectsRepository {
+public class ProjectsRepositoryMongo {
     private static final String DATABASE_NAME = "flux";
     private static final String PROJECTS_COLLECTION_NAME = "projects";
     private static final String MEASUREMENT_COLLECTION_NAME = "measurements";
@@ -43,12 +43,10 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
         return mongoDatabase.getCollection(MEASUREMENT_COLLECTION_NAME, MeasurementReadings.class);
     }
 
-    @Override
     public Iterator<Project> getProjects() {
         return getProjectsCollection().find().iterator();
     }
 
-    @Override
     public ObjectId addProject(final Project project) {
         if(project.getProjectId() == null) {
             project.setProjectId(new ObjectId());
@@ -61,7 +59,6 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
         getProjectsCollection().insertMany(projects);
     }
 
-    @Override
     public Project getProjectById(final ObjectId projectId) {
         final MongoCollection<Project> collection = getProjectsCollection();
         return collection.find(eq("_id", projectId)).first();
@@ -97,12 +94,10 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
         return measurementId;
     }
 
-    @Override
     public long countProjects() {
         return getProjectsCollection().count();
     }
 
-    @Override
     public void resetRepository() {
         this.measurementsRepository.resetRepository();
         getProjectsCollection().drop();

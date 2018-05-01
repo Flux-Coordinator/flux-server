@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public interface ProjectsRepository {
     Iterator<Project> getProjects();
@@ -14,7 +15,7 @@ public interface ProjectsRepository {
 
     void addProjects(final List<Project> projects);
 
-    Project getProjectById(final ObjectId projectId);
+    CompletionStage<Project> getProjectById(final ObjectId projectId);
 
     ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 

@@ -5,14 +5,19 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Entity(name="Project")
+@Table(name = "projects", schema="public")
 public class Project {
-    @BsonId
-    @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId projectId;
+    @Id @GeneratedValue
+    private long projectId;
     private String name;
     private String description;
     private List<Room> rooms;
@@ -21,11 +26,11 @@ public class Project {
         this.rooms = new ArrayList<>();
     }
 
-    public ObjectId getProjectId() {
+    public long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(ObjectId projectId) {
+    public void setProjectId(final long projectId) {
         this.projectId = projectId;
     }
 
@@ -33,7 +38,7 @@ public class Project {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -41,7 +46,7 @@ public class Project {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -49,12 +54,12 @@ public class Project {
         return rooms;
     }
 
-    public void setRooms(List<Room> rooms) {
+    public void setRooms(final List<Room> rooms) {
         this.rooms = rooms;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
