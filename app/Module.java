@@ -9,10 +9,9 @@ import com.typesafe.config.Config;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;
-import repositories.measurements.MeasurementsRepositoryMongo;
+import repositories.measurements.MeasurementsRepositoryMock;
 import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryJPA;
-import repositories.projects.ProjectsRepositoryMongo;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -33,7 +32,7 @@ public class Module extends AbstractModule {
     protected void configure() {
         super.configure();
 
-        bind(MeasurementsRepository.class).to(MeasurementsRepositoryMongo.class);
+        bind(MeasurementsRepository.class).to(MeasurementsRepositoryMock.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
     }
 

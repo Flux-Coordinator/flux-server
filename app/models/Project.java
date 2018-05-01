@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity(name="Project")
-@Table(name = "projects", schema="public")
+//@Table(name = "Project")
 public class Project {
     @Id @GeneratedValue
     private long projectId;
     private String name;
     private String description;
-    private List<Room> rooms;
+//    private List<Room> rooms;
 
     public Project() {
-        this.rooms = new ArrayList<>();
+//        this.rooms = new ArrayList<>();
     }
 
     public long getProjectId() {
@@ -50,27 +50,27 @@ public class Project {
         this.description = description;
     }
 
-    public List<Room> getRooms() {
-        return rooms;
-    }
-
-    public void setRooms(final List<Room> rooms) {
-        this.rooms = rooms;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
-        return Objects.equals(getProjectId(), project.getProjectId()) &&
-                Objects.equals(getName(), project.getName()) &&
-                Objects.equals(getDescription(), project.getDescription()) &&
-                Objects.equals(getRooms(), project.getRooms());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
-    }
+//    public List<Room> getRooms() {
+//        return rooms;
+//    }
+//
+//    public void setRooms(final List<Room> rooms) {
+//        this.rooms = rooms;
+//    }
+//
+//    @Override
+//    public boolean equals(final Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Project project = (Project) o;
+//        return Objects.equals(getProjectId(), project.getProjectId()) &&
+//                Objects.equals(getName(), project.getName()) &&
+//                Objects.equals(getDescription(), project.getDescription()) &&
+//                Objects.equals(getRooms(), project.getRooms());
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
+//    }
 }

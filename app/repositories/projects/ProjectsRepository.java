@@ -11,11 +11,11 @@ import java.util.concurrent.CompletionStage;
 public interface ProjectsRepository {
     Iterator<Project> getProjects();
 
-    ObjectId addProject(final Project project);
+    long addProject(final Project project);
 
     void addProjects(final List<Project> projects);
 
-    CompletionStage<Project> getProjectById(final ObjectId projectId);
+    CompletionStage<Project> getProjectById(final long projectId);
 
     ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
 

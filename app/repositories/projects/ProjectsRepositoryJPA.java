@@ -39,8 +39,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public ObjectId addProject(Project project) {
-        return null;
+    public long addProject(Project project) {
+        return 0;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<Project> getProjectById(final ObjectId projectId) {
+    public CompletionStage<Project> getProjectById(final long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
     }
 
@@ -72,7 +72,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private Project getProjectById(final EntityManager em, final ObjectId projectId) {
+    private Project getProjectById(final EntityManager em, final long projectId) {
 //        final CriteriaBuilder cb = em.getCriteriaBuilder();
 //        final CriteriaQuery<Project> criteriaQuery = cb.createQuery(Project.class);
 //        final Root<Project> projectRoot = criteriaQuery.from(Project.class);

@@ -38,7 +38,7 @@ public class DataGenerator {
 
             project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            project.setRooms(generateRooms(rooms));
+//          TODO:  project.setRooms(generateRooms(rooms));
 
             return project;
         } catch(final Exception ex) {
