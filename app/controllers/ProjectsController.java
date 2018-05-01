@@ -9,7 +9,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import repositories.generator.DataGenerator;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;

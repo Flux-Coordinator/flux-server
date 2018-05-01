@@ -1,6 +1,5 @@
 package repositories.measurements;
 
-import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
@@ -19,4 +18,6 @@ public interface MeasurementsRepository {
     void addReadings(final ObjectId measurementId, final List<Reading> readings);
 
     void resetRepository();
+
+    void addMeasurements(final List<MeasurementReadings> measurementReadings);
 }

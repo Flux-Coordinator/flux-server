@@ -17,8 +17,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 @Singleton
 public class MeasurementsRepositoryMongo implements MeasurementsRepository {
-    private final static String DATABASE_NAME = "flux";
-    private final static String COLLECTION_NAME = "measurements";
+    private static final String DATABASE_NAME = "flux";
+    private static final String COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
 
@@ -45,7 +45,7 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
 
     @Override
     public ObjectId addMeasurement(final MeasurementReadings readings) {
-        if(readings.getMeasurementId() != null) {
+        if(readings.getMeasurementId() == null) {
             readings.setMeasurementId(new ObjectId());
         }
         getCollection().insertOne(readings);
@@ -61,5 +61,10 @@ public class MeasurementsRepositoryMongo implements MeasurementsRepository {
     public void resetRepository() {
         getCollection().drop();
         this.mongoClient.getDatabase(DATABASE_NAME).createCollection(COLLECTION_NAME);
+    }
+
+    @Override
+    public void addMeasurements(final List<MeasurementReadings> measurementReadings) {
+        this.getCollection().insertMany(measurementReadings);
     }
 }

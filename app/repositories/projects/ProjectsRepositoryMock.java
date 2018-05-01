@@ -5,24 +5,21 @@ import models.MeasurementReadings;
 import models.Project;
 import models.Room;
 import org.bson.types.ObjectId;
-import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 public class ProjectsRepositoryMock implements ProjectsRepository {
-    private final static int AMOUNT_OF_PROJECTS = 10;
-    private final static int AMOUNT_OF_ROOMS_PER_PROJECT = 5;
-
     private final List<Project> projects;
     private final MeasurementsRepository measurementsRepository;
 
     @Inject
     public ProjectsRepositoryMock(final MeasurementsRepository measurementsRepository) {
-        this.projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS, AMOUNT_OF_ROOMS_PER_PROJECT);
+        this.projects = new ArrayList<>();
         this.measurementsRepository = measurementsRepository;
     }
 
@@ -33,10 +30,16 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
 
     @Override
     public ObjectId addProject(final Project project) {
-        final ObjectId newId = new ObjectId();
-        project.setProjectId(newId);
+        if(project.getProjectId() == null) {
+            project.setProjectId(new ObjectId());
+        }
         this.projects.add(project);
-        return newId;
+        return project.getProjectId();
+    }
+
+    @Override
+    public void addProjects(List<Project> projects) {
+        this.projects.addAll(projects);
     }
 
     @Override
@@ -59,8 +62,7 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         measurementReadings.setMeasurementId(measurementId);
 
-        //noinspection ConstantConditions
-        room.get().getMeasurements().add(measurementMetadata);
+        room.orElseThrow(() -> new NullPointerException("Room to add the measurement into was not found.")).getMeasurements().add(measurementMetadata);
         measurementsRepository.addMeasurement(measurementReadings);
         return measurementId;
     }
@@ -73,5 +75,6 @@ public class ProjectsRepositoryMock implements ProjectsRepository {
     @Override
     public void resetRepository() {
         this.projects.clear();
+        this.measurementsRepository.resetRepository();
     }
 }

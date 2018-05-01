@@ -8,13 +8,14 @@ GET     /reset                              controllers.AdminController.resetDat
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
 POST    /projects                           controllers.ProjectsController.addProject
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: String)
-GET     /measurements/active                controllers.MeasurementsController.isMeasurementActive
+GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : String)
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
 POST    /measurements                       controllers.MeasurementsController.createMeasurement
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : String)
 DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement
 POST    /measurements/active/readings       controllers.MeasurementsController.addReading
+GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)

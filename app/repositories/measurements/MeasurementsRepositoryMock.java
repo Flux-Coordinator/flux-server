@@ -1,11 +1,9 @@
 package repositories.measurements;
 
 import com.google.inject.Singleton;
-import models.MeasurementMetadata;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
-import repositories.generator.DataGenerator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -47,12 +45,15 @@ public class MeasurementsRepositoryMock implements MeasurementsRepository {
         final Optional<MeasurementReadings> measurementReadings = readingsList.parallelStream()
                 .filter(m -> m.getMeasurementId().equals(measurementId))
                 .findAny();
+        measurementReadings.orElseThrow(() -> new NullPointerException("Measurement to add the reading was not found.")).getReadings().addAll(readings);
+    }
 
-        measurementReadings.get().getReadings().addAll(readings);
+    public void resetRepository() {
+        this.readingsList.clear();
     }
 
     @Override
-    public void resetRepository() {
-        this.readingsList.clear();
+    public void addMeasurements(final List<MeasurementReadings> measurementReadings) {
+        this.readingsList.addAll(measurementReadings);
     }
 }

@@ -10,23 +10,27 @@ import models.Project;
 import models.Room;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.eq;
 
 public class ProjectsRepositoryMongo implements ProjectsRepository {
-    private final static String DATABASE_NAME = "flux";
-    private final static String PROJECTS_COLLECTION_NAME = "projects";
-    private final static String MEASUREMENT_COLLECTION_NAME = "measurements";
+    private static final String DATABASE_NAME = "flux";
+    private static final String PROJECTS_COLLECTION_NAME = "projects";
+    private static final String MEASUREMENT_COLLECTION_NAME = "measurements";
 
     private final MongoClient mongoClient;
+    private final MeasurementsRepository measurementsRepository;
 
     @Inject
-    public ProjectsRepositoryMongo(final MongoClient mongoClient) {
+    public ProjectsRepositoryMongo(final MongoClient mongoClient, final MeasurementsRepository measurementsRepository) {
         this.mongoClient = mongoClient;
+        this.measurementsRepository = measurementsRepository;
     }
 
     private MongoCollection<Project> getProjectsCollection() {
@@ -46,10 +50,15 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
     @Override
     public ObjectId addProject(final Project project) {
-        final ObjectId newId = new ObjectId();
-        project.setProjectId(newId);
+        if(project.getProjectId() == null) {
+            project.setProjectId(new ObjectId());
+        }
         getProjectsCollection().insertOne(project);
-        return newId;
+        return project.getProjectId();
+    }
+
+    public void addProjects(final List<Project> projects) {
+        getProjectsCollection().insertMany(projects);
     }
 
     @Override
@@ -66,8 +75,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
         final ObjectId measurementId = new ObjectId();
         measurementMetadata.setMeasurementId(measurementId);
-        //noinspection ConstantConditions (We want to throw here!)
-        roomOptional.get().getMeasurements().add(measurementMetadata);
+        roomOptional.orElseThrow(() -> new NullPointerException("There was no room to add the measurement")).getMeasurements().add(measurementMetadata);
 
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         measurementReadings.setMeasurementId(measurementId);
@@ -96,6 +104,7 @@ public class ProjectsRepositoryMongo implements ProjectsRepository {
 
     @Override
     public void resetRepository() {
+        this.measurementsRepository.resetRepository();
         getProjectsCollection().drop();
         this.mongoClient.getDatabase(DATABASE_NAME).createCollection(PROJECTS_COLLECTION_NAME);
     }
