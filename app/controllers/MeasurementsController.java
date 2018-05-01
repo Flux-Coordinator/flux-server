@@ -106,7 +106,9 @@ public class MeasurementsController extends Controller {
 
     public Result getActiveMeasurement() {
         if(this.activeMeasurement != null){
-            return Results.ok(Json.toJson(this.activeMeasurement));
+            final MeasurementReadings activeMeasurement = this.measurementsRepository
+                    .getMeasurementReadingsById(this.activeMeasurement.getMeasurementId());
+            return Results.ok(Json.toJson(activeMeasurement));
         }
         return Results.noContent();
     }
@@ -115,7 +117,7 @@ public class MeasurementsController extends Controller {
     public CompletableFuture<Result> addReading() {
         return CompletableFuture.supplyAsync(() -> {
             if(this.activeMeasurement == null) {
-                return Results.badRequest("No active measurement");
+                return Results.noContent();
             }
             try {
                 final JsonNode json = request().body().asJson();
