@@ -78,11 +78,6 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {
-//        final CriteriaBuilder cb = em.getCriteriaBuilder();
-//        final CriteriaQuery<Project> criteriaQuery = cb.createQuery(Project.class);
-//        final Root<Project> projectRoot = criteriaQuery.from(Project.class);
-//        criteriaQuery.select(projectRoot);
-//        final TypedQuery<Project> typedQuery = em.createQuery(criteriaQuery);$
         final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p where p.projectId = " + projectId, Project.class);
         final List<Project> foundProjects = typedQuery.getResultList();
 

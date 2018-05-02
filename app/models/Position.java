@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity(name = "Position")
@@ -11,7 +13,8 @@ public class Position {
     private double yPosition;
     private double zPosition;
 
-    @OneToOne(mappedBy = "position")
+    @OneToOne(mappedBy = "position", optional = false)
+    @JsonBackReference
     private Reading reading;
 
     public Position() {
@@ -47,5 +50,13 @@ public class Position {
 
     public void setzPosition(double zPosition) {
         this.zPosition = zPosition;
+    }
+
+    public Reading getReading() {
+        return reading;
+    }
+
+    public void setReading(Reading reading) {
+        this.reading = reading;
     }
 }

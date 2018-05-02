@@ -106,4 +106,12 @@ public class Measurement {
     public void setFactor(double factor) {
         this.factor = factor;
     }
+
+    public List<Reading> getReadings() {
+        return readings;
+    }
+
+    public void setReadings(List<Reading> readings) {
+        this.readings = readings;
+    }
 }

@@ -104,14 +104,26 @@ public class DataGenerator {
         }
     }
 
+    public static Position generatePosition() {
+        try {
+            final Position position = new Position();
+
+            position.setxPosition(random.nextDouble());
+            position.setyPosition(random.nextDouble());
+            position.setzPosition(random.nextDouble());
+
+            return position;
+        } catch (final Exception ex) {
+            throw new DataGeneratorException("Failed generating a position", ex);
+        }
+    }
+
     public static Reading generateReading() {
         try {
             final Reading reading = new Reading();
 
             reading.setLuxValue(random.nextDouble());
-            reading.setXPosition(random.nextDouble());
-            reading.setYPosition(random.nextDouble());
-            reading.setZPosition(random.nextDouble());
+            reading.setPosition(generatePosition());
 
             reading.setTimestamp(new Date());
 

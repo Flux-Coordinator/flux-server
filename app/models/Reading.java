@@ -1,11 +1,11 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Objects;
 
 @Entity(name="Reading")
 @Table(name="reading")
@@ -18,6 +18,7 @@ public class Reading {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "positionid")
+    @JsonManagedReference
     private Position position;
 
     public long getReadingId() {
