@@ -4,7 +4,7 @@
 
 # An example controller showing a sample home page
 GET     /                                   controllers.HomeController.index
-#GET     /reset                              controllers.AdminController.resetData
+GET     /reset                              controllers.AdminController.resetData
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
 POST    /projects                           controllers.ProjectsController.addProject
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)

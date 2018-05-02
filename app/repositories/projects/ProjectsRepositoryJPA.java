@@ -1,5 +1,6 @@
 package repositories.projects;
 
+import akka.http.scaladsl.model.Uri;
 import models.MeasurementMetadata;
 import models.Project;
 import org.bson.types.ObjectId;
@@ -8,13 +9,16 @@ import repositories.DatabaseExecutionContext;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {
@@ -42,8 +46,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public void addProjects(List<Project> projects) {
-
+    public void addProjects(final List<Project> projects) {
+        CompletableFuture.runAsync(() -> wrap(entityManager -> {
+            addProjects(entityManager, projects);
+            return null;
+        }));
     }
 
     @Override
@@ -73,6 +80,10 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     private Project addProject(final EntityManager em, final Project project) {
         em.persist(project);
         return project;
+    }
+
+    private void addProjects(final EntityManager em, final List<Project> projects) {
+        projects.forEach(em::persist);
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {
