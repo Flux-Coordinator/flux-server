@@ -1,22 +1,11 @@
 package models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import javax.persistence.*;
 
 @Entity(name="Project")
-//@Table(name = "Project")
+@Table(name="project", schema = "public")
 public class Project {
-    @Id @GeneratedValue
+    @Id @GeneratedValue @Column(name = "id")
     private long projectId;
     private String name;
     private String description;

@@ -84,6 +84,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 //        criteriaQuery.select(projectRoot);
 //        final TypedQuery<Project> typedQuery = em.createQuery(criteriaQuery);$
         final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p where p.projectId = " + projectId, Project.class);
-        return typedQuery.getSingleResult();
+        final List<Project> foundProjects = typedQuery.getResultList();
+
+        return foundProjects.isEmpty() ? null : foundProjects.get(0);
     }
 }
