@@ -66,8 +66,8 @@ public class DataGenerator {
 
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
-            room.setLength(random.nextDouble() * 100);
-            room.setWidth(random.nextDouble() * 100);
+//            room.setLength(random.nextDouble() * 100);
+//            room.setWidth(random.nextDouble() * 100);
 
             return room;
         } catch(final Exception ex) {

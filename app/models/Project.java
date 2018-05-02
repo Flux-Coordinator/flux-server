@@ -1,6 +1,7 @@
 package models;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name="Project")
 @Table(name="project", schema = "public")
@@ -9,7 +10,10 @@ public class Project {
     private long projectId;
     private String name;
     private String description;
-//    private List<Room> rooms;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "projectid")
+    private List<Room> rooms;
 
     public Project() {
 //        this.rooms = new ArrayList<>();
@@ -37,6 +41,14 @@ public class Project {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(final List<Room> rooms) {
+        this.rooms = rooms;
     }
 
 //    public List<Room> getRooms() {
