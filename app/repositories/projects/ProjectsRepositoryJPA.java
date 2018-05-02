@@ -3,18 +3,13 @@ package repositories.projects;
 import models.MeasurementMetadata;
 import models.Project;
 import org.bson.types.ObjectId;
-import org.hibernate.Session;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -39,8 +34,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public long addProject(Project project) {
-        return 0;
+    public CompletionStage<Long> addProject(final Project project) {
+        return CompletableFuture.supplyAsync(() -> {
+            final Project persistedProject = wrap(entityManager -> addProject(entityManager, project));
+            return persistedProject.getProjectId();
+        }, databaseExecutionContext);
     }
 
     @Override
@@ -72,9 +70,9 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return jpaApi.withTransaction(function);
     }
 
-    private Long countProjects(final EntityManager em) {
-        final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
-        return typedQuery.getSingleResult();
+    private Project addProject(final EntityManager em, final Project project) {
+        em.persist(project);
+        return project;
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {
@@ -82,5 +80,10 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         final List<Project> foundProjects = typedQuery.getResultList();
 
         return foundProjects.isEmpty() ? null : foundProjects.get(0);
+    }
+
+    private Long countProjects(final EntityManager em) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
+        return typedQuery.getSingleResult();
     }
 }

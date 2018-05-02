@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage;
 public interface ProjectsRepository {
     Iterator<Project> getProjects();
 
-    long addProject(final Project project);
+    CompletionStage<Long> addProject(final Project project);
 
     void addProjects(final List<Project> projects);
 

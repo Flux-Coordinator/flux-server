@@ -61,17 +61,14 @@ public class ProjectsController extends Controller {
 
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> addProject() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final JsonNode jsonNode = request().body().asJson();
-                final Project project = Json.fromJson(jsonNode, Project.class);
-                final long createdId = this.projectsRepository.addProject(project);
-                final String absoluteUrl = routes.ProjectsController.getProjectById(createdId).absoluteURL(request());
-                return created(absoluteUrl);
-            } catch(final Exception ex) {
-                Logger.error("Error while creating a new project.", ex);
-                return badRequest("Error while creating a new project.");
-            }
-        }, httpExecutionContext.current());
+        final JsonNode jsonNode = request().body().asJson();
+        final Project project = Json.fromJson(jsonNode, Project.class);
+        return this.projectsRepository.addProject(project).thenApplyAsync(createdId-> {
+            final String absoluteUrl = routes.ProjectsController.getProjectById(createdId).absoluteURL(request());
+            return created(absoluteUrl);
+        }, httpExecutionContext.current()).exceptionally(throwable -> {
+            Logger.error("Error while creating a new project.", throwable);
+            return badRequest("Error while creating a new project.");
+        });
     }
 }
