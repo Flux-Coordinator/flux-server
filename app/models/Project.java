@@ -2,11 +2,12 @@ package models;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name="Project")
 @Table(name="project", schema = "public")
 public class Project {
-    @Id @GeneratedValue @Column(name = "id")
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE) @Column(name = "id")
     private long projectId;
     private String name;
     private String description;
@@ -16,7 +17,6 @@ public class Project {
     private List<Room> rooms;
 
     public Project() {
-//        this.rooms = new ArrayList<>();
     }
 
     public long getProjectId() {
@@ -51,27 +51,20 @@ public class Project {
         this.rooms = rooms;
     }
 
-//    public List<Room> getRooms() {
-//        return rooms;
-//    }
-//
-//    public void setRooms(final List<Room> rooms) {
-//        this.rooms = rooms;
-//    }
-//
-//    @Override
-//    public boolean equals(final Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Project project = (Project) o;
-//        return Objects.equals(getProjectId(), project.getProjectId()) &&
-//                Objects.equals(getName(), project.getName()) &&
-//                Objects.equals(getDescription(), project.getDescription()) &&
-//                Objects.equals(getRooms(), project.getRooms());
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return getProjectId() == project.getProjectId() &&
+                Objects.equals(getName(), project.getName()) &&
+                Objects.equals(getDescription(), project.getDescription()) &&
+                Objects.equals(getRooms(), project.getRooms());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
+    }
 }

@@ -32,9 +32,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public Iterator<Project> getProjects() {
-
-        return null;
+    public CompletionStage<List<Project>> getProjects(final int limit) {
+        return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjects(entityManager, limit)), databaseExecutionContext);
     }
 
     @Override
@@ -84,6 +83,14 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     private void addProjects(final EntityManager em, final List<Project> projects) {
         projects.forEach(em::persist);
+    }
+
+    private List<Project> getProjects(final EntityManager em, final int limit) {
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p", Project.class);
+        if(limit > 0) {
+            typedQuery.setMaxResults(limit);
+        }
+        return typedQuery.getResultList();
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {

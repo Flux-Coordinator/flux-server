@@ -4,12 +4,11 @@ import models.MeasurementMetadata;
 import models.Project;
 import org.bson.types.ObjectId;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface ProjectsRepository {
-    Iterator<Project> getProjects();
+    CompletionStage<List<Project>> getProjects(final int limit);
 
     CompletionStage<Long> addProject(final Project project);
 
