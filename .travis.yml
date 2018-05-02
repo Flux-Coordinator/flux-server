@@ -14,14 +14,23 @@ cache:
     - $HOME/.ivy2
 
 addons:
+  postgresql: "10"
+  apt:
+    packages:
+      - postgresql-10
+      - postgresql-client-10
   sonarqube:
     organization: flux-coordinator
 
 services:
-  - mongodb
+  - psql -c 'create database flux;' -U postgres
 
 before_script:
   - sleep 15
+
+env:
+  global:
+    - PGPORT=5433
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
