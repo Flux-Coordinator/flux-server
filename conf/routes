@@ -10,7 +10,7 @@ POST    /projects                           controllers.ProjectsController.addPr
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)
 #GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 #GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : String)
-#GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
+GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
 #POST    /measurements                       controllers.MeasurementsController.createMeasurement
 #PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : String)
 #DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement

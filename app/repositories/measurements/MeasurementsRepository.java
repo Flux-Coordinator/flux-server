@@ -1,15 +1,16 @@
 package repositories.measurements;
 
+import models.Measurement;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface MeasurementsRepository {
 
-    Iterator<MeasurementReadings> getMeasurementReadings();
+    CompletableFuture<List<Measurement>> getMeasurements(final int limit);
 
     MeasurementReadings getMeasurementReadingsById(final ObjectId measurementId);
 

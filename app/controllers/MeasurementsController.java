@@ -6,6 +6,7 @@ import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
 import com.fasterxml.jackson.databind.JsonNode;
+import models.Measurement;
 import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
@@ -25,22 +26,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class MeasurementsController extends Controller {
-//    private final HttpExecutionContext httpExecutionContext;
-//    private final MeasurementsRepository measurementsRepository;
-//    private final ActorSystem actorSystem;
-//    private final Materializer materializer;
-//
-//    private MeasurementReadings activeMeasurement;
-//    private Flow measurementStreamFlow;
-//
-//    @Inject
-//    public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
-//                                  final ActorSystem actorSystem, final Materializer materializer) {
-//        this.httpExecutionContext = httpExecutionContext;
-//        this.measurementsRepository = measurementsRepository;
-//        this.actorSystem = actorSystem;
-//        this.materializer = materializer;
-//    }
+    private final HttpExecutionContext httpExecutionContext;
+    private final MeasurementsRepository measurementsRepository;
+    private final ActorSystem actorSystem;
+    private final Materializer materializer;
+
+    private MeasurementReadings activeMeasurement;
+    private Flow measurementStreamFlow;
+
+    @Inject
+    public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
+                                  final ActorSystem actorSystem, final Materializer materializer) {
+        this.httpExecutionContext = httpExecutionContext;
+        this.measurementsRepository = measurementsRepository;
+        this.actorSystem = actorSystem;
+        this.materializer = materializer;
+    }
+
+    private static Result apply(final List<Measurement> measurements) {
+        return ok(Json.toJson(measurements));
+    }
 //
 //    public CompletionStage<Result> getMeasurementById(final String measurementId) {
 //        return CompletableFuture.supplyAsync(() -> {
@@ -60,26 +65,16 @@ public class MeasurementsController extends Controller {
 //            }
 //        }, httpExecutionContext.current());
 //    }
-//
-//    public CompletionStage<Result> getMeasurements(final int limit) {
-//        return CompletableFuture.supplyAsync(() -> {
-//            try {
-//                final List<MeasurementReadings> readings = new ArrayList<>(limit);
-//                final Iterator<MeasurementReadings> readingsIterator = measurementsRepository.getMeasurementReadings();
-//
-//                while (readingsIterator.hasNext() && readings.size() < limit) {
-//                    readings.add(readingsIterator.next());
-//                }
-//
-//                return ok(Json.toJson(readings));
-//            }
-//            catch(final Exception ex) {
-//                Logger.error("Error getting measurements", ex);
-//                return internalServerError();
-//            }
-//        }, httpExecutionContext.current());
-//    }
-//
+
+    public CompletionStage<Result> getMeasurements(final int limit) {
+        return measurementsRepository.getMeasurements(limit)
+                .thenApplyAsync(MeasurementsController::apply, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error getting measurements", throwable);
+                    return internalServerError();
+                });
+    }
+
 //    @BodyParser.Of(BodyParser.Json.class)
 //    public CompletableFuture<Result> createMeasurement() {
 //        return CompletableFuture.supplyAsync(() -> {

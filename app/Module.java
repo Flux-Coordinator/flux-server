@@ -9,7 +9,7 @@ import com.typesafe.config.Config;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import repositories.measurements.MeasurementsRepository;
-import repositories.measurements.MeasurementsRepositoryMock;
+import repositories.measurements.MeasurementsRepositoryJPA;
 import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryJPA;
 
@@ -32,7 +32,7 @@ public class Module extends AbstractModule {
     protected void configure() {
         super.configure();
 
-        bind(MeasurementsRepository.class).to(MeasurementsRepositoryMock.class);
+        bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
     }
 

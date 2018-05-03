@@ -1,6 +1,5 @@
 package repositories.projects;
 
-import akka.http.scaladsl.model.Uri;
 import models.MeasurementMetadata;
 import models.Project;
 import org.bson.types.ObjectId;
@@ -9,16 +8,12 @@ import repositories.DatabaseExecutionContext;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {
@@ -94,10 +89,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p where p.projectId = " + projectId, Project.class);
-        final List<Project> foundProjects = typedQuery.getResultList();
-
-        return foundProjects.isEmpty() ? null : foundProjects.get(0);
+        return em.find(Project.class, projectId);
     }
 
     private Long countProjects(final EntityManager em) {
