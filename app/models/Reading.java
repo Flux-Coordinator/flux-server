@@ -17,7 +17,7 @@ public class Reading {
     private double luxValue;
     private Date timestamp;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "positionid")
     @JsonManagedReference
     private Position position;

@@ -39,7 +39,7 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void createMeasurements_BestCase_OK() {
-        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurementMetadata();
+        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurement();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .bodyJson(Json.toJson(measurementMetadata))

@@ -1,7 +1,6 @@
 package repositories.generator;
 
 import models.*;
-import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +17,8 @@ public class DataGenerator {
 
     private DataGenerator() { }
 
-    public static List<Project> generateProjects(final int amountOfProjects, final int roomsPerProject) {
+    public static List<Project> generateProjects(final int amountOfProjects,
+                                                 final int roomsPerProject) {
         try {
             final List<Project> projects = new ArrayList<>(amountOfProjects);
 
@@ -68,8 +68,6 @@ public class DataGenerator {
 
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
-//            room.setLength(random.nextDouble() * 100);
-//            room.setWidth(random.nextDouble() * 100);
 
             return room;
         } catch(final Exception ex) {
@@ -82,13 +80,41 @@ public class DataGenerator {
             final List<Measurement> measurements = new ArrayList<>();
 
             for (int i = 0; i < amount; i++) {
-                measurements.add(generateMeasurementMetadata());
+                measurements.add(generateMeasurement());
             }
 
             return measurements;
         }
         catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
+        }
+    }
+
+    public static Measurement generateMeasurement() {
+        final int amountAnchorPositions = 3;
+        try {
+            final Measurement measurement = new Measurement();
+
+            measurement.setCreator("Generated");
+            measurement.setDescription("Generated automatically");
+            measurement.setName("AutoGenenerated" + random.nextInt());
+            measurement.setFactor(random.nextDouble() * 10);
+            measurement.setOffset(random.nextDouble() * 100);
+            // TODO: Set State?
+//            measurementMetadata.setState(MeasurementState.READY);
+            measurement.setStartDate(new Date());
+            measurement.setEndDate(new Date());
+
+            measurement.setAnchorPositions(new ArrayList<>());
+            measurement.setReadings(new ArrayList<>());
+
+            for(int i = 0; i < amountAnchorPositions; i++) {
+                measurement.getAnchorPositions().add(generateAnchorPosition());
+            }
+
+            return measurement;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
         }
     }
 
@@ -106,6 +132,22 @@ public class DataGenerator {
         }
     }
 
+    public static Reading generateReading() {
+        try {
+            final Reading reading = new Reading();
+
+            reading.setLuxValue(random.nextDouble());
+            final Position position = generatePosition();
+            position.setReading(reading);
+            reading.setPosition(position);
+            reading.setTimestamp(new Date());
+
+            return reading;
+        } catch (final Exception ex) {
+            throw new DataGeneratorException("Failed generating readings", ex);
+        }
+    }
+
     public static Position generatePosition() {
         try {
             final Position position = new Position();
@@ -117,21 +159,6 @@ public class DataGenerator {
             return position;
         } catch (final Exception ex) {
             throw new DataGeneratorException("Failed generating a position", ex);
-        }
-    }
-
-    public static Reading generateReading() {
-        try {
-            final Reading reading = new Reading();
-
-            reading.setLuxValue(random.nextDouble());
-            reading.setPosition(generatePosition());
-
-            reading.setTimestamp(new Date());
-
-            return reading;
-        } catch (final Exception ex) {
-            throw new DataGeneratorException("Failed generating readings", ex);
         }
     }
 
@@ -151,30 +178,6 @@ public class DataGenerator {
         }
     }
 
-    public static Measurement generateMeasurementMetadata() {
-        final int amountAnchorPositions = 3;
-        try {
-            final Measurement measurement = new Measurement();
-
-            measurement.setCreator("Generated");
-            measurement.setDescription("Generated automatically");
-            measurement.setName("AutoGenenerated" + random.nextInt());
-            measurement.setFactor(random.nextDouble() * 10);
-            measurement.setOffset(random.nextDouble() * 100);
-            // TODO: Set State?
-//            measurementMetadata.setState(MeasurementState.READY);
-            measurement.setStartDate(new Date());
-            measurement.setEndDate(new Date());
-
-            for(int i = 0; i < amountAnchorPositions; i++) {
-                measurement.getAnchorPositions().add(generateAnchorPosition());
-            }
-
-            return measurement;
-        } catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
-        }
-    }
 
     private static String getLocalDateTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);

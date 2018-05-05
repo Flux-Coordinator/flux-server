@@ -12,7 +12,7 @@ public interface ProjectsRepository {
 
     CompletionStage<Long> addProject(final Project project);
 
-    void addProjects(final List<Project> projects);
+    CompletionStage<Void> addProjects(final List<Project> projects);
 
     CompletionStage<Project> getProjectById(final long projectId);
 

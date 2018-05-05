@@ -40,8 +40,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public void addProjects(final List<Project> projects) {
-        CompletableFuture.runAsync(() -> wrap(entityManager -> {
+    public CompletableFuture<Void> addProjects(final List<Project> projects) {
+        return CompletableFuture.runAsync(() -> wrap(entityManager -> {
             addProjects(entityManager, projects);
             return null;
         }));
