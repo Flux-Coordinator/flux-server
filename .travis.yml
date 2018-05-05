@@ -22,6 +22,9 @@ addons:
   sonarqube:
     organization: flux-coordinator
 
+services:
+  - postgresql
+
 before_script:
   - psql -c 'create database flux;' -U postgres
 
