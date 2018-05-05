@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+import static repositories.utils.Helper.wrap;
+
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {
     private final JPAApi jpaApi;
@@ -27,20 +29,20 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     @Override
     public CompletableFuture<List<Project>> getProjects(final int limit) {
-        return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjects(entityManager, limit)), databaseExecutionContext);
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjects(entityManager, limit)), databaseExecutionContext);
     }
 
     @Override
     public CompletableFuture<Long> addProject(final Project project) {
         return CompletableFuture.supplyAsync(() -> {
-            final Project persistedProject = wrap(entityManager -> addProject(entityManager, project));
+            final Project persistedProject = wrap(jpaApi, entityManager -> addProject(entityManager, project));
             return persistedProject.getProjectId();
         }, databaseExecutionContext);
     }
 
     @Override
     public CompletableFuture<Void> addProjects(final List<Project> projects) {
-        return CompletableFuture.runAsync(() -> wrap(entityManager -> {
+        return CompletableFuture.runAsync(() -> wrap(jpaApi, entityManager -> {
             addProjects(entityManager, projects);
             return null;
         }));
@@ -48,7 +50,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     @Override
     public CompletableFuture<Project> getProjectById(final long projectId) {
-        return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
     }
 
     @Override
@@ -58,16 +60,12 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     @Override
     public CompletableFuture<Long> countProjects() {
-        return CompletableFuture.supplyAsync(() -> wrap(this::countProjects), databaseExecutionContext);
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, this::countProjects), databaseExecutionContext);
     }
 
     @Override
     public void resetRepository() {
 
-    }
-
-    private <T> T wrap(Function<EntityManager, T> function) {
-        return jpaApi.withTransaction(function);
     }
 
     private Project addProject(final EntityManager em, final Project project) {

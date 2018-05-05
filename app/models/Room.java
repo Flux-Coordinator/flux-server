@@ -23,6 +23,7 @@ public class Room {
     private double yOffset;
     private double scaleFactor;
 
+
     @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Measurement> measurements;
@@ -113,5 +114,26 @@ public class Room {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Room room = (Room) o;
+        return Double.compare(room.getFloorSpace(), getFloorSpace()) == 0 &&
+                Double.compare(room.getxOffset(), getxOffset()) == 0 &&
+                Double.compare(room.getyOffset(), getyOffset()) == 0 &&
+                Double.compare(room.getScaleFactor(), getScaleFactor()) == 0 &&
+                Objects.equals(getName(), room.getName()) &&
+                Objects.equals(getDescription(), room.getDescription()) &&
+                Objects.equals(getFloorPlan(), room.getFloorPlan()) &&
+                Objects.equals(getMeasurements(), room.getMeasurements());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getName(), getDescription(), getFloorPlan(), getFloorSpace(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurements());
     }
 }

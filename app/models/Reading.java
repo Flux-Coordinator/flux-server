@@ -84,22 +84,18 @@ public class Reading {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(getReadingId(), getLuxValue(), getTimestamp(), getXPosition(), getYPosition(), getZPosition());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Reading reading = (Reading) o;
-        return getReadingId() == reading.getReadingId() &&
-                Double.compare(reading.getLuxValue(), getLuxValue()) == 0 &&
-                Double.compare(reading.getXPosition(), getXPosition()) == 0 &&
-                Double.compare(reading.getYPosition(), getYPosition()) == 0 &&
-                Double.compare(reading.getZPosition(), getZPosition()) == 0 &&
-                Objects.equals(getTimestamp(), reading.getTimestamp()) &&
-                Objects.equals(getMeasurement(), reading.getMeasurement());
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(getReadingId(), getLuxValue(), getTimestamp(), getXPosition(), getYPosition(), getZPosition(), getMeasurement());
+        return Double.compare(reading.getLuxValue(), getLuxValue()) == 0 &&
+                Double.compare(reading.xPosition, xPosition) == 0 &&
+                Double.compare(reading.yPosition, yPosition) == 0 &&
+                Double.compare(reading.zPosition, zPosition) == 0;
     }
 }

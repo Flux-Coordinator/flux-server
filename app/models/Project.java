@@ -58,15 +58,13 @@ public class Project {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return getProjectId() == project.getProjectId() &&
-                Objects.equals(getName(), project.getName()) &&
+        return Objects.equals(getName(), project.getName()) &&
                 Objects.equals(getDescription(), project.getDescription()) &&
                 Objects.equals(getRooms(), project.getRooms());
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
+        return Objects.hash(getProjectId(), getName(), getDescription());
     }
 }

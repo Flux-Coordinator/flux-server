@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity(name="Measurement")
@@ -154,5 +156,27 @@ public class Measurement {
 
     public void setMeasurementState(MeasurementState measurementState) {
         this.measurementState = measurementState;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Measurement that = (Measurement) o;
+        return Double.compare(that.getTargetHeight(), getTargetHeight()) == 0 &&
+                Double.compare(that.getHeightTolerance(), getHeightTolerance()) == 0 &&
+                Double.compare(that.getOffset(), getOffset()) == 0 &&
+                Double.compare(that.getFactor(), getFactor()) == 0 &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getDescription(), that.getDescription()) &&
+                getStartDate().compareTo(that.getStartDate()) == 0 && // Dont use the standard equals with dates! The database changes the type!!
+                getEndDate().compareTo(that.getEndDate()) == 0 &&
+                Objects.equals(getCreator(), that.getCreator()) &&
+                getMeasurementState() == that.getMeasurementState();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getTargetHeight(), getHeightTolerance(), getOffset(), getFactor(), getMeasurementState());
     }
 }

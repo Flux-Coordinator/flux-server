@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity(name = "AnchorPosition")
 @Table(name = "anchorposition")
@@ -68,5 +69,21 @@ public class AnchorPosition {
 
     public void setAnchor(Anchor anchor) {
         this.anchor = anchor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnchorPosition that = (AnchorPosition) o;
+        return Double.compare(that.xPosition, xPosition) == 0 &&
+                Double.compare(that.yPosition, yPosition) == 0 &&
+                Double.compare(that.zPosition, zPosition) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(xPosition, yPosition, zPosition);
     }
 }

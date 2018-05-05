@@ -1,8 +1,10 @@
 package controllers;
 
 import helpers.Helpers;
-import models.*;
-import org.bson.types.ObjectId;
+import models.Measurement;
+import models.Project;
+import models.Reading;
+import models.Room;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -15,12 +17,13 @@ import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.test.Helpers.*;
 
 public class MeasurementsControllerTest extends WithApplication {
@@ -91,13 +94,14 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurementById_GetExisting_OK() throws ExecutionException, InterruptedException {
-        final Measurement measurementReadings = new Measurement();
+        final Measurement measurementReadings = DataGenerator.generateMeasurement();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final CompletableFuture<Long> newMeasurementId = repository.createMeasurement(measurementReadings);
         final Measurement expectedMeasurement = repository.getMeasurementbyId(newMeasurementId.get()).get();
+        final long id = newMeasurementId.get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + newMeasurementId);
+                .uri("/measurements/" + id);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
         final Measurement actualMeasurement = Helpers.convertFromJSON(result, Measurement.class);
@@ -106,21 +110,11 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurementById_GetNotExisting_NoContent() {
-        final ObjectId objectId = new ObjectId();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + objectId);
+                .uri("/measurements/" + 1242133);
         final Result result = route(app, request);
         assertEquals(NO_CONTENT, result.status());
-    }
-
-    @Test
-    public void getMeasurementById_InvalidObjectId_BadRequest() {
-        final Http.RequestBuilder request = new Http.RequestBuilder()
-                .method(GET)
-                .uri("/measurements/1234");
-        final Result result = route(app, request);
-        assertEquals(BAD_REQUEST, result.status());
     }
 
     @Test
@@ -140,9 +134,9 @@ public class MeasurementsControllerTest extends WithApplication {
     @Test
     public void addReadings_AddOne_ReadingAdded() throws ExecutionException, InterruptedException {
         final Measurement activeMeasurement = getOrSetActiveMeasurement();
-
+        final int initialAmountOfReadings = activeMeasurement.getReadings().size();
         final Reading reading = DataGenerator.generateReading();
-        final List<Reading> readingList = new ArrayList<>(1);
+        final Set<Reading> readingList = new HashSet<>(1);
         readingList.add(reading);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
@@ -153,15 +147,15 @@ public class MeasurementsControllerTest extends WithApplication {
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
-        assertTrue(measurement.getReadings().contains(reading));
+        assertEquals("The reading was not added correctly", initialAmountOfReadings + 1, measurement.getReadings().size());
     }
 
     @Test
     public void addReadings_AddMultiple_ReadingAdded() throws ExecutionException, InterruptedException {
         final int amountOfReadings = 10;
         final Measurement activeMeasurement = getOrSetActiveMeasurement();
-
-        final List<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
+        final int amountOfReadingsBeforeTest = activeMeasurement.getReadings().size();
+        final Set<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .uri("/measurements/active/readings")
@@ -171,7 +165,7 @@ public class MeasurementsControllerTest extends WithApplication {
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
-        assertTrue(measurement.getReadings().containsAll(readingList));
+        assertEquals("At least one reading was not added.", amountOfReadingsBeforeTest + amountOfReadings, measurement.getReadings().size());
     }
 
     private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {

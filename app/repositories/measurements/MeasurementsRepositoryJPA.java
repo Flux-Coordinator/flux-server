@@ -76,7 +76,8 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
-        return em.find(Measurement.class, measurementId);
+        final Measurement foundMeasurement = em.find(Measurement.class, measurementId);
+        return foundMeasurement;
     }
 
     private Measurement createMeasurement(final EntityManager em, final Measurement measurement) {
