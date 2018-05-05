@@ -94,7 +94,7 @@ public class MeasurementsControllerTest extends WithApplication {
         final MeasurementReadings measurementReadings = new MeasurementReadings();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
         final ObjectId newMeasurementId = repository.addMeasurement(measurementReadings);
-        final MeasurementReadings expectedReading = repository.getMeasurementReadingsById(newMeasurementId);
+        final MeasurementReadings expectedReading = repository.getMeasurementbyId(newMeasurementId);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/" + newMeasurementId);
@@ -152,7 +152,7 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementReadingsById(activeMeasurement.getMeasurementId());
+        final MeasurementReadings measurementReadings = repository.getMeasurementbyId(activeMeasurement.getMeasurementId());
         assertTrue(measurementReadings.getReadings().contains(reading));
     }
 
@@ -170,7 +170,7 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementReadingsById(activeMeasurement.getMeasurementId());
+        final MeasurementReadings measurementReadings = repository.getMeasurementbyId(activeMeasurement.getMeasurementId());
         assertTrue(measurementReadings.getReadings().containsAll(readingList));
     }
 

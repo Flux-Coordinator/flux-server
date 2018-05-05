@@ -1,5 +1,6 @@
 package repositories.rooms;
 
+import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
@@ -39,10 +40,10 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     @Override
-    public CompletionStage<Long> addRoom(final Room room) {
+    public CompletionStage<Long> addRoom(final long projectId, final Room room) {
         return CompletableFuture
                 .supplyAsync(() -> {
-                    final Room persistedRoom = wrap(jpaApi, entityManager -> addRoom(entityManager, room));
+                    final Room persistedRoom = wrap(jpaApi, entityManager -> addRoom(entityManager, projectId, room));
                     return persistedRoom.getRoomId();
                 }, databaseExecutionContext);
     }
@@ -67,7 +68,9 @@ public class RoomsRepositoryJPA implements RoomsRepository {
         return em.find(Room.class, roomId);
     }
 
-    private Room addRoom(final EntityManager em, final Room room) {
+    private Room addRoom(final EntityManager em, final long projectId, final Room room) {
+        final Project projectRef = em.getReference(Project.class, projectId);
+        room.setProject(projectRef);
         em.persist(room);
         return room;
     }

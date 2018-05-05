@@ -38,7 +38,9 @@ public class DataGenerator {
 
             project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-//          TODO:  project.setRooms(generateRooms(rooms));
+            final List<Room> roomList = generateRooms(rooms);
+            roomList.forEach(room -> room.setProject(project));
+            project.setRooms(roomList);
 
             return project;
         } catch(final Exception ex) {
@@ -75,9 +77,9 @@ public class DataGenerator {
         }
     }
 
-    public static List<MeasurementMetadata> generateMeasurements(final int amount) {
+    public static List<Measurement> generateMeasurements(final int amount) {
         try {
-            final List<MeasurementMetadata> measurements = new ArrayList<>();
+            final List<Measurement> measurements = new ArrayList<>();
 
             for (int i = 0; i < amount; i++) {
                 measurements.add(generateMeasurementMetadata());
@@ -149,26 +151,26 @@ public class DataGenerator {
         }
     }
 
-    public static MeasurementMetadata generateMeasurementMetadata() {
+    public static Measurement generateMeasurementMetadata() {
         final int amountAnchorPositions = 3;
         try {
-            final MeasurementMetadata measurementMetadata = new MeasurementMetadata();
+            final Measurement measurement = new Measurement();
 
-            measurementMetadata.setMeasurementId(new ObjectId());
-            measurementMetadata.setCreator("Generated");
-            measurementMetadata.setDescription("Generated automatically");
-            measurementMetadata.setName("AutoGenenerated" + random.nextInt());
-            measurementMetadata.setFactor(random.nextDouble() * 10);
-            measurementMetadata.setOffset(random.nextDouble() * 100);
-            measurementMetadata.setState(MeasurementState.READY);
-            measurementMetadata.setStartDate(new Date());
-            measurementMetadata.setEndDate(new Date());
+            measurement.setCreator("Generated");
+            measurement.setDescription("Generated automatically");
+            measurement.setName("AutoGenenerated" + random.nextInt());
+            measurement.setFactor(random.nextDouble() * 10);
+            measurement.setOffset(random.nextDouble() * 100);
+            // TODO: Set State?
+//            measurementMetadata.setState(MeasurementState.READY);
+            measurement.setStartDate(new Date());
+            measurement.setEndDate(new Date());
 
             for(int i = 0; i < amountAnchorPositions; i++) {
-                measurementMetadata.getAnchorPositions().add(generateAnchorPosition());
+                measurement.getAnchorPositions().add(generateAnchorPosition());
             }
 
-            return measurementMetadata;
+            return measurement;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a single measurement metadata", ex);
         }

@@ -1,17 +1,13 @@
 package controllers;
 
 import com.google.inject.Inject;
-import models.MeasurementMetadata;
-import models.MeasurementReadings;
 import models.Project;
-import org.bson.types.ObjectId;
 import play.mvc.Controller;
 import play.mvc.Result;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AdminController extends Controller {

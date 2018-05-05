@@ -1,7 +1,6 @@
 package repositories.measurements;
 
 import models.Measurement;
-import models.MeasurementReadings;
 import models.Reading;
 import org.bson.types.ObjectId;
 import play.db.jpa.JPAApi;
@@ -10,6 +9,7 @@ import repositories.DatabaseExecutionContext;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,14 +33,19 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public MeasurementReadings getMeasurementReadingsById(ObjectId measurementId) {
-        return null;
+    public CompletableFuture<Measurement> getMeasurementbyId(final long measurementId) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getMeasurementById(entityManager, measurementId)),
+                databaseExecutionContext);
     }
 
     @Override
-    public ObjectId addMeasurement(MeasurementReadings readings) {
-        return null;
+    public CompletableFuture<Long> createMeasurement(final Measurement measurement) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> {
+            final Measurement persistedMeasurement = createMeasurement(entityManager, measurement);
+            return persistedMeasurement.getMeasurementId();
+        }), databaseExecutionContext);
     }
+
 
     @Override
     public void addReadings(ObjectId measurementId, List<Reading> readings) {
@@ -53,11 +58,26 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public void addMeasurements(List<MeasurementReadings> measurementReadings) {
+    public void addMeasurements(final List<Measurement> measurements) {
 
     }
 
     private List<Measurement> getMeasurements(final EntityManager em, final int limit) {
-        return null;
+        final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
+
+        if(limit > 0) {
+            query.setMaxResults(limit);
+        }
+
+        return query.getResultList();
+    }
+
+    private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
+        return em.find(Measurement.class, measurementId);
+    }
+
+    private Measurement createMeasurement(final EntityManager em, final Measurement measurement) {
+        em.persist(measurement);
+        return measurement;
     }
 }

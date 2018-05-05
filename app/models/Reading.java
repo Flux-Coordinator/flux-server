@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -20,6 +21,11 @@ public class Reading {
     @JoinColumn(name = "positionid")
     @JsonManagedReference
     private Position position;
+
+    @ManyToOne
+    @JoinColumn(name = "measurementid")
+    @JsonBackReference
+    private Measurement measurement;
 
     public long getReadingId() {
         return readingId;
@@ -51,5 +57,13 @@ public class Reading {
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+    public Measurement getMeasurement() {
+        return measurement;
+    }
+
+    public void setMeasurement(Measurement measurement) {
+        this.measurement = measurement;
     }
 }

@@ -1,5 +1,8 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -19,9 +22,18 @@ public class Measurement {
     private double offset;
     private double factor;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "measurementid")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement")
+    @JsonManagedReference
     private List<Reading> readings;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement")
+    @JsonManagedReference
+    private List<AnchorPosition> anchorPositions;
+
+    @ManyToOne
+    @JoinColumn(name = "roomid")
+    @JsonBackReference
+    private Room room;
 
     public Measurement() {
 
@@ -113,5 +125,21 @@ public class Measurement {
 
     public void setReadings(List<Reading> readings) {
         this.readings = readings;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public List<AnchorPosition> getAnchorPositions() {
+        return anchorPositions;
+    }
+
+    public void setAnchorPositions(List<AnchorPosition> anchorPositions) {
+        this.anchorPositions = anchorPositions;
     }
 }

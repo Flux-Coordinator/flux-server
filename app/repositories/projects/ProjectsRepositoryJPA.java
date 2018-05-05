@@ -1,6 +1,6 @@
 package repositories.projects;
 
-import models.MeasurementMetadata;
+import models.Measurement;
 import models.Project;
 import org.bson.types.ObjectId;
 import play.db.jpa.JPAApi;
@@ -53,7 +53,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public ObjectId addMeasurement(ObjectId projectId, String roomName, MeasurementMetadata measurementMetadata) {
+    public ObjectId addMeasurement(final long projectId, final String roomName, final Measurement measurement) {
         return null;
     }
 

@@ -1,24 +1,26 @@
 package models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.bson.types.ObjectId;
+import javax.persistence.*;
 
-import java.util.Objects;
-
+@Entity(name = "AnchorPosition")
+@Table(name = "anchorposition")
 public class AnchorPosition {
-    @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId anchorId;
+    @Id @GeneratedValue @Column(name="id")
+    private long anchorId;
     private String name;
     private double xPosition;
     private double yPosition;
     private double zPosition;
 
-    public ObjectId getAnchorId() {
+    @ManyToOne
+    @JoinColumn(name = "measurementId")
+    private Measurement measurement;
+
+    public long getAnchorId() {
         return anchorId;
     }
 
-    public void setAnchorId(ObjectId anchorId) {
+    public void setAnchorId(final long anchorId) {
         this.anchorId = anchorId;
     }
 
@@ -26,7 +28,7 @@ public class AnchorPosition {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -34,7 +36,7 @@ public class AnchorPosition {
         return xPosition;
     }
 
-    public void setXPosition(double xPosition) {
+    public void setXPosition(final double xPosition) {
         this.xPosition = xPosition;
     }
 
@@ -42,7 +44,7 @@ public class AnchorPosition {
         return yPosition;
     }
 
-    public void setYPosition(double yPosition) {
+    public void setYPosition(final double yPosition) {
         this.yPosition = yPosition;
     }
 
@@ -50,25 +52,15 @@ public class AnchorPosition {
         return zPosition;
     }
 
-    public void setZPosition(double zPosition) {
+    public void setZPosition(final double zPosition) {
         this.zPosition = zPosition;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AnchorPosition that = (AnchorPosition) o;
-        return Double.compare(that.xPosition, xPosition) == 0 &&
-                Double.compare(that.yPosition, yPosition) == 0 &&
-                Double.compare(that.zPosition, zPosition) == 0 &&
-                Objects.equals(getAnchorId(), that.getAnchorId()) &&
-                Objects.equals(getName(), that.getName());
+    public Measurement getMeasurement() {
+        return measurement;
     }
 
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(getAnchorId(), getName(), xPosition, yPosition, zPosition);
+    public void setMeasurement(Measurement measurement) {
+        this.measurement = measurement;
     }
 }

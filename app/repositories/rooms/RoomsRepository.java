@@ -10,7 +10,7 @@ public interface RoomsRepository {
 
     CompletionStage<Room> getRoomById(final long roomId);
 
-    CompletionStage<Long> addRoom(final Room room);
+    CompletionStage<Long> addRoom(final long projectId, final Room room);
 
     void removeRoom(final long roomId);
 }

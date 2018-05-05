@@ -1,5 +1,8 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +17,20 @@ public class Room {
     private String description;
     private String floorPlan;
     private double floorSpace;
+    @Column(name = "xoffset")
     private double xOffset;
+    @Column(name = "yoffset")
     private double yOffset;
     private double scaleFactor;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "roomid")
+    @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Measurement> measurements;
+
+    @ManyToOne
+    @JoinColumn(name="projectid")
+    @JsonBackReference
+    private Project project;
 
     public Room() {
     }
@@ -97,21 +107,11 @@ public class Room {
         this.measurements = measurements;
     }
 
-    //    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Room room = (Room) o;
-//        return Double.compare(room.getWidth(), getWidth()) == 0 &&
-//                Double.compare(room.getLength(), getLength()) == 0 &&
-//                Objects.equals(getName(), room.getName()) &&
-//                Objects.equals(getDescription(), room.getDescription()) &&
-//                Objects.equals(getFloorPlan(), room.getFloorPlan()) &&
-//                Objects.equals(getMeasurements(), room.getMeasurements());
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(getName(), getDescription(), getFloorPlan(), getWidth(), getLength(), getMeasurements());
-//    }
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
 }

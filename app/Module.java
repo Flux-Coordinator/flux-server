@@ -12,6 +12,8 @@ import repositories.measurements.MeasurementsRepository;
 import repositories.measurements.MeasurementsRepositoryJPA;
 import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryJPA;
+import repositories.rooms.RoomsRepository;
+import repositories.rooms.RoomsRepositoryJPA;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -32,6 +34,7 @@ public class Module extends AbstractModule {
     protected void configure() {
         super.configure();
 
+        bind(RoomsRepository.class).to(RoomsRepositoryJPA.class);
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
     }
