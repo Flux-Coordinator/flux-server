@@ -97,8 +97,7 @@ public class DataGenerator {
             measurement.setName("AutoGenenerated" + random.nextInt());
             measurement.setFactor(random.nextDouble() * 10);
             measurement.setOffset(random.nextDouble() * 100);
-            // TODO: Set State?
-//            measurementMetadata.setState(MeasurementState.READY);
+            measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
 
@@ -134,9 +133,9 @@ public class DataGenerator {
             final Reading reading = new Reading();
 
             reading.setLuxValue(random.nextDouble());
-            final Position position = generatePosition();
-            position.setReading(reading);
-            reading.setPosition(position);
+            reading.setXPosition(random.nextDouble());
+            reading.setYPosition(random.nextDouble());
+            reading.setZPosition(random.nextDouble());
             reading.setTimestamp(new Date());
 
             return reading;
@@ -145,17 +144,13 @@ public class DataGenerator {
         }
     }
 
-    public static Position generatePosition() {
+    public static Anchor generateAnchor() {
         try {
-            final Position position = new Position();
-
-            position.setxPosition(random.nextDouble());
-            position.setyPosition(random.nextDouble());
-            position.setzPosition(random.nextDouble());
-
-            return position;
-        } catch (final Exception ex) {
-            throw new DataGeneratorException("Failed generating a position", ex);
+            final Anchor anchor = new Anchor();
+            anchor.setNetworkid("networkid" + random.nextDouble());
+            return anchor;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating anchor", ex);
         }
     }
 
@@ -163,10 +158,10 @@ public class DataGenerator {
         try {
             final AnchorPosition position = new AnchorPosition();
 
-            position.setName("Anker-" + random.nextInt(Integer.MAX_VALUE));
             position.setXPosition(random.nextDouble());
             position.setYPosition(random.nextDouble());
             position.setZPosition(random.nextDouble());
+            position.setAnchor(generateAnchor());
 
             return position;
         }

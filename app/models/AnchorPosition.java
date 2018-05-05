@@ -9,7 +9,6 @@ import javax.persistence.*;
 public class AnchorPosition {
     @Id @GeneratedValue @Column(name="id")
     private long anchorId;
-    private String name;
     private double xPosition;
     private double yPosition;
     private double zPosition;
@@ -19,20 +18,16 @@ public class AnchorPosition {
     @JsonBackReference
     private Measurement measurement;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "anchorid")
+    private Anchor anchor;
+
     public long getAnchorId() {
         return anchorId;
     }
 
     public void setAnchorId(final long anchorId) {
         this.anchorId = anchorId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public double getXPosition() {
@@ -65,5 +60,13 @@ public class AnchorPosition {
 
     public void setMeasurement(Measurement measurement) {
         this.measurement = measurement;
+    }
+
+    public Anchor getAnchor() {
+        return anchor;
+    }
+
+    public void setAnchor(Anchor anchor) {
+        this.anchor = anchor;
     }
 }

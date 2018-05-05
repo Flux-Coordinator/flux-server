@@ -3,6 +3,7 @@ package controllers;
 import com.google.inject.Inject;
 import models.Measurement;
 import models.Project;
+import models.Reading;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -11,6 +12,7 @@ import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 public class AdminController extends Controller {
@@ -38,13 +40,18 @@ public class AdminController extends Controller {
             final List<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
             roomMeasurements.forEach(measurement -> {
                 measurement.setRoom(room);
-                measurement.setReadings(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
+                final Set<Reading> readings = DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT);
+                readings.forEach(reading -> {
+                    reading.setMeasurement(measurement);
+                });
+                measurement.getAnchorPositions().forEach(anchorPosition -> anchorPosition.setMeasurement(measurement));
+                measurement.setReadings(readings);
             });
             room.setMeasurements(roomMeasurements);
         }));
 
         return this.projectsRepository.addProjects(projects).thenApplyAsync(aVoid ->
-                        ok("Created " + AMOUNT_OF_PROJECTS + "  projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
+                        ok("Created " + AMOUNT_OF_PROJECTS + " projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
                                 " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +
                                 " and " + AMOUNT_OF_READINGS_PER_MEASUREMENT + " readings per measurement.")
                 , httpExecutionContext.current());

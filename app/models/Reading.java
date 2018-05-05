@@ -1,9 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,12 +16,11 @@ public class Reading {
     private long readingId;
     @JsonSerialize(using = ToStringSerializer.class)
     private double luxValue;
+    @CreationTimestamp
     private Date timestamp;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "positionid")
-    @JsonManagedReference
-    private Position position;
+    private double xPosition;
+    private double yPosition;
+    private double zPosition;
 
     @ManyToOne
     @JoinColumn(name = "measurementid")
@@ -52,20 +51,36 @@ public class Reading {
         this.timestamp = timestamp;
     }
 
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
-
     public Measurement getMeasurement() {
         return measurement;
     }
 
     public void setMeasurement(Measurement measurement) {
         this.measurement = measurement;
+    }
+
+    public double getXPosition() {
+        return xPosition;
+    }
+
+    public void setXPosition(double xPosition) {
+        this.xPosition = xPosition;
+    }
+
+    public double getYPosition() {
+        return yPosition;
+    }
+
+    public void setYPosition(double yPosition) {
+        this.yPosition = yPosition;
+    }
+
+    public double getZPosition() {
+        return zPosition;
+    }
+
+    public void setZPosition(double zPosition) {
+        this.zPosition = zPosition;
     }
 
     @Override
@@ -75,14 +90,16 @@ public class Reading {
         Reading reading = (Reading) o;
         return getReadingId() == reading.getReadingId() &&
                 Double.compare(reading.getLuxValue(), getLuxValue()) == 0 &&
+                Double.compare(reading.getXPosition(), getXPosition()) == 0 &&
+                Double.compare(reading.getYPosition(), getYPosition()) == 0 &&
+                Double.compare(reading.getZPosition(), getZPosition()) == 0 &&
                 Objects.equals(getTimestamp(), reading.getTimestamp()) &&
-                Objects.equals(getPosition(), reading.getPosition()) &&
                 Objects.equals(getMeasurement(), reading.getMeasurement());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(getReadingId(), getLuxValue(), getTimestamp(), getPosition(), getMeasurement());
+        return Objects.hash(getReadingId(), getLuxValue(), getTimestamp(), getXPosition(), getYPosition(), getZPosition(), getMeasurement());
     }
 }

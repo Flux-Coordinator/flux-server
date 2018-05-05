@@ -85,6 +85,10 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {
-
+        final Measurement measurement = em.getReference(Measurement.class, measurementId);
+        readings.forEach(reading -> {
+            reading.setMeasurement(measurement);
+        });
+        readings.forEach(em::persist);
     }
 }

@@ -81,6 +81,9 @@ public class MeasurementsController extends Controller {
 
     public CompletionStage<Result> startMeasurement(final long measurementId) {
         return measurementsRepository.getMeasurementbyId(measurementId).thenApplyAsync(measurement -> {
+            if(measurement == null) {
+                return notFound("Measurement was not found");
+            }
             this.activeMeasurementId = measurement.getMeasurementId();
             return ok();
         }, httpExecutionContext.current());
