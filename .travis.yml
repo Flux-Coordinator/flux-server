@@ -24,10 +24,6 @@ services:
 before_script:
   - psql -c 'create database flux;' -U postgres
 
-env:
-  global:
-    - PGPORT=5432
-
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
   - sonar-scanner
