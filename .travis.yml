@@ -22,15 +22,12 @@ addons:
   sonarqube:
     organization: flux-coordinator
 
-services:
-  - psql -c 'create database flux;' -U postgres
-
 before_script:
-  - sleep 15
+  - psql -c 'create database flux;' -U postgres
 
 env:
   global:
-    - PGPORT=5433
+    - PGPORT=5432
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
