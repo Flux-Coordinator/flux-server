@@ -27,12 +27,12 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<List<Project>> getProjects(final int limit) {
+    public CompletableFuture<List<Project>> getProjects(final int limit) {
         return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjects(entityManager, limit)), databaseExecutionContext);
     }
 
     @Override
-    public CompletionStage<Long> addProject(final Project project) {
+    public CompletableFuture<Long> addProject(final Project project) {
         return CompletableFuture.supplyAsync(() -> {
             final Project persistedProject = wrap(entityManager -> addProject(entityManager, project));
             return persistedProject.getProjectId();
@@ -48,7 +48,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<Project> getProjectById(final long projectId) {
+    public CompletableFuture<Project> getProjectById(final long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
     }
 
@@ -58,7 +58,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletionStage<Long> countProjects() {
+    public CompletableFuture<Long> countProjects() {
         return CompletableFuture.supplyAsync(() -> wrap(this::countProjects), databaseExecutionContext);
     }
 

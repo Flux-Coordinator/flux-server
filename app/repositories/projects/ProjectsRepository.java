@@ -5,20 +5,20 @@ import models.Project;
 import org.bson.types.ObjectId;
 
 import java.util.List;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 
 public interface ProjectsRepository {
-    CompletionStage<List<Project>> getProjects(final int limit);
+    CompletableFuture<List<Project>> getProjects(final int limit);
 
-    CompletionStage<Long> addProject(final Project project);
+    CompletableFuture<Long> addProject(final Project project);
 
-    CompletionStage<Void> addProjects(final List<Project> projects);
+    CompletableFuture<Void> addProjects(final List<Project> projects);
 
-    CompletionStage<Project> getProjectById(final long projectId);
+    CompletableFuture<Project> getProjectById(final long projectId);
 
     ObjectId addMeasurement(final long projectId, final String roomName, final Measurement measurement);
 
-    CompletionStage<Long> countProjects();
+    CompletableFuture<Long> countProjects();
 
     void resetRepository();
 }

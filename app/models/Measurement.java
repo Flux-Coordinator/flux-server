@@ -19,6 +19,7 @@ public class Measurement {
     private String creator;
     private double targetHeight;
     private double heightTolerance;
+    @Column(name = "measurementoffset")
     private double offset;
     private double factor;
 

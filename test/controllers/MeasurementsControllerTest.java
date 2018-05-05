@@ -17,6 +17,8 @@ import repositories.projects.ProjectsRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static play.test.Helpers.*;
@@ -39,10 +41,10 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void createMeasurements_BestCase_OK() {
-        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurement();
+        final Measurement measurement = DataGenerator.generateMeasurement();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
-                .bodyJson(Json.toJson(measurementMetadata))
+                .bodyJson(Json.toJson(measurement))
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
@@ -55,9 +57,8 @@ public class MeasurementsControllerTest extends WithApplication {
         final int desiredLimitOfMeasurements = 5;
 
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final MeasurementReadings measurementReadings = new MeasurementReadings();
-            measurementReadings.setMeasurementId(new ObjectId());
-            repository.addMeasurement(measurementReadings);
+            final Measurement measurement = new Measurement();
+            repository.createMeasurement(measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -65,8 +66,8 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
-        assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
+        final Measurement[] measurements = Helpers.convertFromJSON(result, Measurement[].class);
+        assertEquals(desiredLimitOfMeasurements, measurements.length);
     }
 
     @Test
@@ -75,9 +76,8 @@ public class MeasurementsControllerTest extends WithApplication {
         final int desiredLimitOfMeasurements = 2;
 
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final MeasurementReadings measurementReadings = new MeasurementReadings();
-            measurementReadings.setMeasurementId(new ObjectId());
-            repository.addMeasurement(measurementReadings);
+            final Measurement measurement = new Measurement();
+            repository.createMeasurement(measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -85,23 +85,23 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements?limit=" + desiredLimitOfMeasurements);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
-        assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
+        final Measurement[] measurements = Helpers.convertFromJSON(result, Measurement[].class);
+        assertEquals(desiredLimitOfMeasurements, measurements.length);
     }
 
     @Test
-    public void getMeasurementById_GetExisting_OK() {
-        final MeasurementReadings measurementReadings = new MeasurementReadings();
+    public void getMeasurementById_GetExisting_OK() throws ExecutionException, InterruptedException {
+        final Measurement measurementReadings = new Measurement();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final ObjectId newMeasurementId = repository.addMeasurement(measurementReadings);
-        final MeasurementReadings expectedReading = repository.getMeasurementbyId(newMeasurementId);
+        final CompletableFuture<Long> newMeasurementId = repository.createMeasurement(measurementReadings);
+        final Measurement expectedMeasurement = repository.getMeasurementbyId(newMeasurementId.get()).get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/" + newMeasurementId);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings actualReading = Helpers.convertFromJSON(result, MeasurementReadings.class);
-        assertEquals(expectedReading, actualReading);
+        final Measurement actualMeasurement = Helpers.convertFromJSON(result, Measurement.class);
+        assertEquals(expectedMeasurement, actualMeasurement);
     }
 
     @Test
@@ -124,22 +124,22 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     @Test
-    public void startMeasurement_StartFirst_IsActive() {
+    public void startMeasurement_StartFirst_IsActive() throws ExecutionException, InterruptedException {
         final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-        final Project project = projectsRepository.getProjects().next();
+        final Project project = projectsRepository.getProjects(1).get().get(0);
         final Room room = project.getRooms().get(0);
-        final MeasurementMetadata measurementMetadata = room.getMeasurements().get(0);
+        final Measurement measurement = room.getMeasurements().get(0);
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(PUT)
-                .uri("/measurements/active/" + measurementMetadata.getMeasurementId());
+                .uri("/measurements/active/" + measurement.getMeasurementId());
         final Result result = route(app, request);
         assertEquals(OK, result.status());
     }
 
     @Test
-    public void addReadings_AddOne_ReadingAdded() {
-        final MeasurementMetadata activeMeasurement = getOrSetActiveMeasurement();
+    public void addReadings_AddOne_ReadingAdded() throws ExecutionException, InterruptedException {
+        final Measurement activeMeasurement = getOrSetActiveMeasurement();
 
         final Reading reading = DataGenerator.generateReading();
         final List<Reading> readingList = new ArrayList<>(1);
@@ -152,14 +152,14 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementbyId(activeMeasurement.getMeasurementId());
-        assertTrue(measurementReadings.getReadings().contains(reading));
+        final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
+        assertTrue(measurement.getReadings().contains(reading));
     }
 
     @Test
-    public void addReadings_AddMultiple_ReadingAdded() {
+    public void addReadings_AddMultiple_ReadingAdded() throws ExecutionException, InterruptedException {
         final int amountOfReadings = 10;
-        final MeasurementMetadata activeMeasurement = getOrSetActiveMeasurement();
+        final Measurement activeMeasurement = getOrSetActiveMeasurement();
 
         final List<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -170,22 +170,22 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementbyId(activeMeasurement.getMeasurementId());
-        assertTrue(measurementReadings.getReadings().containsAll(readingList));
+        final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
+        assertTrue(measurement.getReadings().containsAll(readingList));
     }
 
-    private MeasurementMetadata getOrSetActiveMeasurement() {
+    private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {
         final Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/active");
         final Result getResult = route(app, getActiveRequest);
 
-        MeasurementMetadata measurementMetadata;
+        Measurement measurementMetadata;
         if(getResult.status() == OK) {
-            measurementMetadata = Helpers.convertFromJSON(getResult, MeasurementMetadata.class);
+            measurementMetadata = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
             final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-            final Project project = projectsRepository.getProjects().next();
+            final Project project = projectsRepository.getProjects(1).get().get(0);
             final Room room = project.getRooms().get(0);
             measurementMetadata = room.getMeasurements().get(0);
 

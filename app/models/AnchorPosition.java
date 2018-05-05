@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity(name = "AnchorPosition")
@@ -14,6 +16,7 @@ public class AnchorPosition {
 
     @ManyToOne
     @JoinColumn(name = "measurementId")
+    @JsonBackReference
     private Measurement measurement;
 
     public long getAnchorId() {

@@ -25,24 +25,22 @@ public class AdminController extends Controller {
 
     @Inject
     public AdminController(final ProjectsRepository projectsRepository,
-                           final MeasurementsRepository measurementsRepository,
                            final HttpExecutionContext httpExecutionContext) {
         this.projectsRepository = projectsRepository;
         this.httpExecutionContext = httpExecutionContext;
-//        this.measurementsRepository = measurementsRepository;
     }
 
     public CompletionStage<Result> resetData() {
         final List<Project> projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS,
                 AMOUNT_OF_ROOMS_PER_PROJECT);
 
-//        projects.forEach(project -> project.getRooms().forEach(room -> {
-//            final List<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
-//            roomMeasurements.forEach(measurement -> {
-//                measurement.setReadings(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
-//            });
-//            room.setMeasurements(roomMeasurements);
-//        }));
+        projects.forEach(project -> project.getRooms().forEach(room -> {
+            final List<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
+            roomMeasurements.forEach(measurement -> {
+                measurement.setReadings(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
+            });
+            room.setMeasurements(roomMeasurements);
+        }));
 
         return this.projectsRepository.addProjects(projects).thenApplyAsync(aVoid ->
                         ok("Created " + AMOUNT_OF_PROJECTS + "  projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
