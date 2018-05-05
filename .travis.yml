@@ -14,7 +14,8 @@ cache:
     - $HOME/.ivy2
 
 addons:
-  sonarqube:
+  postgresql: "9.6"
+  sonarcloud:
     organization: flux-coordinator
 
 services:
