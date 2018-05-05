@@ -23,6 +23,9 @@ public class Measurement {
     private double offset;
     private double factor;
 
+    @Enumerated(EnumType.STRING)
+    private MeasurementState measurementState;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement")
     @JsonManagedReference
     private List<Reading> readings;
@@ -142,5 +145,13 @@ public class Measurement {
 
     public void setAnchorPositions(List<AnchorPosition> anchorPositions) {
         this.anchorPositions = anchorPositions;
+    }
+
+    public MeasurementState getMeasurementState() {
+        return measurementState;
+    }
+
+    public void setMeasurementState(MeasurementState measurementState) {
+        this.measurementState = measurementState;
     }
 }
