@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity(name="Reading")
 @Table(name="reading")
@@ -65,5 +66,23 @@ public class Reading {
 
     public void setMeasurement(Measurement measurement) {
         this.measurement = measurement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reading reading = (Reading) o;
+        return getReadingId() == reading.getReadingId() &&
+                Double.compare(reading.getLuxValue(), getLuxValue()) == 0 &&
+                Objects.equals(getTimestamp(), reading.getTimestamp()) &&
+                Objects.equals(getPosition(), reading.getPosition()) &&
+                Objects.equals(getMeasurement(), reading.getMeasurement());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getReadingId(), getLuxValue(), getTimestamp(), getPosition(), getMeasurement());
     }
 }

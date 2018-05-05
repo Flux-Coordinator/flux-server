@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name="Measurement")
 @Table(name="measurement")
@@ -26,13 +27,13 @@ public class Measurement {
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
     @JsonManagedReference
-    private List<Reading> readings;
+    private Set<Reading> readings;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
     @JsonManagedReference
-    private List<AnchorPosition> anchorPositions;
+    private Set<AnchorPosition> anchorPositions;
 
     @ManyToOne
     @JoinColumn(name = "roomid")
@@ -123,11 +124,11 @@ public class Measurement {
         this.factor = factor;
     }
 
-    public List<Reading> getReadings() {
+    public Set<Reading> getReadings() {
         return readings;
     }
 
-    public void setReadings(List<Reading> readings) {
+    public void setReadings(final Set<Reading> readings) {
         this.readings = readings;
     }
 
@@ -139,11 +140,11 @@ public class Measurement {
         this.room = room;
     }
 
-    public List<AnchorPosition> getAnchorPositions() {
+    public Set<AnchorPosition> getAnchorPositions() {
         return anchorPositions;
     }
 
-    public void setAnchorPositions(List<AnchorPosition> anchorPositions) {
+    public void setAnchorPositions(final Set<AnchorPosition> anchorPositions) {
         this.anchorPositions = anchorPositions;
     }
 

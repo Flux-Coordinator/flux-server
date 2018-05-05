@@ -1,5 +1,7 @@
 package controllers;
 
+import actors.measurements.MeasurementActor;
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
@@ -9,12 +11,15 @@ import models.Reading;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.streams.ActorFlow;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.WebSocket;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -44,7 +49,7 @@ public class MeasurementsController extends Controller {
     public CompletionStage<Result> getMeasurementById(final long measurementId) {
         return measurementsRepository.getMeasurementbyId(measurementId)
                 .thenApplyAsync(measurement -> {
-                    if(measurement == null) {
+                    if (measurement == null) {
                         return noContent();
                     }
                     return ok(Json.toJson(measurement));
@@ -65,7 +70,7 @@ public class MeasurementsController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletableFuture<Result> createMeasurement() {
+    public CompletionStage<Result> createMeasurement() {
         final JsonNode json = request().body().asJson();
         final Measurement measurement = Json.fromJson(json, Measurement.class);
         return measurementsRepository.createMeasurement(measurement).thenApplyAsync(measurementId -> {
@@ -74,7 +79,7 @@ public class MeasurementsController extends Controller {
         }, httpExecutionContext.current());
     }
 
-    public CompletableFuture<Result> startMeasurement(final long measurementId) {
+    public CompletionStage<Result> startMeasurement(final long measurementId) {
         return measurementsRepository.getMeasurementbyId(measurementId).thenApplyAsync(measurement -> {
             this.activeMeasurementId = measurement.getMeasurementId();
             return ok();
@@ -86,52 +91,42 @@ public class MeasurementsController extends Controller {
         return ok();
     }
 
-    public CompletableFuture<Result> getActiveMeasurement() {
-        if(this.activeMeasurementId == null) {
+    public CompletionStage<Result> getActiveMeasurement() {
+        if (this.activeMeasurementId == null) {
             return CompletableFuture.completedFuture(noContent());
         }
 
         return this.measurementsRepository.getMeasurementbyId(this.activeMeasurementId)
                 .thenApplyAsync(measurement -> {
-                    if(measurement != null) {
+                    if (measurement != null) {
                         return ok(Json.toJson(measurement));
                     }
                     return noContent();
                 }, httpExecutionContext.current());
     }
-//
-//    @BodyParser.Of(BodyParser.Json.class)
-//    public CompletableFuture<Result> addReading() {
-//        if(this.activeMeasurementId == null) {
-//            return CompletableFuture.completedFuture(noContent());
-//        }
-//
-//        final JsonNode json = request().body().asJson();
-//        final Reading[] array = Json.fromJson(json, Reading[].class);
-//
-////        return CompletableFuture.supplyAsync(() -> {
-////            if(this.activeMeasurement == null) {
-////                return Results.noContent();
-////            }
-////            try {
-////                final JsonNode json = request().body().asJson();
-////                final Reading[] array = Json.fromJson(json, Reading[].class);
-////                final List<Reading> readings = new ArrayList<>(Arrays.asList(array));
-////                measurementsRepository.addReadings(activeMeasurement.getMeasurementId(), readings);
-////                if(measurementStreamFlow != null && MeasurementActor.out != null) {
-////                    MeasurementActor.out.tell(Json.toJson(readings), ActorRef.noSender());
-////                }
-////                return ok();
-////            }
-////            catch (final Exception ex) {
-////                Logger.error("Error while adding new readings to measurement" + this.activeMeasurement.getMeasurementId(), ex);
-////                return badRequest("Error while adding new readings.");
-////            }
-////        }, httpExecutionContext.current());
-//    }
 
-//    public WebSocket streamMeasurements() {
-//        measurementStreamFlow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
-//        return WebSocket.Json.accept(request -> measurementStreamFlow);
-//    }
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> addReading() {
+        if (this.activeMeasurementId == null) {
+            return CompletableFuture.completedFuture(noContent());
+        }
+
+        final JsonNode json = request().body().asJson();
+        final Reading[] array = Json.fromJson(json, Reading[].class);
+        return measurementsRepository.addReadings(this.activeMeasurementId, Arrays.asList(array))
+                .thenApplyAsync(aVoid -> {
+                    if (measurementStreamFlow != null && MeasurementActor.out != null) {
+                        MeasurementActor.out.tell(Json.toJson(array), ActorRef.noSender());
+                    }
+                    return ok("");
+                }, httpExecutionContext.current()).exceptionally(throwable -> {
+                    Logger.error("Error while adding new readings to measurement " + this.activeMeasurementId, throwable);
+                    return badRequest("Error while adding new readings.");
+                });
+    }
+
+    public WebSocket streamMeasurements() {
+        measurementStreamFlow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
+        return WebSocket.Json.accept(request -> measurementStreamFlow);
+    }
 }

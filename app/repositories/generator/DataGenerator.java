@@ -4,10 +4,7 @@ import models.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Helper class to generate data more easily.
@@ -105,8 +102,8 @@ public class DataGenerator {
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
 
-            measurement.setAnchorPositions(new ArrayList<>());
-            measurement.setReadings(new ArrayList<>());
+            measurement.setAnchorPositions(new HashSet<>());
+            measurement.setReadings(new HashSet<>());
 
             for(int i = 0; i < amountAnchorPositions; i++) {
                 measurement.getAnchorPositions().add(generateAnchorPosition());
@@ -118,9 +115,9 @@ public class DataGenerator {
         }
     }
 
-    public static List<Reading> generateReadings(final int amount) {
+    public static Set<Reading> generateReadings(final int amount) {
         try {
-            final List<Reading> readings = new ArrayList<>(amount);
+            final Set<Reading> readings = new HashSet<>(amount);
 
             for(int i = 0; i < amount; i++) {
                 readings.add(generateReading());

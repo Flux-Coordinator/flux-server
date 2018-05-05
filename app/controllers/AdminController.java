@@ -37,6 +37,7 @@ public class AdminController extends Controller {
         projects.forEach(project -> project.getRooms().forEach(room -> {
             final List<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
             roomMeasurements.forEach(measurement -> {
+                measurement.setRoom(room);
                 measurement.setReadings(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
             });
             room.setMeasurements(roomMeasurements);
@@ -47,7 +48,5 @@ public class AdminController extends Controller {
                                 " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +
                                 " and " + AMOUNT_OF_READINGS_PER_MEASUREMENT + " readings per measurement.")
                 , httpExecutionContext.current());
-
-
     }
 }

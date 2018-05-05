@@ -48,8 +48,11 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
 
     @Override
-    public void addReadings(ObjectId measurementId, List<Reading> readings) {
-
+    public CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings) {
+        return CompletableFuture.runAsync(() -> wrap(jpaApi, entityManager -> {
+            addReadings(entityManager, measurementId, readings);
+            return null;
+        }), databaseExecutionContext);
     }
 
     @Override
@@ -79,5 +82,9 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     private Measurement createMeasurement(final EntityManager em, final Measurement measurement) {
         em.persist(measurement);
         return measurement;
+    }
+
+    private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {
+
     }
 }

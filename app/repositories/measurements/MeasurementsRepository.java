@@ -15,7 +15,7 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Long> createMeasurement(final Measurement measurement);
 
-    void addReadings(final ObjectId measurementId, final List<Reading> readings);
+    CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
 
     void resetRepository();
 
