@@ -1,6 +1,8 @@
 package controllers;
 
-import actors.measurements.MeasurementActor;
+import actors.ReadingsActor;
+import actors.WebSocketActor;
+import actors.messages.ReadingsMessage;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
@@ -19,11 +21,13 @@ import play.mvc.WebSocket;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
     private final MeasurementsRepository measurementsRepository;
@@ -31,7 +35,7 @@ public class MeasurementsController extends Controller {
     private final Materializer materializer;
 
     private Long activeMeasurementId;
-    private Flow measurementStreamFlow;
+    private final ActorRef readingsActor;
 
     @Inject
     public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
@@ -40,6 +44,7 @@ public class MeasurementsController extends Controller {
         this.measurementsRepository = measurementsRepository;
         this.actorSystem = actorSystem;
         this.materializer = materializer;
+        this.readingsActor = actorSystem.actorOf(ReadingsActor.getProps());
     }
 
     private static Result apply(final List<Measurement> measurements) {
@@ -115,12 +120,10 @@ public class MeasurementsController extends Controller {
         }
 
         final JsonNode json = request().body().asJson();
-        final Reading[] array = Json.fromJson(json, Reading[].class);
-        return measurementsRepository.addReadings(this.activeMeasurementId, Arrays.asList(array))
+        final Reading[] readings = Json.fromJson(json, Reading[].class);
+        return measurementsRepository.addReadings(this.activeMeasurementId, Arrays.asList(readings))
                 .thenApplyAsync(aVoid -> {
-                    if (measurementStreamFlow != null && MeasurementActor.out != null) {
-                        MeasurementActor.out.tell(Json.toJson(array), ActorRef.noSender());
-                    }
+                    readingsActor.tell(new ReadingsMessage(readings), ActorRef.noSender());
                     return ok("");
                 }, httpExecutionContext.current()).exceptionally(throwable -> {
                     Logger.error("Error while adding new readings to measurement " + this.activeMeasurementId, throwable);
@@ -129,7 +132,8 @@ public class MeasurementsController extends Controller {
     }
 
     public WebSocket streamMeasurements() {
-        measurementStreamFlow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
+        final Flow measurementStreamFlow = ActorFlow.actorRef(actorRef -> WebSocketActor.props(actorRef, readingsActor), actorSystem, materializer);
+        //noinspection unchecked
         return WebSocket.Json.accept(request -> measurementStreamFlow);
     }
 }

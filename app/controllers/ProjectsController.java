@@ -12,8 +12,10 @@ import play.mvc.Result;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class ProjectsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
     private final ProjectsRepository projectsRepository;

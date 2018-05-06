@@ -10,8 +10,10 @@ import play.mvc.Result;
 import repositories.rooms.RoomsRepository;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class RoomsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
     private final RoomsRepository roomsRepository;

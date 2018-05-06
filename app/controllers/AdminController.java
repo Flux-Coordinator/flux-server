@@ -1,6 +1,7 @@
 package controllers;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import models.Measurement;
 import models.Project;
 import models.Reading;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class AdminController extends Controller {
     private static final int AMOUNT_OF_PROJECTS = 10;
     private static final int AMOUNT_OF_ROOMS_PER_PROJECT = 5;
@@ -23,7 +25,6 @@ public class AdminController extends Controller {
 
     private final ProjectsRepository projectsRepository;
     private final HttpExecutionContext httpExecutionContext;
-//    private final MeasurementsRepository measurementsRepository;
 
     @Inject
     public AdminController(final ProjectsRepository projectsRepository,
