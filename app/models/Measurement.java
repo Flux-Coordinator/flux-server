@@ -171,6 +171,7 @@ public class Measurement {
                 Double.compare(that.getFactor(), getFactor()) == 0 &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
+                getStartDate() != null && getEndDate() != null &&
                 getStartDate().compareTo(that.getStartDate()) == 0 && // Dont use the standard equals with dates! The database changes the type!!
                 getEndDate().compareTo(that.getEndDate()) == 0 &&
                 Objects.equals(getCreator(), that.getCreator()) &&

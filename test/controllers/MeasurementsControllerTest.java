@@ -16,6 +16,7 @@ import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
+import repositories.rooms.RoomsRepository;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,26 +44,34 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     @Test
-    public void createMeasurements_BestCase_OK() {
+    public void addMeasurements_BestCase_OK() throws ExecutionException, InterruptedException {
         final Measurement measurement = DataGenerator.generateMeasurement();
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        Room room = roomsRepository.getRooms(0).get().stream().findAny().get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .bodyJson(Json.toJson(measurement))
-                .uri("/measurements");
+                .uri("/rooms/" + room.getRoomId() + "/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
         assertFalse(play.test.Helpers.contentAsString(result).isEmpty());
     }
 
     @Test
-    public void getMeasurements_GetDefault_OK() {
+    public void getMeasurements_GetDefault_OK() throws ExecutionException, InterruptedException {
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final int desiredLimitOfMeasurements = 5;
 
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).toCompletableFuture().get().stream().findAny().get();
+
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final Measurement measurement = new Measurement();
-            repository.addMeasurement(measurement);
+            final Measurement measurement = DataGenerator.generateMeasurement();
+            repository.addMeasurement(parentRoom.getRoomId(), measurement);
         }
+
+        repository.getMeasurements(5).get();
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
@@ -74,13 +83,17 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     @Test
-    public void getMeasurements_Get2_OK() {
+    public void getMeasurements_Get2_OK() throws ExecutionException, InterruptedException {
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final int desiredLimitOfMeasurements = 2;
 
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
+
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final Measurement measurement = new Measurement();
-            repository.addMeasurement(measurement);
+            final Measurement measurement = DataGenerator.generateMeasurement();
+            repository.addMeasurement(parentRoom.getRoomId(), measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -94,10 +107,15 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void getMeasurementById_GetExisting_OK() throws ExecutionException, InterruptedException {
-        final Measurement measurementReadings = DataGenerator.generateMeasurement();
-        final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final CompletableFuture<Long> newMeasurementId = repository.addMeasurement(measurementReadings);
-        final Measurement expectedMeasurement = repository.getMeasurementbyId(newMeasurementId.get()).get();
+        final MeasurementsRepository measurementsRepository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        final Measurement measurement = DataGenerator.generateMeasurement();
+
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
+
+        final CompletableFuture<Long> newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement);
+        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId.get()).get();
         final long id = newMeasurementId.get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
@@ -119,10 +137,9 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void startMeasurement_StartFirst_IsActive() throws ExecutionException, InterruptedException {
-        final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-        final Project project = projectsRepository.getProjects(1).get().get(0);
-        final Room room = project.getRooms().get(0);
-        final Measurement measurement = room.getMeasurements().get(0);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
+        final Measurement measurement = room.getMeasurements().stream().findAny().get();
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(PUT)
@@ -169,6 +186,7 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/active");
@@ -179,9 +197,8 @@ public class MeasurementsControllerTest extends WithApplication {
             measurementMetadata = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
             final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-            final Project project = projectsRepository.getProjects(1).get().get(0);
-            final Room room = project.getRooms().get(0);
-            measurementMetadata = room.getMeasurements().get(0);
+            final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
+            measurementMetadata = room.getMeasurements().stream().findAny().get();
 
             final Http.RequestBuilder setActiveRequest = new Http.RequestBuilder()
                     .method(PUT)

@@ -17,7 +17,6 @@ public class Reading {
     private long readingId;
     @JsonSerialize(using = ToStringSerializer.class)
     private double luxValue;
-    @CreationTimestamp
     private Date timestamp;
     private double xPosition;
     private double yPosition;

@@ -12,7 +12,6 @@ import javax.persistence.TypedQuery;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import static repositories.utils.Helper.wrap;
 
@@ -29,19 +28,19 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     @Override
-    public CompletionStage<Set<Room>> getRooms(final int limit) {
+    public CompletableFuture<Set<Room>> getRooms(final int limit) {
         return CompletableFuture
                 .supplyAsync(() -> wrap(jpaApi, entityManager -> getRooms(entityManager, limit)), databaseExecutionContext);
     }
 
     @Override
-    public CompletionStage<Room> getRoomById(final long roomId) {
+    public CompletableFuture<Room> getRoomById(final long roomId) {
         return CompletableFuture
                 .supplyAsync(() -> wrap(jpaApi, entityManager -> getRoomById(entityManager, roomId)), databaseExecutionContext);
     }
 
     @Override
-    public CompletionStage<Long> addRoom(final long projectId, final Room room) {
+    public CompletableFuture<Long> addRoom(final long projectId, final Room room) {
         return CompletableFuture
                 .supplyAsync(() -> {
                     final Room persistedRoom = wrap(jpaApi, entityManager -> addRoom(entityManager, projectId, room));

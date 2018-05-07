@@ -3,14 +3,14 @@ package repositories.rooms;
 import models.Room;
 
 import java.util.Set;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 
 public interface RoomsRepository {
-    CompletionStage<Set<Room>> getRooms(final int limit);
+    CompletableFuture<Set<Room>> getRooms(final int limit);
 
-    CompletionStage<Room> getRoomById(final long roomId);
+    CompletableFuture<Room> getRoomById(final long roomId);
 
-    CompletionStage<Long> addRoom(final long projectId, final Room room);
+    CompletableFuture<Long> addRoom(final long projectId, final Room room);
 
     void removeRoom(final long roomId);
 }
