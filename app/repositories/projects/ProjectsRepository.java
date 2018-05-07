@@ -5,10 +5,11 @@ import models.Project;
 import org.bson.types.ObjectId;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public interface ProjectsRepository {
-    CompletableFuture<List<Project>> getProjects(final int limit);
+    CompletableFuture<Set<Project>> getProjects(final int limit);
 
     CompletableFuture<Long> addProject(final Project project);
 

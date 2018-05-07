@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity(name="Room")
 @Table(name="room")
 public class Room {
-    @Id @GeneratedValue @Column(name = "id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "room_seq_generator") @Column(name = "id")
+    @SequenceGenerator(name="room_seq_generator", sequenceName = "room_id_seq", allocationSize = 1)
     private long roomId;
     private String name;
     private String description;
@@ -26,7 +26,7 @@ public class Room {
 
     @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<Measurement> measurements;
+    private Set<Measurement> measurements;
 
     @ManyToOne
     @JoinColumn(name="projectid")
@@ -100,11 +100,11 @@ public class Room {
         this.scaleFactor = scaleFactor;
     }
 
-    public List<Measurement> getMeasurements() {
+    public Set<Measurement> getMeasurements() {
         return measurements;
     }
 
-    public void setMeasurements(List<Measurement> measurements) {
+    public void setMeasurements(Set<Measurement> measurements) {
         this.measurements = measurements;
     }
 

@@ -12,7 +12,8 @@ import java.util.Objects;
 @Entity(name="Reading")
 @Table(name="reading")
 public class Reading {
-    @Id @GeneratedValue @Column(name = "id")
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reading_seq_generator") @Column(name = "id")
+    @SequenceGenerator(name = "reading_seq_generator", sequenceName = "reading_id_seq", allocationSize = 1)
     private long readingId;
     @JsonSerialize(using = ToStringSerializer.class)
     private double luxValue;

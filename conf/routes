@@ -11,11 +11,11 @@ GET     /projects/:projectId                controllers.ProjectsController.getPr
 POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
-POST    /measurements                       controllers.MeasurementsController.createMeasurement
+POST    /measurements                       controllers.MeasurementsController.addMeasurement
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)
 DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement
-POST    /measurements/active/readings       controllers.MeasurementsController.addReading
+POST    /measurements/active/readings       controllers.MeasurementsController.addReadings()
 GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
 
 # Map static resources from the /public folder to the /assets URL path

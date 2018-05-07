@@ -61,7 +61,7 @@ public class MeasurementsControllerTest extends WithApplication {
 
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
             final Measurement measurement = new Measurement();
-            repository.createMeasurement(measurement);
+            repository.addMeasurement(measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -80,7 +80,7 @@ public class MeasurementsControllerTest extends WithApplication {
 
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
             final Measurement measurement = new Measurement();
-            repository.createMeasurement(measurement);
+            repository.addMeasurement(measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -96,7 +96,7 @@ public class MeasurementsControllerTest extends WithApplication {
     public void getMeasurementById_GetExisting_OK() throws ExecutionException, InterruptedException {
         final Measurement measurementReadings = DataGenerator.generateMeasurement();
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final CompletableFuture<Long> newMeasurementId = repository.createMeasurement(measurementReadings);
+        final CompletableFuture<Long> newMeasurementId = repository.addMeasurement(measurementReadings);
         final Measurement expectedMeasurement = repository.getMeasurementbyId(newMeasurementId.get()).get();
         final long id = newMeasurementId.get();
         final Http.RequestBuilder request = new Http.RequestBuilder()

@@ -3,7 +3,6 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Project;
 import play.Logger;
-import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;

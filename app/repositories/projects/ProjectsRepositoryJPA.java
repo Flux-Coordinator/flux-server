@@ -10,9 +10,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import static repositories.utils.Helper.wrap;
 
@@ -28,7 +30,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletableFuture<List<Project>> getProjects(final int limit) {
+    public CompletableFuture<Set<Project>> getProjects(final int limit) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjects(entityManager, limit)), databaseExecutionContext);
     }
 
@@ -77,12 +79,13 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         projects.forEach(em::persist);
     }
 
-    private List<Project> getProjects(final EntityManager em, final int limit) {
+    private Set<Project> getProjects(final EntityManager em, final int limit) {
         final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p", Project.class);
         if(limit > 0) {
             typedQuery.setMaxResults(limit);
         }
-        return typedQuery.getResultList();
+
+        return new HashSet<>(typedQuery.getResultList());
     }
 
     private Project getProjectById(final EntityManager em, final long projectId) {

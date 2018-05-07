@@ -9,7 +9,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -28,7 +29,7 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     @Override
-    public CompletionStage<List<Room>> getRooms(final int limit) {
+    public CompletionStage<Set<Room>> getRooms(final int limit) {
         return CompletableFuture
                 .supplyAsync(() -> wrap(jpaApi, entityManager -> getRooms(entityManager, limit)), databaseExecutionContext);
     }
@@ -56,12 +57,12 @@ public class RoomsRepositoryJPA implements RoomsRepository {
         }), databaseExecutionContext);
     }
 
-    private List<Room> getRooms(final EntityManager em, final int limit) {
+    private Set<Room> getRooms(final EntityManager em, final int limit) {
         final TypedQuery<Room> query = em.createQuery("SELECT r FROM Room r", Room.class);
         if(limit > 0) {
             query.setMaxResults(limit);
         }
-        return query.getResultList();
+        return new HashSet<>(query.getResultList());
     }
 
     private Room getRoomById(final EntityManager em, final long roomId) {

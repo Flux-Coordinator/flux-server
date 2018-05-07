@@ -8,8 +8,10 @@ import java.util.Objects;
 @Entity(name = "AnchorPosition")
 @Table(name = "anchorposition")
 public class AnchorPosition {
-    @Id @GeneratedValue @Column(name="id")
-    private long anchorId;
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "anchorposition_seq_generator")
+    @Column(name="id")
+    @SequenceGenerator(name = "anchorposition_seq_generator", sequenceName = "anchorposition_id_seq", allocationSize = 1)
+    private long anchorPositionId;
     private double xPosition;
     private double yPosition;
     private double zPosition;
@@ -23,12 +25,12 @@ public class AnchorPosition {
     @JoinColumn(name = "anchorid")
     private Anchor anchor;
 
-    public long getAnchorId() {
-        return anchorId;
+    public long getAnchorPositionId() {
+        return anchorPositionId;
     }
 
-    public void setAnchorId(final long anchorId) {
-        this.anchorId = anchorId;
+    public void setAnchorPositionId(final long anchorId) {
+        this.anchorPositionId = anchorId;
     }
 
     public double getXPosition() {

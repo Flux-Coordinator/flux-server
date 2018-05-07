@@ -35,7 +35,7 @@ public class DataGenerator {
 
             project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            final List<Room> roomList = generateRooms(rooms);
+            final Set<Room> roomList = generateRooms(rooms);
             roomList.forEach(room -> room.setProject(project));
             project.setRooms(roomList);
 
@@ -45,9 +45,9 @@ public class DataGenerator {
         }
     }
 
-    public static List<Room> generateRooms(final int amount) {
+    public static Set<Room> generateRooms(final int amount) {
         try {
-            final List<Room> rooms = new ArrayList<>(amount);
+            final Set<Room> rooms = new HashSet<>(amount);
 
             for(int i = 0; i < amount; i++) {
                 rooms.add(generateRoom());
@@ -65,6 +65,10 @@ public class DataGenerator {
 
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
+            room.setFloorSpace(random.nextInt());
+            room.setxOffset(random.nextInt());
+            room.setyOffset(random.nextInt());
+            room.setScaleFactor(random.nextInt());
 
             return room;
         } catch(final Exception ex) {
@@ -72,9 +76,9 @@ public class DataGenerator {
         }
     }
 
-    public static List<Measurement> generateMeasurements(final int amount) {
+    public static Set<Measurement> generateMeasurements(final int amount) {
         try {
-            final List<Measurement> measurements = new ArrayList<>();
+            final Set<Measurement> measurements = new HashSet<>();
 
             for (int i = 0; i < amount; i++) {
                 measurements.add(generateMeasurement());

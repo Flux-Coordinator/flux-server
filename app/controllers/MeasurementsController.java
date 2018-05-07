@@ -23,7 +23,7 @@ import repositories.measurements.MeasurementsRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -47,7 +47,7 @@ public class MeasurementsController extends Controller {
         this.readingsActor = actorSystem.actorOf(ReadingsActor.getProps());
     }
 
-    private static Result apply(final List<Measurement> measurements) {
+    private static Result apply(final Set<Measurement> measurements) {
         return ok(Json.toJson(measurements));
     }
 
@@ -75,10 +75,10 @@ public class MeasurementsController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletionStage<Result> createMeasurement() {
+    public CompletionStage<Result> addMeasurement() {
         final JsonNode json = request().body().asJson();
         final Measurement measurement = Json.fromJson(json, Measurement.class);
-        return measurementsRepository.createMeasurement(measurement).thenApplyAsync(measurementId -> {
+        return measurementsRepository.addMeasurement(measurement).thenApplyAsync(measurementId -> {
             final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
             return created(absoluteUrl);
         }, httpExecutionContext.current());
@@ -114,7 +114,7 @@ public class MeasurementsController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletionStage<Result> addReading() {
+    public CompletionStage<Result> addReadings() {
         if (this.activeMeasurementId == null) {
             return CompletableFuture.completedFuture(noContent());
         }

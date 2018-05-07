@@ -2,7 +2,6 @@ package repositories.measurements;
 
 import models.Measurement;
 import models.Reading;
-import org.bson.types.ObjectId;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 
@@ -10,7 +9,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static repositories.utils.Helper.wrap;
@@ -27,7 +28,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public CompletableFuture<List<Measurement>> getMeasurements(final int limit) {
+    public CompletableFuture<Set<Measurement>> getMeasurements(final int limit) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getMeasurements(entityManager, limit)),
                 databaseExecutionContext);
     }
@@ -39,9 +40,9 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public CompletableFuture<Long> createMeasurement(final Measurement measurement) {
+    public CompletableFuture<Long> addMeasurement(final Measurement measurement) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> {
-            final Measurement persistedMeasurement = createMeasurement(entityManager, measurement);
+            final Measurement persistedMeasurement = addMeasurement(entityManager, measurement);
             return persistedMeasurement.getMeasurementId();
         }), databaseExecutionContext);
     }
@@ -61,18 +62,18 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public void addMeasurements(final List<Measurement> measurements) {
+    public void addMeasurements(final Set<Measurement> measurements) {
 
     }
 
-    private List<Measurement> getMeasurements(final EntityManager em, final int limit) {
+    private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
         final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
 
         if(limit > 0) {
             query.setMaxResults(limit);
         }
 
-        return query.getResultList();
+        return new HashSet<>(query.getResultList());
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
@@ -80,7 +81,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         return foundMeasurement;
     }
 
-    private Measurement createMeasurement(final EntityManager em, final Measurement measurement) {
+    private Measurement addMeasurement(final EntityManager em, final Measurement measurement) {
         em.persist(measurement);
         return measurement;
     }

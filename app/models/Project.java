@@ -5,18 +5,21 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity(name="Project")
 @Table(name="project", schema = "public")
 public class Project {
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE) @Column(name = "id")
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq_generator")
+    @Column(name = "id")
+    @SequenceGenerator(name = "project_seq_generator", sequenceName = "project_id_seq", allocationSize = 1)
     private long projectId;
     private String name;
     private String description;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<Room> rooms;
+    private Set<Room> rooms;
 
     public Project() {
     }
@@ -45,11 +48,11 @@ public class Project {
         this.description = description;
     }
 
-    public List<Room> getRooms() {
+    public Set<Room> getRooms() {
         return rooms;
     }
 
-    public void setRooms(final List<Room> rooms) {
+    public void setRooms(final Set<Room> rooms) {
         this.rooms = rooms;
     }
 

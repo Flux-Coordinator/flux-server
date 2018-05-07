@@ -13,7 +13,9 @@ import java.util.Set;
 @Entity(name="Measurement")
 @Table(name="measurement")
 public class Measurement {
-    @Id @GeneratedValue @Column(name="id")
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "measurement_seq_generator")
+    @Column(name="id")
+    @SequenceGenerator(name = "measurement_seq_generator", sequenceName = "measurement_id_seq", allocationSize = 1)
     private long measurementId;
     private String name;
     private String description;

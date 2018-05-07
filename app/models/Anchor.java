@@ -7,9 +7,9 @@ import java.util.Objects;
 @Table(name = "anchor")
 public class Anchor {
 
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "anchor_seq_generator")
     @Column(name = "id")
+    @SequenceGenerator(name = "anchor_seq_generator", sequenceName = "anchor_id_seq", allocationSize = 1)
     private long anchorId;
     private String networkid;
 
