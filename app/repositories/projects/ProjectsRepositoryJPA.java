@@ -1,8 +1,6 @@
 package repositories.projects;
 
-import models.Measurement;
 import models.Project;
-import org.bson.types.ObjectId;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 
@@ -13,7 +11,6 @@ import javax.persistence.TypedQuery;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.concurrent.CompletableFuture;
 
 import static repositories.utils.Helper.wrap;
@@ -53,11 +50,6 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     @Override
     public CompletableFuture<Project> getProjectById(final long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
-    }
-
-    @Override
-    public ObjectId addMeasurement(final long projectId, final String roomName, final Measurement measurement) {
-        return null;
     }
 
     @Override

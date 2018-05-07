@@ -1,8 +1,6 @@
 package repositories.projects;
 
-import models.Measurement;
 import models.Project;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 import java.util.Set;
@@ -16,8 +14,6 @@ public interface ProjectsRepository {
     CompletableFuture<Void> addProjects(final List<Project> projects);
 
     CompletableFuture<Project> getProjectById(final long projectId);
-
-    ObjectId addMeasurement(final long projectId, final String roomName, final Measurement measurement);
 
     CompletableFuture<Long> countProjects();
 
