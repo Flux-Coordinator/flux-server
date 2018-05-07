@@ -1,6 +1,7 @@
 package repositories.projects;
 
 import models.Project;
+import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 
@@ -44,12 +45,17 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return CompletableFuture.runAsync(() -> wrap(jpaApi, entityManager -> {
             addProjects(entityManager, projects);
             return null;
-        }));
+        }), databaseExecutionContext);
     }
 
     @Override
     public CompletableFuture<Project> getProjectById(final long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjectById(entityManager, projectId)), databaseExecutionContext);
+    }
+
+    @Override
+    public CompletableFuture<Set<Room>> getProjectRooms(long projectId) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjectRooms(entityManager, projectId)), databaseExecutionContext);
     }
 
     @Override
@@ -82,6 +88,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     private Project getProjectById(final EntityManager em, final long projectId) {
         return em.find(Project.class, projectId);
+    }
+
+    private Set<Room> getProjectRooms(final EntityManager em, final long projectId) {
+        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.id = " + projectId, Room.class);
+        return new HashSet<>(typedQuery.getResultList());
     }
 
     private Long countProjects(final EntityManager em) {

@@ -43,6 +43,15 @@ public class ProjectsController extends Controller {
         }, httpExecutionContext.current());
     }
 
+    public CompletionStage<Result> getProjectRooms(final long projectId) {
+        return this.projectsRepository.getProjectRooms(projectId)
+                .thenApplyAsync(rooms -> ok(Json.toJson(rooms)), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error while retrieving the rooms for project with the id: " + projectId, throwable);
+                    return badRequest("Error while getting the rooms for the project");
+                });
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> addProject() {
         final JsonNode jsonNode = request().body().asJson();

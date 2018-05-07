@@ -9,6 +9,7 @@ GET     /projects                           controllers.ProjectsController.getPr
 POST    /projects                           controllers.ProjectsController.addProject()
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)
 POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
+GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
