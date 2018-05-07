@@ -31,4 +31,8 @@ public class RoomsController extends Controller {
         return roomsRepository.addRoom(projectId, room)
                 .thenApplyAsync(roomId -> created(Json.toJson(roomId)), httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> getRooms(final int limit) {
+        return roomsRepository.getRooms(limit).thenApplyAsync(rooms -> ok(Json.toJson(rooms)), httpExecutionContext.current());
+    }
 }

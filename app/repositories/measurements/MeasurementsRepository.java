@@ -13,7 +13,7 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Measurement> getMeasurementbyId(final long measurementId);
 
-    CompletableFuture<Long> addMeasurement(final Measurement measurement);
+    CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement);
 
     CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
 

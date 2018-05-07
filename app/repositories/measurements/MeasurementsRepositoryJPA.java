@@ -2,6 +2,7 @@ package repositories.measurements;
 
 import models.Measurement;
 import models.Reading;
+import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 
@@ -40,9 +41,9 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
-    public CompletableFuture<Long> addMeasurement(final Measurement measurement) {
+    public CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> {
-            final Measurement persistedMeasurement = addMeasurement(entityManager, measurement);
+            final Measurement persistedMeasurement = addMeasurement(entityManager, roomId, measurement);
             return persistedMeasurement.getMeasurementId();
         }), databaseExecutionContext);
     }
@@ -77,11 +78,11 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
-        final Measurement foundMeasurement = em.find(Measurement.class, measurementId);
-        return foundMeasurement;
+        return em.find(Measurement.class, measurementId);
     }
 
-    private Measurement addMeasurement(final EntityManager em, final Measurement measurement) {
+    private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
+        measurement.setRoom(em.getReference(Room.class, roomId));
         em.persist(measurement);
         return measurement;
     }

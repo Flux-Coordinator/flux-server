@@ -75,10 +75,10 @@ public class MeasurementsController extends Controller {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletionStage<Result> addMeasurement() {
+    public CompletionStage<Result> addMeasurement(final long roomId) {
         final JsonNode json = request().body().asJson();
         final Measurement measurement = Json.fromJson(json, Measurement.class);
-        return measurementsRepository.addMeasurement(measurement).thenApplyAsync(measurementId -> {
+        return measurementsRepository.addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
             final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
             return created(absoluteUrl);
         }, httpExecutionContext.current());
