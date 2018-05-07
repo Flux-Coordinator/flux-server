@@ -11,13 +11,12 @@ GET     /projects/:projectId                controllers.ProjectsController.getPr
 POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
-#POST    /projects/:projectId/rooms/:roomId/measurements controllers.MeasurementsController.addMeasurement(projectId: Long, roomId: Long)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
 #TODO: Move to room controller
 POST    /rooms/:roomId/measurements         controllers.MeasurementsController.addMeasurement(roomId: Long)
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)
-DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement
+DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement()
 POST    /measurements/active/readings       controllers.MeasurementsController.addReadings()
 GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
 
