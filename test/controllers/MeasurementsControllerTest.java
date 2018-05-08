@@ -47,7 +47,7 @@ public class MeasurementsControllerTest extends WithApplication {
     public void addMeasurements_BestCase_OK() throws ExecutionException, InterruptedException {
         final Measurement measurement = DataGenerator.generateMeasurement();
         final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
-        Room room = roomsRepository.getRooms(0).get().stream().findAny().get();
+        final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .bodyJson(Json.toJson(measurement))
@@ -137,6 +137,13 @@ public class MeasurementsControllerTest extends WithApplication {
 
     @Test
     public void startMeasurement_StartFirst_IsActive() throws ExecutionException, InterruptedException {
+        Http.RequestBuilder stopMeasurementRequest = new Http.RequestBuilder()
+                .method(DELETE)
+                .uri("/measurements/active");
+
+        Result stopResult = route(app, stopMeasurementRequest);
+        assertEquals("The previously started measurement could not be stopped.", OK, stopResult.status());
+
         final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
         final Measurement measurement = room.getMeasurements().stream().findAny().get();
@@ -145,7 +152,14 @@ public class MeasurementsControllerTest extends WithApplication {
                 .method(PUT)
                 .uri("/measurements/active/" + measurement.getMeasurementId());
         final Result result = route(app, request);
-        assertEquals(OK, result.status());
+        assertEquals("The measurement could not be started.", OK, result.status());
+
+        stopMeasurementRequest = new Http.RequestBuilder()
+                .method(DELETE)
+                .uri("/measurements/active");
+        stopResult = route(app, stopMeasurementRequest);
+
+        assertEquals("The previously started measurement could not be stopped.", OK, stopResult.status());
     }
 
     @Test
@@ -192,21 +206,21 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements/active");
         final Result getResult = route(app, getActiveRequest);
 
-        Measurement measurementMetadata;
+        Measurement measurement;
         if(getResult.status() == OK) {
-            measurementMetadata = Helpers.convertFromJSON(getResult, Measurement.class);
+            measurement = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
             final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
             final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
-            measurementMetadata = room.getMeasurements().stream().findAny().get();
+            measurement = room.getMeasurements().stream().findAny().get();
 
             final Http.RequestBuilder setActiveRequest = new Http.RequestBuilder()
                     .method(PUT)
-                    .uri("/measurements/active/" + measurementMetadata.getMeasurementId());
+                    .uri("/measurements/active/" + measurement.getMeasurementId());
             final Result setActiveResult = route(app, setActiveRequest);
             assertEquals(OK, setActiveResult.status());
         }
 
-        return measurementMetadata;
+        return measurement;
     }
 }
