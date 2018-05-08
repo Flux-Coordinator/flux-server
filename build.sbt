@@ -14,12 +14,13 @@ val guiceDeps = Seq(
 )
 
 libraryDependencies ++= Seq(
-  guice
+  guice,
+  javaJpa,
+  "org.postgresql" % "postgresql" % "42.2.2",
+  "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final"
 ) ++ guiceDeps
 
-libraryDependencies ++= Seq(
-  "org.mongodb" % "mongodb-driver" % "3.6.3"
-)
+PlayKeys.externalizeResources := false
 
 jacocoReportSettings := JacocoReportSettings()
   .withTitle("Flux Server JACOCO Report")

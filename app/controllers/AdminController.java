@@ -1,19 +1,22 @@
 package controllers;
 
 import com.google.inject.Inject;
-import models.MeasurementMetadata;
-import models.MeasurementReadings;
+import com.google.inject.Singleton;
+import models.Measurement;
 import models.Project;
-import org.bson.types.ObjectId;
+import models.Reading;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class AdminController extends Controller {
     private static final int AMOUNT_OF_PROJECTS = 10;
     private static final int AMOUNT_OF_ROOMS_PER_PROJECT = 5;
@@ -21,37 +24,37 @@ public class AdminController extends Controller {
     private static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 1;
 
     private final ProjectsRepository projectsRepository;
-    private final MeasurementsRepository measurementsRepository;
+    private final HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public AdminController(final ProjectsRepository projectsRepository, final MeasurementsRepository measurementsRepository) {
+    public AdminController(final ProjectsRepository projectsRepository,
+                           final HttpExecutionContext httpExecutionContext) {
         this.projectsRepository = projectsRepository;
-        this.measurementsRepository = measurementsRepository;
+        this.httpExecutionContext = httpExecutionContext;
     }
 
-    public Result resetData() {
-        this.projectsRepository.resetRepository();
-        final List<Project> projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS, AMOUNT_OF_ROOMS_PER_PROJECT);
-        final List<MeasurementReadings> measurementReadings = new ArrayList<>(AMOUNT_OF_PROJECTS * AMOUNT_OF_ROOMS_PER_PROJECT * AMOUNT_OF_MEASUREMENTS_PER_ROOM);
+    public CompletionStage<Result> resetData() {
+        final List<Project> projects = DataGenerator.generateProjects(AMOUNT_OF_PROJECTS,
+                AMOUNT_OF_ROOMS_PER_PROJECT);
 
-        projects.parallelStream()
-                .forEach(project -> project.getRooms().forEach(room -> {
-                        final List<MeasurementMetadata> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
-                        roomMeasurements.forEach(measurementMetadata -> {
-                            room.getMeasurements().add(measurementMetadata);
-                            final MeasurementReadings readings = new MeasurementReadings();
-                            readings.setMeasurementId(measurementMetadata.getMeasurementId());
-                            readings.getReadings().addAll(DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT));
-                            measurementReadings.add(readings);
-                        });
-                    })
-                );
+        projects.forEach(project -> project.getRooms().forEach(room -> {
+            final Set<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
+            roomMeasurements.forEach(measurement -> {
+                measurement.setRoom(room);
+                final Set<Reading> readings = DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT);
+                readings.forEach(reading -> {
+                    reading.setMeasurement(measurement);
+                });
+                measurement.getAnchorPositions().forEach(anchorPosition -> anchorPosition.setMeasurement(measurement));
+                measurement.setReadings(readings);
+            });
+            room.setMeasurements(roomMeasurements);
+        }));
 
-        projectsRepository.addProjects(projects);
-        measurementsRepository.addMeasurements(measurementReadings);
-
-        return ok("Created " + AMOUNT_OF_PROJECTS + "  projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
-                " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +
-                " and " + AMOUNT_OF_READINGS_PER_MEASUREMENT + " readings per measurement.");
+        return this.projectsRepository.addProjects(projects).thenApplyAsync(aVoid ->
+                        ok("Created " + AMOUNT_OF_PROJECTS + " projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
+                                " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +
+                                " and " + AMOUNT_OF_READINGS_PER_MEASUREMENT + " readings per measurement.")
+                , httpExecutionContext.current());
     }
 }

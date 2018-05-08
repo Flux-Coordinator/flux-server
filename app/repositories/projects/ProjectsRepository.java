@@ -1,24 +1,24 @@
 package repositories.projects;
 
-import models.MeasurementMetadata;
 import models.Project;
-import org.bson.types.ObjectId;
+import models.Room;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public interface ProjectsRepository {
-    Iterator<Project> getProjects();
+    CompletableFuture<Set<Project>> getProjects(final int limit);
 
-    ObjectId addProject(final Project project);
+    CompletableFuture<Long> addProject(final Project project);
 
-    void addProjects(final List<Project> projects);
+    CompletableFuture<Void> addProjects(final List<Project> projects);
 
-    Project getProjectById(final ObjectId projectId);
+    CompletableFuture<Project> getProjectById(final long projectId);
 
-    ObjectId addMeasurement(final ObjectId projectId, final String roomName, final MeasurementMetadata measurementMetadata);
+    CompletableFuture<Set<Room>> getProjectRooms(final long projectId);
 
-    long countProjects();
+    CompletableFuture<Long> countProjects();
 
     void resetRepository();
 }

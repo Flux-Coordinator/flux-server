@@ -1,37 +1,41 @@
 package controllers;
 
-import actors.measurements.MeasurementActor;
+import actors.ReadingsActor;
+import actors.WebSocketActor;
+import actors.messages.ReadingsMessage;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.MeasurementReadings;
+import models.Measurement;
 import models.Reading;
-import org.bson.types.ObjectId;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.streams.ActorFlow;
-import play.mvc.*;
+import play.mvc.BodyParser;
+import play.mvc.Controller;
+import play.mvc.Result;
+import play.mvc.WebSocket;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import javax.inject.Singleton;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@Singleton
 public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
     private final MeasurementsRepository measurementsRepository;
     private final ActorSystem actorSystem;
     private final Materializer materializer;
 
-    private MeasurementReadings activeMeasurement;
-    private Flow measurementStreamFlow;
+    private Long activeMeasurementId;
+    private final ActorRef readingsActor;
 
     @Inject
     public MeasurementsController(final HttpExecutionContext httpExecutionContext, final MeasurementsRepository measurementsRepository,
@@ -40,104 +44,96 @@ public class MeasurementsController extends Controller {
         this.measurementsRepository = measurementsRepository;
         this.actorSystem = actorSystem;
         this.materializer = materializer;
+        this.readingsActor = actorSystem.actorOf(ReadingsActor.getProps());
     }
 
-    public CompletionStage<Result> getMeasurementById(final String measurementId) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final ObjectId objectId = new ObjectId(measurementId);
-                final MeasurementReadings readings = measurementsRepository.getMeasurementReadingsById(objectId);
+    private static Result apply(final Set<Measurement> measurements) {
+        return ok(Json.toJson(measurements));
+    }
 
-                if (readings == null) {
-                    return noContent();
-                }
-
-                return ok(Json.toJson(readings));
-            }
-            catch(final Exception ex) {
-                Logger.error("Error when getting measurement with the id: " + measurementId, ex);
-                return badRequest("Failed retrieving the measurement.");
-            }
-        }, httpExecutionContext.current());
+    public CompletionStage<Result> getMeasurementById(final long measurementId) {
+        return measurementsRepository.getMeasurementbyId(measurementId)
+                .thenApplyAsync(measurement -> {
+                    if (measurement == null) {
+                        return noContent();
+                    }
+                    return ok(Json.toJson(measurement));
+                }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error while retrieving measurement with the id: " + measurementId, throwable);
+                    return badRequest("Failed retrieving the measurement");
+                });
     }
 
     public CompletionStage<Result> getMeasurements(final int limit) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final List<MeasurementReadings> readings = new ArrayList<>(limit);
-                final Iterator<MeasurementReadings> readingsIterator = measurementsRepository.getMeasurementReadings();
-
-                while (readingsIterator.hasNext() && readings.size() < limit) {
-                    readings.add(readingsIterator.next());
-                }
-
-                return ok(Json.toJson(readings));
-            }
-            catch(final Exception ex) {
-                Logger.error("Error getting measurements", ex);
-                return internalServerError();
-            }
-        }, httpExecutionContext.current());
+        return measurementsRepository.getMeasurements(limit)
+                .thenApplyAsync(MeasurementsController::apply, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error getting measurements", throwable);
+                    return internalServerError();
+                });
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletableFuture<Result> createMeasurement() {
-        return CompletableFuture.supplyAsync(() -> {
-            final JsonNode json = request().body().asJson();
-            final MeasurementReadings readings = Json.fromJson(json, MeasurementReadings.class);
-            final ObjectId createdId = measurementsRepository.addMeasurement(readings);
-            final String absoluteUrl = routes.MeasurementsController.getMeasurementById(createdId.toString()).absoluteURL(request());
+    public CompletionStage<Result> addMeasurement(final long roomId) {
+        final JsonNode json = request().body().asJson();
+        final Measurement measurement = Json.fromJson(json, Measurement.class);
+        return measurementsRepository.addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
+            final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
             return created(absoluteUrl);
         }, httpExecutionContext.current());
     }
 
-    public CompletableFuture<Result> startMeasurement(final String measurementId) {
-        return CompletableFuture.supplyAsync(() -> {
-            final ObjectId objectId = new ObjectId(measurementId);
-            this.activeMeasurement = measurementsRepository.getMeasurementReadingsById(objectId);
+    public CompletionStage<Result> startMeasurement(final long measurementId) {
+        return measurementsRepository.getMeasurementbyId(measurementId).thenApplyAsync(measurement -> {
+            if(measurement == null) {
+                return notFound("Measurement was not found");
+            }
+            this.activeMeasurementId = measurement.getMeasurementId();
             return ok();
         }, httpExecutionContext.current());
     }
 
     public Result stopMeasurement() {
-        this.activeMeasurement = null;
+        this.activeMeasurementId = null;
         return ok();
     }
 
-    public Result getActiveMeasurement() {
-        if(this.activeMeasurement != null){
-            final MeasurementReadings activeMeasurement = this.measurementsRepository
-                    .getMeasurementReadingsById(this.activeMeasurement.getMeasurementId());
-            return Results.ok(Json.toJson(activeMeasurement));
+    public CompletionStage<Result> getActiveMeasurement() {
+        if (this.activeMeasurementId == null) {
+            return CompletableFuture.completedFuture(noContent());
         }
-        return Results.noContent();
+
+        return this.measurementsRepository.getMeasurementbyId(this.activeMeasurementId)
+                .thenApplyAsync(measurement -> {
+                    if (measurement != null) {
+                        return ok(Json.toJson(measurement));
+                    }
+                    return noContent();
+                }, httpExecutionContext.current());
     }
 
     @BodyParser.Of(BodyParser.Json.class)
-    public CompletableFuture<Result> addReading() {
-        return CompletableFuture.supplyAsync(() -> {
-            if(this.activeMeasurement == null) {
-                return Results.noContent();
-            }
-            try {
-                final JsonNode json = request().body().asJson();
-                final Reading[] array = Json.fromJson(json, Reading[].class);
-                final List<Reading> readings = new ArrayList<>(Arrays.asList(array));
-                measurementsRepository.addReadings(activeMeasurement.getMeasurementId(), readings);
-                if(measurementStreamFlow != null && MeasurementActor.out != null) {
-                    MeasurementActor.out.tell(Json.toJson(readings), ActorRef.noSender());
-                }
-                return ok();
-            }
-            catch (final Exception ex) {
-                Logger.error("Error while adding new readings to measurement" + this.activeMeasurement.getMeasurementId(), ex);
-                return badRequest("Error while adding new readings.");
-            }
-        }, httpExecutionContext.current());
+    public CompletionStage<Result> addReadings() {
+        if (this.activeMeasurementId == null) {
+            return CompletableFuture.completedFuture(noContent());
+        }
+
+        final JsonNode json = request().body().asJson();
+        final Reading[] readings = Json.fromJson(json, Reading[].class);
+        return measurementsRepository.addReadings(this.activeMeasurementId, Arrays.asList(readings))
+                .thenApplyAsync(aVoid -> {
+                    readingsActor.tell(new ReadingsMessage(readings), ActorRef.noSender());
+                    return ok("");
+                }, httpExecutionContext.current()).exceptionally(throwable -> {
+                    Logger.error("Error while adding new readings to measurement " + this.activeMeasurementId, throwable);
+                    return badRequest("Error while adding new readings.");
+                });
     }
 
     public WebSocket streamMeasurements() {
-        measurementStreamFlow = ActorFlow.actorRef(MeasurementActor::props, actorSystem, materializer);
+        final Flow measurementStreamFlow = ActorFlow.actorRef(actorRef -> WebSocketActor.props(actorRef, readingsActor), actorSystem, materializer);
+        //noinspection unchecked
         return WebSocket.Json.accept(request -> measurementStreamFlow);
     }
 }

@@ -1,23 +1,23 @@
 package repositories.measurements;
 
-import models.MeasurementReadings;
+import models.Measurement;
 import models.Reading;
-import org.bson.types.ObjectId;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public interface MeasurementsRepository {
 
-    Iterator<MeasurementReadings> getMeasurementReadings();
+    CompletableFuture<Set<Measurement>> getMeasurements(final int limit);
 
-    MeasurementReadings getMeasurementReadingsById(final ObjectId measurementId);
+    CompletableFuture<Measurement> getMeasurementbyId(final long measurementId);
 
-    ObjectId addMeasurement(final MeasurementReadings readings);
+    CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement);
 
-    void addReadings(final ObjectId measurementId, final List<Reading> readings);
+    CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
 
     void resetRepository();
 
-    void addMeasurements(final List<MeasurementReadings> measurementReadings);
+    void addMeasurements(final Set<Measurement> measurements);
 }

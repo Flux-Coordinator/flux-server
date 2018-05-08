@@ -1,31 +1,33 @@
 package models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.types.ObjectId;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
+@Entity(name="Project")
+@Table(name="project", schema = "public")
 public class Project {
-    @BsonId
-    @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId projectId;
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq_generator")
+    @Column(name = "id")
+    @SequenceGenerator(name = "project_seq_generator", sequenceName = "project_id_seq", allocationSize = 1)
+    private long projectId;
     private String name;
     private String description;
-    private List<Room> rooms;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Set<Room> rooms;
 
     public Project() {
-        this.rooms = new ArrayList<>();
     }
 
-    public ObjectId getProjectId() {
+    public long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(ObjectId projectId) {
+    public void setProjectId(final long projectId) {
         this.projectId = projectId;
     }
 
@@ -33,7 +35,7 @@ public class Project {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -41,15 +43,15 @@ public class Project {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
-    public List<Room> getRooms() {
+    public Set<Room> getRooms() {
         return rooms;
     }
 
-    public void setRooms(List<Room> rooms) {
+    public void setRooms(final Set<Room> rooms) {
         this.rooms = rooms;
     }
 
@@ -58,14 +60,13 @@ public class Project {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return Objects.equals(getProjectId(), project.getProjectId()) &&
-                Objects.equals(getName(), project.getName()) &&
+        return Objects.equals(getName(), project.getName()) &&
                 Objects.equals(getDescription(), project.getDescription()) &&
                 Objects.equals(getRooms(), project.getRooms());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getProjectId(), getName(), getDescription(), getRooms());
+        return Objects.hash(getProjectId(), getName(), getDescription());
     }
 }

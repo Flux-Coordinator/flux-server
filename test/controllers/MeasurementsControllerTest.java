@@ -1,8 +1,10 @@
 package controllers;
 
 import helpers.Helpers;
-import models.*;
-import org.bson.types.ObjectId;
+import models.Measurement;
+import models.Project;
+import models.Reading;
+import models.Room;
 import org.junit.Before;
 import org.junit.Test;
 import play.Application;
@@ -14,11 +16,15 @@ import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
+import repositories.rooms.RoomsRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.test.Helpers.*;
 
 public class MeasurementsControllerTest extends WithApplication {
@@ -38,46 +44,56 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     @Test
-    public void createMeasurements_BestCase_OK() {
-        final MeasurementMetadata measurementMetadata = DataGenerator.generateMeasurementMetadata();
+    public void addMeasurements_BestCase_OK() throws ExecutionException, InterruptedException {
+        final Measurement measurement = DataGenerator.generateMeasurement();
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        Room room = roomsRepository.getRooms(0).get().stream().findAny().get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
-                .bodyJson(Json.toJson(measurementMetadata))
-                .uri("/measurements");
+                .bodyJson(Json.toJson(measurement))
+                .uri("/rooms/" + room.getRoomId() + "/measurements");
         final Result result = route(app, request);
         assertEquals(CREATED, result.status());
         assertFalse(play.test.Helpers.contentAsString(result).isEmpty());
     }
 
     @Test
-    public void getMeasurements_GetDefault_OK() {
+    public void getMeasurements_GetDefault_OK() throws ExecutionException, InterruptedException {
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final int desiredLimitOfMeasurements = 5;
 
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).toCompletableFuture().get().stream().findAny().get();
+
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final MeasurementReadings measurementReadings = new MeasurementReadings();
-            measurementReadings.setMeasurementId(new ObjectId());
-            repository.addMeasurement(measurementReadings);
+            final Measurement measurement = DataGenerator.generateMeasurement();
+            repository.addMeasurement(parentRoom.getRoomId(), measurement);
         }
+
+        repository.getMeasurements(5).get();
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements");
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
-        assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
+        final Measurement[] measurements = Helpers.convertFromJSON(result, Measurement[].class);
+        assertEquals(desiredLimitOfMeasurements, measurements.length);
     }
 
     @Test
-    public void getMeasurements_Get2_OK() {
+    public void getMeasurements_Get2_OK() throws ExecutionException, InterruptedException {
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final int desiredLimitOfMeasurements = 2;
 
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
+
         for(int i = 0; i < desiredLimitOfMeasurements; i++) {
-            final MeasurementReadings measurementReadings = new MeasurementReadings();
-            measurementReadings.setMeasurementId(new ObjectId());
-            repository.addMeasurement(measurementReadings);
+            final Measurement measurement = DataGenerator.generateMeasurement();
+            repository.addMeasurement(parentRoom.getRoomId(), measurement);
         }
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
@@ -85,64 +101,59 @@ public class MeasurementsControllerTest extends WithApplication {
                 .uri("/measurements?limit=" + desiredLimitOfMeasurements);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings[] measurementReadings = Helpers.convertFromJSON(result, MeasurementReadings[].class);
-        assertEquals(desiredLimitOfMeasurements, measurementReadings.length);
+        final Measurement[] measurements = Helpers.convertFromJSON(result, Measurement[].class);
+        assertEquals(desiredLimitOfMeasurements, measurements.length);
     }
 
     @Test
-    public void getMeasurementById_GetExisting_OK() {
-        final MeasurementReadings measurementReadings = new MeasurementReadings();
-        final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final ObjectId newMeasurementId = repository.addMeasurement(measurementReadings);
-        final MeasurementReadings expectedReading = repository.getMeasurementReadingsById(newMeasurementId);
+    public void getMeasurementById_GetExisting_OK() throws ExecutionException, InterruptedException {
+        final MeasurementsRepository measurementsRepository = app.injector().instanceOf(MeasurementsRepository.class);
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        final Measurement measurement = DataGenerator.generateMeasurement();
+
+        @SuppressWarnings("ConstantConditions")
+        final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
+
+        final CompletableFuture<Long> newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement);
+        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId.get()).get();
+        final long id = newMeasurementId.get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + newMeasurementId);
+                .uri("/measurements/" + id);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
-        final MeasurementReadings actualReading = Helpers.convertFromJSON(result, MeasurementReadings.class);
-        assertEquals(expectedReading, actualReading);
+        final Measurement actualMeasurement = Helpers.convertFromJSON(result, Measurement.class);
+        assertEquals(expectedMeasurement, actualMeasurement);
     }
 
     @Test
     public void getMeasurementById_GetNotExisting_NoContent() {
-        final ObjectId objectId = new ObjectId();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + objectId);
+                .uri("/measurements/" + 1242133);
         final Result result = route(app, request);
         assertEquals(NO_CONTENT, result.status());
     }
 
     @Test
-    public void getMeasurementById_InvalidObjectId_BadRequest() {
-        final Http.RequestBuilder request = new Http.RequestBuilder()
-                .method(GET)
-                .uri("/measurements/1234");
-        final Result result = route(app, request);
-        assertEquals(BAD_REQUEST, result.status());
-    }
-
-    @Test
-    public void startMeasurement_StartFirst_IsActive() {
-        final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-        final Project project = projectsRepository.getProjects().next();
-        final Room room = project.getRooms().get(0);
-        final MeasurementMetadata measurementMetadata = room.getMeasurements().get(0);
+    public void startMeasurement_StartFirst_IsActive() throws ExecutionException, InterruptedException {
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
+        final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
+        final Measurement measurement = room.getMeasurements().stream().findAny().get();
 
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(PUT)
-                .uri("/measurements/active/" + measurementMetadata.getMeasurementId());
+                .uri("/measurements/active/" + measurement.getMeasurementId());
         final Result result = route(app, request);
         assertEquals(OK, result.status());
     }
 
     @Test
-    public void addReadings_AddOne_ReadingAdded() {
-        final MeasurementMetadata activeMeasurement = getOrSetActiveMeasurement();
-
+    public void addReadings_AddOne_ReadingAdded() throws ExecutionException, InterruptedException {
+        final Measurement activeMeasurement = getOrSetActiveMeasurement();
+        final int initialAmountOfReadings = activeMeasurement.getReadings().size();
         final Reading reading = DataGenerator.generateReading();
-        final List<Reading> readingList = new ArrayList<>(1);
+        final Set<Reading> readingList = new HashSet<>(1);
         readingList.add(reading);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
@@ -152,16 +163,16 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementReadingsById(activeMeasurement.getMeasurementId());
-        assertTrue(measurementReadings.getReadings().contains(reading));
+        final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
+        assertEquals("The reading was not added correctly", initialAmountOfReadings + 1, measurement.getReadings().size());
     }
 
     @Test
-    public void addReadings_AddMultiple_ReadingAdded() {
+    public void addReadings_AddMultiple_ReadingAdded() throws ExecutionException, InterruptedException {
         final int amountOfReadings = 10;
-        final MeasurementMetadata activeMeasurement = getOrSetActiveMeasurement();
-
-        final List<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
+        final Measurement activeMeasurement = getOrSetActiveMeasurement();
+        final int amountOfReadingsBeforeTest = activeMeasurement.getReadings().size();
+        final Set<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .uri("/measurements/active/readings")
@@ -170,24 +181,24 @@ public class MeasurementsControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         final MeasurementsRepository repository = app.injector().instanceOf(MeasurementsRepository.class);
-        final MeasurementReadings measurementReadings = repository.getMeasurementReadingsById(activeMeasurement.getMeasurementId());
-        assertTrue(measurementReadings.getReadings().containsAll(readingList));
+        final Measurement measurement = repository.getMeasurementbyId(activeMeasurement.getMeasurementId()).get();
+        assertEquals("At least one reading was not added.", amountOfReadingsBeforeTest + amountOfReadings, measurement.getReadings().size());
     }
 
-    private MeasurementMetadata getOrSetActiveMeasurement() {
+    private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {
+        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
         final Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/active");
         final Result getResult = route(app, getActiveRequest);
 
-        MeasurementMetadata measurementMetadata;
+        Measurement measurementMetadata;
         if(getResult.status() == OK) {
-            measurementMetadata = Helpers.convertFromJSON(getResult, MeasurementMetadata.class);
+            measurementMetadata = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
             final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
-            final Project project = projectsRepository.getProjects().next();
-            final Room room = project.getRooms().get(0);
-            measurementMetadata = room.getMeasurements().get(0);
+            final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
+            measurementMetadata = room.getMeasurements().stream().findAny().get();
 
             final Http.RequestBuilder setActiveRequest = new Http.RequestBuilder()
                     .method(PUT)

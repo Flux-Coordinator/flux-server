@@ -6,15 +6,19 @@
 GET     /                                   controllers.HomeController.index
 GET     /reset                              controllers.AdminController.resetData
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
-POST    /projects                           controllers.ProjectsController.addProject
-GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: String)
+POST    /projects                           controllers.ProjectsController.addProject()
+GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)
+POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
+GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
-GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : String)
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
-POST    /measurements                       controllers.MeasurementsController.createMeasurement
-PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : String)
-DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement
-POST    /measurements/active/readings       controllers.MeasurementsController.addReading
+GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
+#TODO: Move to room controller
+POST    /rooms/:roomId/measurements         controllers.MeasurementsController.addMeasurement(roomId: Long)
+GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
+PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)
+DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement()
+POST    /measurements/active/readings       controllers.MeasurementsController.addReadings()
 GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
 
 # Map static resources from the /public folder to the /assets URL path
