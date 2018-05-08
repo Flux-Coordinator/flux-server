@@ -20,7 +20,8 @@ public class ProjectsController extends Controller {
     private final ProjectsRepository projectsRepository;
 
     @Inject
-    public ProjectsController(final HttpExecutionContext httpExecutionContext, final ProjectsRepository projectsRepository) {
+    public ProjectsController(final HttpExecutionContext httpExecutionContext,
+                              final ProjectsRepository projectsRepository) {
         this.httpExecutionContext = httpExecutionContext;
         this.projectsRepository = projectsRepository;
     }
