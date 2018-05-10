@@ -1,6 +1,7 @@
 package repositories.measurements;
 
 import models.Measurement;
+import models.MeasurementState;
 import models.Reading;
 
 import java.util.List;
@@ -16,6 +17,10 @@ public interface MeasurementsRepository {
     CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement);
 
     CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
+
+    CompletableFuture<Void> changeMeasurementState(final long measurementId, final MeasurementState state);
+
+    CompletableFuture<Set<Measurement>> getMeasurementsByState(final MeasurementState state);
 
     void resetRepository();
 

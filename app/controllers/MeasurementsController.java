@@ -9,6 +9,7 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Measurement;
+import models.MeasurementState;
 import models.Reading;
 import play.Logger;
 import play.libs.Json;
@@ -22,8 +23,7 @@ import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -34,7 +34,6 @@ public class MeasurementsController extends Controller {
     private final ActorSystem actorSystem;
     private final Materializer materializer;
 
-    private Long activeMeasurementId;
     private final ActorRef readingsActor;
 
     @Inject
@@ -85,50 +84,98 @@ public class MeasurementsController extends Controller {
     }
 
     public CompletionStage<Result> startMeasurement(final long measurementId) {
-        return measurementsRepository.getMeasurementbyId(measurementId).thenApplyAsync(measurement -> {
-            if(measurement == null) {
-                return notFound("Measurement was not found");
-            }
-            this.activeMeasurementId = measurement.getMeasurementId();
-            return ok();
+        return measurementsRepository.getMeasurementsByState(MeasurementState.RUNNING)
+                .thenComposeAsync(measurements -> {
+                    if(!measurements.isEmpty()) {
+                        final Measurement activeMeasurement = measurements.iterator().next();
+                        if(activeMeasurement.getMeasurementId() != measurementId) {
+                            return CompletableFuture.completedFuture(badRequest("There is arleady an active measurement."));
+                        } else {
+                            return CompletableFuture.completedFuture(ok("Measurement is already active"));
+                        }
+                    }
+
+                    return measurementsRepository
+                            .changeMeasurementState(measurementId, MeasurementState.RUNNING)
+                            .thenApply(aVoid -> ok(""));
         }, httpExecutionContext.current());
     }
 
-    public Result stopMeasurement() {
-        this.activeMeasurementId = null;
-        return ok();
+    public CompletionStage<Result> stopMeasurement() {
+        return measurementsRepository.getMeasurementsByState(MeasurementState.RUNNING)
+                .thenComposeAsync(measurements -> {
+                    if(!measurements.isEmpty()) {
+                        final CompletableFuture[] array = new CompletableFuture[measurements.size()];
+                        final Iterator<Measurement> measurementIterator = measurements.iterator();
+                        int i = 0;
+                        while(measurementIterator.hasNext()) {
+                            array[i] = this.measurementsRepository.changeMeasurementState(measurementIterator.next().getMeasurementId(), MeasurementState.DONE);
+                            i++;
+                        }
+
+                        return CompletableFuture.allOf(array).thenApply(aVoid -> ok(""));
+                    }
+                    return CompletableFuture.completedFuture(ok(""));
+                }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error stopping the measurement", throwable);
+                    return badRequest("Error stopping the measurement");
+                });
     }
 
     public CompletionStage<Result> getActiveMeasurement() {
-        if (this.activeMeasurementId == null) {
-            return CompletableFuture.completedFuture(noContent());
-        }
-
-        return this.measurementsRepository.getMeasurementbyId(this.activeMeasurementId)
-                .thenApplyAsync(measurement -> {
-                    if (measurement != null) {
-                        return ok(Json.toJson(measurement));
+        return this.measurementsRepository.getMeasurementsByState(MeasurementState.RUNNING)
+                .thenApplyAsync(measurements -> {
+                    if(measurements.size() > 1) {
+                        return internalServerError("There are multiple currently active measurements. " +
+                                "This is unsupported.");
                     }
-                    return noContent();
-                }, httpExecutionContext.current());
+
+                    if(measurements.isEmpty()) {
+                        return noContent();
+                    }
+
+                    return ok(Json.toJson(measurements.iterator().next()));
+                }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error getting the active measurement.", throwable);
+                    return badRequest("Error getting the active measurement.");
+                });
     }
 
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> addReadings() {
-        if (this.activeMeasurementId == null) {
-            return CompletableFuture.completedFuture(noContent());
-        }
+        final CompletableFuture<Reading[]> futureReadings = CompletableFuture.supplyAsync(() -> {
+            final JsonNode json = request().body().asJson();
+            return Json.fromJson(json, Reading[].class);
+        }, httpExecutionContext.current());
 
-        final JsonNode json = request().body().asJson();
-        final Reading[] readings = Json.fromJson(json, Reading[].class);
-        return measurementsRepository.addReadings(this.activeMeasurementId, Arrays.asList(readings))
-                .thenApplyAsync(aVoid -> {
-                    readingsActor.tell(new ReadingsMessage(readings), ActorRef.noSender());
-                    return ok("");
-                }, httpExecutionContext.current()).exceptionally(throwable -> {
-                    Logger.error("Error while adding new readings to measurement " + this.activeMeasurementId, throwable);
-                    return badRequest("Error while adding new readings.");
-                });
+        final CompletableFuture<Set<Measurement>> futureActiveMeasurements =
+                this.measurementsRepository.getMeasurementsByState(MeasurementState.RUNNING);
+
+        return CompletableFuture.allOf(futureActiveMeasurements, futureReadings).thenApplyAsync(aVoid -> {
+            final Set<Measurement> measurements = futureActiveMeasurements.join();
+
+            if(measurements.size() > 1) {
+                return internalServerError("There are multiple currently active measurements. This is unsupported");
+            }
+
+            if(measurements.isEmpty()) {
+                return notFound("No currently active measurement");
+            }
+
+            final Measurement activeMeasurement = measurements.iterator().next();
+            final Reading[] readings = futureReadings.join();
+
+            return measurementsRepository.addReadings(activeMeasurement.getMeasurementId(), Arrays.asList(readings))
+                    .thenApplyAsync(aVoid1 -> {
+                        readingsActor.tell(new ReadingsMessage(readings), ActorRef.noSender());
+                        return ok("");
+                    }).exceptionally(throwable -> {
+                        Logger.error("Error while adding new readings to the active measurement");
+                        return badRequest("Error while adding new readings to the active measurement");
+                    }).join();
+        }, httpExecutionContext.current());
     }
 
     public WebSocket streamMeasurements() {

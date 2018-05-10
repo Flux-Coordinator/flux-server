@@ -1,18 +1,23 @@
 package repositories.projects;
 
+import models.Measurement;
 import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.utils.CollectionHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static repositories.utils.Helper.wrap;
 
@@ -59,6 +64,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
+    public CompletableFuture<Set<Project>> getRelatedProjects(final List<Measurement> measurements) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> getRelatedProjects(em, measurements)), databaseExecutionContext);
+    }
+
+    @Override
     public CompletableFuture<Long> countProjects() {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, this::countProjects), databaseExecutionContext);
     }
@@ -98,5 +108,37 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     private Long countProjects(final EntityManager em) {
         final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
         return typedQuery.getSingleResult();
+    }
+
+    private Set<Project> getRelatedProjects(final EntityManager em, final List<Measurement> measurements) {
+        final List<Long> ids = measurements.stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p INNER JOIN p.rooms as r INNER JOIN r.measurements as m WHERE m.id in (:measurementIds)", Project.class);
+        typedQuery.setParameter("measurementIds", ids);
+
+        final Set<Project> projects = new HashSet<>(typedQuery.getResultList());
+
+        // Clean up unnecessary rooms in the project that were retrieved from the database.
+        for (Project currentProject : projects) {
+            em.detach(currentProject);
+            final Set<Room> cleanedRooms = new HashSet<>();
+            final Iterator<Room> roomsIterator = currentProject.getRooms().iterator();
+
+            while (roomsIterator.hasNext()) {
+                final Room currentRoom = roomsIterator.next();
+
+                // Retain only the measurements that are actually in the list of to-be-exported measurements.
+                CollectionHelper
+                        .retainAllByComparator(currentRoom.getMeasurements(), questionableMeasurement
+                                -> CollectionHelper.containsByComparator(measurements, measurement
+                                -> measurement.getMeasurementId() == questionableMeasurement.getMeasurementId()));
+
+                if (!currentRoom.getMeasurements().isEmpty()) {
+                    cleanedRooms.add(currentRoom);
+                }
+            }
+            currentProject.setRooms(cleanedRooms);
+        }
+
+        return projects;
     }
 }
