@@ -127,7 +127,7 @@ public class MeasurementsController extends Controller {
         return this.measurementsRepository.getMeasurementsByState(MeasurementState.RUNNING)
                 .thenApplyAsync(measurements -> {
                     if(measurements.size() > 1) {
-                        return internalServerError("There are multiple currently actively measurements. " +
+                        return internalServerError("There are multiple currently active measurements. " +
                                 "This is unsupported.");
                     }
 
