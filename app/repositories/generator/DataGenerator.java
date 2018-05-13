@@ -132,20 +132,29 @@ public class DataGenerator {
         }
     }
 
-    public static Reading generateReading() {
+    public static Reading generateReading(double xMax, double yMax, double zMax, double luxMin, double luxMax) {
+        double randomX = xMax * random.nextDouble();
+        double randomY = yMax * random.nextDouble();
+        double randomZ = zMax * random.nextDouble();
+        double randomLux = luxMin + (luxMax - luxMin) * random.nextDouble();
+
         try {
             final Reading reading = new Reading();
 
-            reading.setLuxValue(random.nextDouble());
-            reading.setXPosition(random.nextDouble());
-            reading.setYPosition(random.nextDouble());
-            reading.setZPosition(random.nextDouble());
+            reading.setLuxValue(randomLux);
+            reading.setXPosition(randomX);
+            reading.setYPosition(randomY);
+            reading.setZPosition(randomZ);
             reading.setTimestamp(new Date());
 
             return reading;
         } catch (final Exception ex) {
             throw new DataGeneratorException("Failed generating readings", ex);
         }
+    }
+
+    public static Reading generateReading() {
+        return generateReading(10000, 10000, 3000, 0, 10000);
     }
 
     public static Anchor generateAnchor() {
