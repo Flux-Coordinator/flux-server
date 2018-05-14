@@ -21,7 +21,7 @@ public class AdminController extends Controller {
     private static final int AMOUNT_OF_PROJECTS = 3;
     private static final int AMOUNT_OF_ROOMS_PER_PROJECT = 2;
     private static final int AMOUNT_OF_MEASUREMENTS_PER_ROOM = 2;
-    private static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 1000;
+    private static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 5000;
 
     private final ProjectsRepository projectsRepository;
     private final HttpExecutionContext httpExecutionContext;

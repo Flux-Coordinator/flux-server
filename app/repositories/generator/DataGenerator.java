@@ -145,11 +145,11 @@ public class DataGenerator {
     public static Set<Reading> generateHeatmap(final int amount, double xMax, double yMax,
         double luxBaseValue) {
         try {
-            int amountOfLightSources = random.nextInt(6);
-            double maxIntensity = 20;
-            double maxRadius = yMax / 4;
+            int amountOfLightSources = random.nextInt(4) + 2;
+            double intensity = 20;
+            double radius = xMax < yMax ? xMax / 5 : yMax / 5;
             final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
-                amountOfLightSources, xMax, yMax, maxIntensity, maxRadius);
+                amountOfLightSources, xMax, yMax, intensity, radius);
 
             final Set<Reading> readings = new HashSet<>(amount);
 
@@ -168,15 +168,13 @@ public class DataGenerator {
     }
 
     public static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, double xMax,
-        double yMax, double maxIntensity, double maxRadius) {
+        double yMax, double intensity, double radius) {
         Set<SimulatedLightSource> simulatedLightSources = new HashSet<>(amount);
-        for (int i = 0; i < random.nextInt(5) + 1; i++) {
+        for (int i = 0; i < amount; i++) {
             double randomX = xMax * random.nextDouble();
             double randomY = yMax * random.nextDouble();
-            double randomIntensity = maxIntensity * random.nextDouble();
-            double randomRadius = maxRadius * random.nextDouble();
             simulatedLightSources
-                .add(new SimulatedLightSource(randomX, randomY, randomIntensity, randomRadius));
+                .add(new SimulatedLightSource(randomX, randomY, intensity, radius));
         }
         return simulatedLightSources;
     }
