@@ -18,10 +18,10 @@ import java.util.concurrent.CompletionStage;
 
 @Singleton
 public class AdminController extends Controller {
-    private static final int AMOUNT_OF_PROJECTS = 10;
-    private static final int AMOUNT_OF_ROOMS_PER_PROJECT = 5;
-    private static final int AMOUNT_OF_MEASUREMENTS_PER_ROOM = 10;
-    private static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 1;
+    private static final int AMOUNT_OF_PROJECTS = 3;
+    private static final int AMOUNT_OF_ROOMS_PER_PROJECT = 2;
+    private static final int AMOUNT_OF_MEASUREMENTS_PER_ROOM = 2;
+    private static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 1000;
 
     private final ProjectsRepository projectsRepository;
     private final HttpExecutionContext httpExecutionContext;
@@ -41,7 +41,7 @@ public class AdminController extends Controller {
             final Set<Measurement> roomMeasurements = DataGenerator.generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM);
             roomMeasurements.forEach(measurement -> {
                 measurement.setRoom(room);
-                final Set<Reading> readings = DataGenerator.generateReadings(AMOUNT_OF_READINGS_PER_MEASUREMENT);
+                final Set<Reading> readings = DataGenerator.generateHeatmap(AMOUNT_OF_READINGS_PER_MEASUREMENT, 9000, 13000, 400);
                 readings.forEach(reading -> {
                     reading.setMeasurement(measurement);
                 });
