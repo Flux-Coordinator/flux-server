@@ -1,10 +1,20 @@
 package repositories.generator;
 
-import models.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import models.Anchor;
+import models.AnchorPosition;
+import models.Measurement;
+import models.MeasurementState;
+import models.Project;
+import models.Reading;
+import models.Room;
 
 /**
  * Helper class to generate data more easily.
@@ -132,20 +142,104 @@ public class DataGenerator {
         }
     }
 
-    public static Reading generateReading() {
+    public static Set<Reading> generateHeatmap(final int amount, double xMax, double yMax,
+        double luxBaseValue) {
+        try {
+            int amountOfLightSources = random.nextInt(4) + 2;
+            double intensity = 20;
+            double radius = xMax < yMax ? xMax / 5 : yMax / 5;
+            final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
+                amountOfLightSources, xMax, yMax, intensity, radius);
+
+            final Set<Reading> readings = new HashSet<>(amount);
+
+            final ValueRange xRange = new ValueRange(xMax);
+            final ValueRange yRange = new ValueRange(yMax);
+            final ValueRange zRange = new ValueRange(0);
+            for (int i = 0; i < amount; i++) {
+                readings
+                    .add(generateReading(xRange, yRange, zRange, luxBaseValue, simulatedLightSources));
+            }
+
+            return readings;
+        } catch (final Exception ex) {
+            throw new DataGeneratorException("Failed generating heatmap", ex);
+        }
+    }
+
+    public static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, double xMax,
+        double yMax, double intensity, double radius) {
+        Set<SimulatedLightSource> simulatedLightSources = new HashSet<>(amount);
+        for (int i = 0; i < amount; i++) {
+            double randomX = xMax * random.nextDouble();
+            double randomY = yMax * random.nextDouble();
+            simulatedLightSources
+                .add(new SimulatedLightSource(randomX, randomY, intensity, radius));
+        }
+        return simulatedLightSources;
+    }
+
+    private static double getVarianceFromLightSources(double xPosition, double yPosition,
+        Set<SimulatedLightSource> lightSources) {
+        double variance = 0;
+        for (SimulatedLightSource lightSource : lightSources) {
+            variance += Math.max(0,
+                lightSource.getRadius() - getDistanceToLightSource(xPosition, yPosition,
+                    lightSource)) * lightSource.getIntensity();
+        }
+        return variance;
+    }
+
+    private static double getDistanceToLightSource(double xPosition, double yPosition,
+        SimulatedLightSource lightSource) {
+        return Math.sqrt(Math.pow(xPosition - lightSource.getxPosition(), 2) + Math
+            .pow(yPosition - lightSource.getyPosition(), 2));
+    }
+
+    public static Reading createReading(double xPosition, double yPosition, double zPosition,
+        double luxValue) {
         try {
             final Reading reading = new Reading();
 
-            reading.setLuxValue(random.nextDouble());
-            reading.setXPosition(random.nextDouble());
-            reading.setYPosition(random.nextDouble());
-            reading.setZPosition(random.nextDouble());
+            reading.setLuxValue(luxValue);
+            reading.setXPosition(xPosition);
+            reading.setYPosition(yPosition);
+            reading.setZPosition(zPosition);
             reading.setTimestamp(new Date());
 
             return reading;
         } catch (final Exception ex) {
-            throw new DataGeneratorException("Failed generating readings", ex);
+            throw new DataGeneratorException("Failed generating reading", ex);
         }
+    }
+
+    public static Reading generateReading() {
+        return generateReading(new ValueRange(10000), new ValueRange(10000), new ValueRange(3000),
+            new ValueRange(10000));
+    }
+
+    public static Reading generateReading(ValueRange xRange, ValueRange yRange, ValueRange zRange,
+        ValueRange luxRange) {
+        double randomX = getRandomDoubleFromRange(xRange);
+        double randomY = getRandomDoubleFromRange(yRange);
+        double randomZ = getRandomDoubleFromRange(zRange);
+        double randomLux = getRandomDoubleFromRange(luxRange);
+
+        return createReading(randomX, randomY, randomZ, randomLux);
+    }
+
+    public static Reading generateReading(ValueRange xRange, ValueRange yRange, ValueRange zRange,
+        double luxBaseValue, Set<SimulatedLightSource> simulatedLightSources) {
+        double randomX = getRandomDoubleFromRange(xRange);
+        double randomY = getRandomDoubleFromRange(yRange);
+        double randomZ = getRandomDoubleFromRange(zRange);
+        double randomLux = luxBaseValue + getVarianceFromLightSources(randomX, randomY, simulatedLightSources);
+
+        return createReading(randomX, randomY, randomZ, randomLux);
+    }
+
+    private static double getRandomDoubleFromRange(ValueRange range) {
+        return range.getMin() + (range.getMax() - range.getMin()) * random.nextDouble();
     }
 
     public static Anchor generateAnchor() {
