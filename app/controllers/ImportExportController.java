@@ -13,6 +13,7 @@ import repositories.projects.ProjectsRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Singleton
@@ -34,5 +35,12 @@ public class ImportExportController extends Controller {
         return projectsRepository
                 .getRelatedProjects(Arrays.asList(measurementsToExport))
                 .thenApplyAsync(projects -> ok(Json.toJson(projects)), httpExecutionContext.current());
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> importMeasurements() {
+        final JsonNode jsonNode = request().body().asJson();
+        final Project[] importedProjects = Json.fromJson(jsonNode, Project[].class);
+        return CompletableFuture.completedFuture(ok());
     }
 }
