@@ -52,6 +52,6 @@ public class ProjectsControllerTest extends WithApplication {
 
         final Result result = route(app, request);
         final Project[] projects = Helpers.convertFromJSON(result, Project[].class);
-        assertEquals(3, projects.length);
+        assertEquals(2, projects.length);
     }
 }
