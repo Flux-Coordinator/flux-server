@@ -13,6 +13,7 @@ import repositories.projects.ProjectsRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -32,7 +33,7 @@ public class ImportExportController extends Controller {
     public CompletionStage<Result> exportMeasurements() {
         final JsonNode jsonNode = request().body().asJson();
         final Measurement[] measurementsToExport = Json.fromJson(jsonNode, Measurement[].class);
-        return projectsRepository
+        return this.projectsRepository
                 .getRelatedProjects(Arrays.asList(measurementsToExport))
                 .thenApplyAsync(projects -> ok(Json.toJson(projects)), httpExecutionContext.current());
     }
@@ -40,7 +41,25 @@ public class ImportExportController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> importMeasurements() {
         final JsonNode jsonNode = request().body().asJson();
-        final Project[] importedProjects = Json.fromJson(jsonNode, Project[].class);
-        return CompletableFuture.completedFuture(ok());
+        final List<Project> importedProjects = Arrays.asList(Json.fromJson(jsonNode, Project[].class));
+
+        importedProjects.stream().parallel().forEach(project -> {
+            project.setProjectId(0);
+            project.getRooms().forEach(room -> {
+                room.setRoomId(0);
+                room.getMeasurements().forEach(measurement -> {
+                    measurement.setMeasurementId(0);
+                    measurement.getAnchorPositions().forEach(anchorPosition -> {
+                        anchorPosition.setAnchorPositionId(0);
+                        anchorPosition.getAnchor().setAnchorId(0);
+                    });
+                    measurement.getReadings().forEach(reading -> reading.setReadingId(0));
+                });
+            });
+        });
+
+        return this.projectsRepository
+                .addProjects(importedProjects)
+                .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current());
     }
 }
