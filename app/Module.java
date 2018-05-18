@@ -1,10 +1,12 @@
 import com.google.inject.AbstractModule;
+import io.jsonwebtoken.Jwt;
 import repositories.measurements.MeasurementsRepository;
 import repositories.measurements.MeasurementsRepositoryJPA;
 import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryJPA;
 import repositories.rooms.RoomsRepository;
 import repositories.rooms.RoomsRepositoryJPA;
+import utils.JwtHelper;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -25,5 +27,6 @@ public class Module extends AbstractModule {
         bind(RoomsRepository.class).to(RoomsRepositoryJPA.class);
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
+        bind(JwtHelper.class);
     }
 }
