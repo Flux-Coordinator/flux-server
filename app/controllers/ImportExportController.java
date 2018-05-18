@@ -43,20 +43,20 @@ public class ImportExportController extends Controller {
         final JsonNode jsonNode = request().body().asJson();
         final List<Project> importedProjects = Arrays.asList(Json.fromJson(jsonNode, Project[].class));
 
-        importedProjects.stream().parallel().forEach(project -> {
-            project.setProjectId(0);
-            project.getRooms().forEach(room -> {
-                room.setRoomId(0);
-                room.getMeasurements().forEach(measurement -> {
-                    measurement.setMeasurementId(0);
-                    measurement.getAnchorPositions().forEach(anchorPosition -> {
-                        anchorPosition.setAnchorPositionId(0);
-                        anchorPosition.getAnchor().setAnchorId(0);
-                    });
-                    measurement.getReadings().forEach(reading -> reading.setReadingId(0));
-                });
-            });
-        });
+//        importedProjects.stream().parallel().forEach(project -> {
+//            project.setProjectId(0);
+//            project.getRooms().forEach(room -> {
+//                room.setRoomId(0);
+//                room.getMeasurements().forEach(measurement -> {
+//                    measurement.setMeasurementId(0);
+//                    measurement.getAnchorPositions().forEach(anchorPosition -> {
+//                        anchorPosition.setAnchorPositionId(0);
+//                        anchorPosition.getAnchor().setAnchorId(0);
+//                    });
+//                    measurement.getReadings().forEach(reading -> reading.setReadingId(0));
+//                });
+//            });
+//        });
 
         return this.projectsRepository
                 .addProjects(importedProjects)
