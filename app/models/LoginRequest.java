@@ -6,8 +6,7 @@ public class LoginRequest {
     private String username;
     private String password;
 
-    public LoginRequest() {
-    }
+    public LoginRequest() { }
 
     public LoginRequest(final String username, final String password) {
         this.username = username;
@@ -41,7 +40,6 @@ public class LoginRequest {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(getUsername(), getPassword());
     }
 }
