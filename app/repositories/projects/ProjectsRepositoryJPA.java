@@ -3,13 +3,16 @@ package repositories.projects;
 import models.Measurement;
 import models.Project;
 import models.Room;
+import play.Logger;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 import repositories.utils.CollectionHelper;
+import repositories.utils.SqlNativeHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,7 +77,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     @Override
     public void resetRepository() {
-
+        Logger.warn("Resetting the repository");
+        wrap(jpaApi, this::resetRepository);
     }
 
     private Project addProject(final EntityManager em, final Project project) {
@@ -140,5 +144,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         }
 
         return projects;
+    }
+
+    private Void resetRepository(final EntityManager em) {
+        final Query q = em.createNativeQuery(SqlNativeHelper.getTruncateAllTables());
+        q.executeUpdate();
+        return null;
     }
 }
