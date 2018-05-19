@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static repositories.utils.Helper.wrap;
@@ -84,7 +83,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private void addProjects(final EntityManager em, final List<Project> projects) {
-        projects.forEach(em::persist);
+        projects.forEach(em::merge);
     }
 
     private Set<Project> getProjects(final EntityManager em, final int limit) {
@@ -123,6 +122,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
             final Set<Room> cleanedRooms = new HashSet<>();
             final Iterator<Room> roomsIterator = currentProject.getRooms().iterator();
 
+            //noinspection WhileLoopReplaceableByForEach
             while (roomsIterator.hasNext()) {
                 final Room currentRoom = roomsIterator.next();
 

@@ -10,6 +10,7 @@
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
             <property name="hibernate.id.new_generator_mappings" value="true" />
             <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.event.merge.entity_copy_observer" value="allow"/>
             <!--<property name="hibernate.hbm2dll.auto" value="update" />-->
         </properties>
     </persistence-unit>
