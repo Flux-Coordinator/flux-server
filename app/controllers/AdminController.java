@@ -29,6 +29,8 @@ public class AdminController extends Controller {
     public CompletionStage<Result> resetData() {
         final List<Project> projects = DemoDataHelper.generateDemoData();
 
+        this.projectsRepository.resetRepository();
+
         return this.projectsRepository.addProjects(projects).thenApplyAsync(aVoid ->
                         ok("Created " + AMOUNT_OF_PROJECTS + " projects with " + AMOUNT_OF_ROOMS_PER_PROJECT + " rooms each," +
                                 " " + AMOUNT_OF_MEASUREMENTS_PER_ROOM + " measurements per room" +
