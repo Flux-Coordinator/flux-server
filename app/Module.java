@@ -6,6 +6,8 @@ import repositories.projects.ProjectsRepository;
 import repositories.projects.ProjectsRepositoryJPA;
 import repositories.rooms.RoomsRepository;
 import repositories.rooms.RoomsRepositoryJPA;
+import startup.StartupManager;
+import startup.StartupManagerImpl;
 import utils.JwtHelper;
 
 /**
@@ -28,5 +30,8 @@ public class Module extends AbstractModule {
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
         bind(JwtHelper.class);
+
+        // HACK: Initializes demo data, etc.
+        bind(StartupManager.class).to(StartupManagerImpl.class).asEagerSingleton();
     }
 }
