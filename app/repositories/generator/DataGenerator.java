@@ -86,12 +86,12 @@ public class DataGenerator {
         }
     }
 
-    public static Set<Measurement> generateMeasurements(final int amount) {
+    public static Set<Measurement> generateMeasurements(final int amount, double xMax, double yMax) {
         try {
             final Set<Measurement> measurements = new HashSet<>();
 
             for (int i = 0; i < amount; i++) {
-                measurements.add(generateMeasurement());
+                measurements.add(generateMeasurement(xMax, yMax));
             }
 
             return measurements;
@@ -101,7 +101,7 @@ public class DataGenerator {
         }
     }
 
-    public static Measurement generateMeasurement() {
+    public static Measurement generateMeasurement(double xMax, double yMax) {
         final int amountAnchorPositions = 3;
         try {
             final Measurement measurement = new Measurement();
@@ -118,8 +118,13 @@ public class DataGenerator {
             measurement.setAnchorPositions(new HashSet<>());
             measurement.setReadings(new HashSet<>());
 
+            final ValueRange xRange = new ValueRange(xMax);
+            final ValueRange yRange = new ValueRange(yMax);
+            final ValueRange zRange = new ValueRange(0);
+
             for(int i = 0; i < amountAnchorPositions; i++) {
-                measurement.getAnchorPositions().add(generateAnchorPosition());
+
+                measurement.getAnchorPositions().add(generateAnchorPosition(xRange, yRange, zRange));
             }
 
             return measurement;
@@ -252,13 +257,17 @@ public class DataGenerator {
         }
     }
 
-    public static AnchorPosition generateAnchorPosition() {
+    public static AnchorPosition generateAnchorPosition(ValueRange xRange, ValueRange yRange, ValueRange zRange) {
         try {
             final AnchorPosition position = new AnchorPosition();
 
-            position.setXPosition(random.nextDouble());
-            position.setYPosition(random.nextDouble());
-            position.setZPosition(random.nextDouble());
+            double randomX = getRandomDoubleFromRange(xRange);
+            double randomY = getRandomDoubleFromRange(yRange);
+            double randomZ = getRandomDoubleFromRange(zRange);
+
+            position.setXPosition(randomX);
+            position.setYPosition(randomY);
+            position.setZPosition(randomZ);
             position.setAnchor(generateAnchor());
 
             return position;
