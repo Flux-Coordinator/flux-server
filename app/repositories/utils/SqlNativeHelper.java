@@ -11,12 +11,6 @@ public class SqlNativeHelper {
                 "TRUNCATE TABLE public.measurement\n" +
                 "    RESTART IDENTITY\n" +
                 "    CASCADE;\n" +
-                "TRUNCATE TABLE public.measurementstate\n" +
-                "    RESTART IDENTITY\n" +
-                "    CASCADE;\n" +
-                "TRUNCATE TABLE public.position\n" +
-                "    RESTART IDENTITY\n" +
-                "    CASCADE;\n" +
                 "TRUNCATE TABLE public.project\n" +
                 "    RESTART IDENTITY\n" +
                 "    CASCADE;\n" +
