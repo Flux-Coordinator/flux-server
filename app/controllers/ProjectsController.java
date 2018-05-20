@@ -31,7 +31,7 @@ public class ProjectsController extends Controller {
                 .thenApplyAsync(projects -> ok(Json.toJson(projects)), httpExecutionContext.current())
                 .exceptionally(throwable -> {
                     Logger.error("Failed getting " + limit + " projects", throwable);
-                    return internalServerError();
+                    return internalServerError("Fehler beim Holen der Projekte aus dem Server.");
                 });
     }
 
@@ -49,7 +49,7 @@ public class ProjectsController extends Controller {
                 .thenApplyAsync(rooms -> ok(Json.toJson(rooms)), httpExecutionContext.current())
                 .exceptionally(throwable -> {
                     Logger.error("Error while retrieving the rooms for project with the id: " + projectId, throwable);
-                    return badRequest("Error while getting the rooms for the project");
+                    return badRequest("Fehler beim Holen der Räume für das Projekt (ID: " + projectId + ").");
                 });
     }
 
@@ -62,7 +62,7 @@ public class ProjectsController extends Controller {
             return created(absoluteUrl);
         }, httpExecutionContext.current()).exceptionally(throwable -> {
             Logger.error("Error while creating a new project.", throwable);
-            return badRequest("Error while creating a new project.");
+            return badRequest("Fehler beim Erstellen des neuen Projekts");
         });
     }
 }
