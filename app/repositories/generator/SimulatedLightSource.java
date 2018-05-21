@@ -17,23 +17,23 @@ class SimulatedLightSource {
         this.radius = radius;
     }
 
-    double getxPosition() {
+    private double getxPosition() {
         return xPosition;
     }
 
-    double getyPosition() {
+    private double getyPosition() {
         return yPosition;
     }
 
-    double getIntensity() {
+    private double getIntensity() {
         return intensity;
     }
 
-    double getRadius() {
+    private double getRadius() {
         return radius;
     }
 
-    public static double getVarianceFromLightSources(double xPosition, double yPosition,
+    static double getVarianceFromLightSources(double xPosition, double yPosition,
         Set<SimulatedLightSource> lightSources) {
         double variance = 0;
         for (SimulatedLightSource lightSource : lightSources) {

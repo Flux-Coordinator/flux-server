@@ -19,7 +19,7 @@ public class ValueRange {
         this.isEquals = Double.compare(min, max) == 0;
     }
 
-    public double getRandomValue() {
+    double getRandomValue() {
         if (this.isEquals) {
             return this.min;
         }
