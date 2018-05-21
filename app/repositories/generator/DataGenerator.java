@@ -24,13 +24,12 @@ public class DataGenerator {
 
     private DataGenerator() { }
 
-    public static List<Project> generateProjectsAndRooms(final int amountOfProjects,
-                                                 final int roomsPerProject) {
+    public static List<Project> generateProjects(final int amountOfProjects) {
         try {
             final List<Project> projects = new ArrayList<>(amountOfProjects);
 
             for(int i = 0; i < amountOfProjects; i++) {
-                projects.add(generateProjectAndRooms(roomsPerProject));
+                projects.add(generateProject());
             }
 
             return projects;
@@ -39,13 +38,14 @@ public class DataGenerator {
         }
     }
 
-    public static Project generateProjectAndRooms(final int amountOfRooms) {
+    public static Project generateProject() {
         try {
             final Project project = new Project();
 
             project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            project.setRooms(generateRooms(amountOfRooms, project));
+
+            project.setRooms(new HashSet<>());
 
             return project;
         } catch(final Exception ex) {
@@ -67,6 +67,11 @@ public class DataGenerator {
         }
     }
 
+    public static Room generateRoom() {
+        Project project = generateProject();
+        return generateRoom(project);
+    }
+
     public static Room generateRoom(final Project project) {
         try {
             final Room room = new Room();
@@ -78,6 +83,8 @@ public class DataGenerator {
             room.setyOffset(random.nextInt(200));
             room.setScaleFactor(random.nextDouble());
             room.setProject(project);
+
+            room.setMeasurements(new HashSet<>());
 
             return room;
         } catch(final Exception ex) {
@@ -97,6 +104,11 @@ public class DataGenerator {
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
         }
+    }
+
+    public static Measurement generateMeasurement() {
+        Room room = generateRoom();
+        return generateMeasurement(room);
     }
 
     public static Measurement generateMeasurement(final Room room) {
@@ -158,7 +170,7 @@ public class DataGenerator {
         }
     }
 
-    public static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, ValueRange xRange, ValueRange yRange, double intensity, double radius) {
+    private static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, ValueRange xRange, ValueRange yRange, double intensity, double radius) {
         Set<SimulatedLightSource> simulatedLightSources = new HashSet<>(amount);
         for (int i = 0; i < amount; i++) {
             double randomX = xRange.getRandomValue();
@@ -167,6 +179,11 @@ public class DataGenerator {
                 .add(new SimulatedLightSource(randomX, randomY, intensity, radius));
         }
         return simulatedLightSources;
+    }
+
+    public static Reading generateReading() {
+        Measurement measurement = generateMeasurement();
+        return generateReading(measurement);
     }
 
     public static Reading generateReading(final Measurement measurement) {
