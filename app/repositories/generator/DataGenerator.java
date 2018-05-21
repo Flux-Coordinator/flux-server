@@ -79,8 +79,8 @@ public class DataGenerator {
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
             room.setFloorSpace(random.nextInt(1000));
-            room.setxOffset(random.nextInt(1650));
-            room.setyOffset(random.nextInt(300));
+            room.setxOffset(1650);
+            room.setyOffset(300);
             room.setScaleFactor(0.15);
             room.setProject(project);
 
