@@ -1,14 +1,14 @@
 package repositories.generator;
 
-class ValueRange {
+public class ValueRange {
     private double min;
     private double max;
 
-    ValueRange(double max) {
+    public ValueRange(double max) {
         this(0, max);
     }
 
-    ValueRange(double min, double max) {
+    public ValueRange(double min, double max) {
         this.min = min;
         this.max = max;
     }
