@@ -185,7 +185,7 @@ public class MeasurementsControllerTest extends WithApplication {
         final int amountOfReadings = 10;
         final Measurement activeMeasurement = getOrSetActiveMeasurement();
         final int amountOfReadingsBeforeTest = activeMeasurement.getReadings().size();
-        final Set<Reading> readingList = DataGenerator.generateReadings(amountOfReadings);
+        final Set<Reading> readingList = DataGenerator.generateReadings(amountOfReadings, activeMeasurement);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .uri("/measurements/active/readings")

@@ -24,13 +24,13 @@ public class DataGenerator {
 
     private DataGenerator() { }
 
-    public static List<Project> generateProjects(final int amountOfProjects,
+    public static List<Project> generateProjectsAndRooms(final int amountOfProjects,
                                                  final int roomsPerProject) {
         try {
             final List<Project> projects = new ArrayList<>(amountOfProjects);
 
             for(int i = 0; i < amountOfProjects; i++) {
-                projects.add(generateProject(roomsPerProject));
+                projects.add(generateProjectAndRooms(roomsPerProject));
             }
 
             return projects;
@@ -39,15 +39,13 @@ public class DataGenerator {
         }
     }
 
-    public static Project generateProject(final int rooms) {
+    public static Project generateProjectAndRooms(final int amountOfRooms) {
         try {
             final Project project = new Project();
 
             project.setName("Project-" + random.nextInt(Integer.MAX_VALUE));
             project.setDescription("This is an example project and was automatically generated on " + getLocalDateTime() + ".");
-            final Set<Room> roomList = generateRooms(rooms);
-            roomList.forEach(room -> room.setProject(project));
-            project.setRooms(roomList);
+            project.setRooms(generateRooms(amountOfRooms, project));
 
             return project;
         } catch(final Exception ex) {
@@ -55,12 +53,12 @@ public class DataGenerator {
         }
     }
 
-    public static Set<Room> generateRooms(final int amount) {
+    public static Set<Room> generateRooms(final int amountOfRooms, final Project project) {
         try {
-            final Set<Room> rooms = new HashSet<>(amount);
+            final Set<Room> rooms = new HashSet<>(amountOfRooms);
 
-            for(int i = 0; i < amount; i++) {
-                rooms.add(generateRoom());
+            for(int i = 0; i < amountOfRooms; i++) {
+                rooms.add(generateRoom(project));
             }
 
             return rooms;
@@ -69,7 +67,7 @@ public class DataGenerator {
         }
     }
 
-    public static Room generateRoom() {
+    public static Room generateRoom(final Project project) {
         try {
             final Room room = new Room();
 
@@ -79,6 +77,7 @@ public class DataGenerator {
             room.setxOffset(random.nextInt(200));
             room.setyOffset(random.nextInt(200));
             room.setScaleFactor(random.nextDouble());
+            room.setProject(project);
 
             return room;
         } catch(final Exception ex) {
@@ -86,46 +85,36 @@ public class DataGenerator {
         }
     }
 
-    public static Set<Measurement> generateMeasurements(final int amount, double xMax, double yMax) {
+    public static Set<Measurement> generateMeasurements(final int amountOfMeasurements, final Room room) {
         try {
             final Set<Measurement> measurements = new HashSet<>();
 
-            for (int i = 0; i < amount; i++) {
-                measurements.add(generateMeasurement(xMax, yMax));
+            for (int i = 0; i < amountOfMeasurements; i++) {
+                measurements.add(generateMeasurement(room));
             }
 
             return measurements;
-        }
-        catch(final Exception ex) {
+        } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of measurements", ex);
         }
     }
 
-    public static Measurement generateMeasurement(double xMax, double yMax) {
-        final int amountAnchorPositions = 3;
+    public static Measurement generateMeasurement(final Room room) {
         try {
             final Measurement measurement = new Measurement();
 
-            measurement.setCreator("Generated");
-            measurement.setDescription("Generated automatically");
-            measurement.setName("AutoGenenerated" + random.nextInt());
+            measurement.setName("Measurement-" + random.nextInt(Integer.MAX_VALUE));
+            measurement.setDescription("This is an example measurement and was automatically generated on " + getLocalDateTime() + ".");
+            measurement.setCreator("Hans Muster");
             measurement.setFactor(random.nextDouble() * 10);
             measurement.setOffset(random.nextDouble() * 100);
             measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
+            measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());
             measurement.setReadings(new HashSet<>());
-
-            final ValueRange xRange = new ValueRange(xMax);
-            final ValueRange yRange = new ValueRange(yMax);
-            final ValueRange zRange = new ValueRange(0);
-
-            for(int i = 0; i < amountAnchorPositions; i++) {
-
-                measurement.getAnchorPositions().add(generateAnchorPosition(xRange, yRange, zRange));
-            }
 
             return measurement;
         } catch(final Exception ex) {
@@ -133,12 +122,12 @@ public class DataGenerator {
         }
     }
 
-    public static Set<Reading> generateReadings(final int amount) {
+    public static Set<Reading> generateReadings(final int amount, final Measurement measurement) {
         try {
             final Set<Reading> readings = new HashSet<>(amount);
 
             for(int i = 0; i < amount; i++) {
-                readings.add(generateReading());
+                readings.add(generateReading(measurement));
             }
 
             return readings;
@@ -147,61 +136,65 @@ public class DataGenerator {
         }
     }
 
-    public static Set<Reading> generateHeatmap(final int amount, double xMax, double yMax,
+    public static Set<Reading> generateHeatmap(final int amount, final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange,
         double luxBaseValue) {
         try {
             int amountOfLightSources = random.nextInt(4) + 2;
             double intensity = 20;
-            double radius = xMax < yMax ? xMax / 5 : yMax / 5;
+            double radius = xRange.getMax() < yRange.getMax() ? xRange.getMax() / 5 : yRange.getMax() / 5;
             final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
-                amountOfLightSources, xMax, yMax, intensity, radius);
+                amountOfLightSources, xRange, yRange, intensity, radius);
 
             final Set<Reading> readings = new HashSet<>(amount);
 
-            final ValueRange xRange = new ValueRange(xMax);
-            final ValueRange yRange = new ValueRange(yMax);
-            final ValueRange zRange = new ValueRange(0);
             for (int i = 0; i < amount; i++) {
                 readings
-                    .add(generateReading(xRange, yRange, zRange, luxBaseValue, simulatedLightSources));
+                    .add(generateReading(measurement, xRange, yRange, zRange, luxBaseValue, simulatedLightSources));
             }
 
             return readings;
         } catch (final Exception ex) {
-            throw new DataGeneratorException("Failed generating heatmap", ex);
+            throw new DataGeneratorException("Failed generating a single heatmap", ex);
         }
     }
 
-    public static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, double xMax,
-        double yMax, double intensity, double radius) {
+    public static Set<SimulatedLightSource> generateSimulatedLightSources(int amount, ValueRange xRange, ValueRange yRange, double intensity, double radius) {
         Set<SimulatedLightSource> simulatedLightSources = new HashSet<>(amount);
         for (int i = 0; i < amount; i++) {
-            double randomX = xMax * random.nextDouble();
-            double randomY = yMax * random.nextDouble();
+            double randomX = xRange.getRandomValue();
+            double randomY = yRange.getRandomValue();
             simulatedLightSources
                 .add(new SimulatedLightSource(randomX, randomY, intensity, radius));
         }
         return simulatedLightSources;
     }
 
-    private static double getVarianceFromLightSources(double xPosition, double yPosition,
-        Set<SimulatedLightSource> lightSources) {
-        double variance = 0;
-        for (SimulatedLightSource lightSource : lightSources) {
-            variance += Math.max(0,
-                lightSource.getRadius() - getDistanceToLightSource(xPosition, yPosition,
-                    lightSource)) * lightSource.getIntensity();
-        }
-        return variance;
+    public static Reading generateReading(final Measurement measurement) {
+        return generateReading(measurement, new ValueRange(10000), new ValueRange(10000), new ValueRange(3000),
+            new ValueRange(10000));
     }
 
-    private static double getDistanceToLightSource(double xPosition, double yPosition,
-        SimulatedLightSource lightSource) {
-        return Math.sqrt(Math.pow(xPosition - lightSource.getxPosition(), 2) + Math
-            .pow(yPosition - lightSource.getyPosition(), 2));
+    public static Reading generateReading(final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange,
+        double luxBaseValue, Set<SimulatedLightSource> simulatedLightSources) {
+        double randomX = xRange.getRandomValue();
+        double randomY = yRange.getRandomValue();
+        double randomZ = zRange.getRandomValue();
+        double randomLux = luxBaseValue + SimulatedLightSource.getVarianceFromLightSources(randomX, randomY, simulatedLightSources);
+
+        return generateReading(measurement, randomX, randomY, randomZ, randomLux);
     }
 
-    public static Reading createReading(double xPosition, double yPosition, double zPosition,
+    public static Reading generateReading(final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange,
+        ValueRange luxRange) {
+        double randomX = xRange.getRandomValue();
+        double randomY = yRange.getRandomValue();
+        double randomZ = zRange.getRandomValue();
+        double randomLux = luxRange.getRandomValue();
+
+        return generateReading(measurement, randomX, randomY, randomZ, randomLux);
+    }
+
+    public static Reading generateReading(final Measurement measurement, double xPosition, double yPosition, double zPosition,
         double luxValue) {
         try {
             final Reading reading = new Reading();
@@ -211,40 +204,43 @@ public class DataGenerator {
             reading.setYPosition(yPosition);
             reading.setZPosition(zPosition);
             reading.setTimestamp(new Date());
+            reading.setMeasurement(measurement);
 
             return reading;
         } catch (final Exception ex) {
-            throw new DataGeneratorException("Failed generating reading", ex);
+            throw new DataGeneratorException("Failed generating a single reading", ex);
         }
     }
 
-    public static Reading generateReading() {
-        return generateReading(new ValueRange(10000), new ValueRange(10000), new ValueRange(3000),
-            new ValueRange(10000));
+    public static Set<AnchorPosition> generateAnchorPositions(final int amountOfAnchorPositions, final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange) {
+        try {
+            final Set<AnchorPosition> anchorPositions = new HashSet<>(amountOfAnchorPositions);
+
+            for(int i = 0; i < amountOfAnchorPositions; i++) {
+                anchorPositions.add(generateAnchorPosition(measurement, xRange, yRange, zRange));
+            }
+
+            return anchorPositions;
+        } catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a batch of anchor positions", ex);
+        }
     }
 
-    public static Reading generateReading(ValueRange xRange, ValueRange yRange, ValueRange zRange,
-        ValueRange luxRange) {
-        double randomX = getRandomDoubleFromRange(xRange);
-        double randomY = getRandomDoubleFromRange(yRange);
-        double randomZ = getRandomDoubleFromRange(zRange);
-        double randomLux = getRandomDoubleFromRange(luxRange);
+    public static AnchorPosition generateAnchorPosition(final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange) {
+        try {
+            final AnchorPosition anchorPosition = new AnchorPosition();
 
-        return createReading(randomX, randomY, randomZ, randomLux);
-    }
+            anchorPosition.setXPosition(xRange.getRandomValue());
+            anchorPosition.setYPosition(yRange.getRandomValue());
+            anchorPosition.setZPosition(zRange.getRandomValue());
+            anchorPosition.setAnchor(generateAnchor());
+            anchorPosition.setMeasurement(measurement);
 
-    public static Reading generateReading(ValueRange xRange, ValueRange yRange, ValueRange zRange,
-        double luxBaseValue, Set<SimulatedLightSource> simulatedLightSources) {
-        double randomX = getRandomDoubleFromRange(xRange);
-        double randomY = getRandomDoubleFromRange(yRange);
-        double randomZ = getRandomDoubleFromRange(zRange);
-        double randomLux = luxBaseValue + getVarianceFromLightSources(randomX, randomY, simulatedLightSources);
-
-        return createReading(randomX, randomY, randomZ, randomLux);
-    }
-
-    private static double getRandomDoubleFromRange(ValueRange range) {
-        return range.getMin() + (range.getMax() - range.getMin()) * random.nextDouble();
+            return anchorPosition;
+        }
+        catch(final Exception ex) {
+            throw new DataGeneratorException("Failed generating a single anchor position", ex);
+        }
     }
 
     public static Anchor generateAnchor() {
@@ -253,30 +249,9 @@ public class DataGenerator {
             anchor.setNetworkid("networkid" + random.nextDouble());
             return anchor;
         } catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating anchor", ex);
+            throw new DataGeneratorException("Failed generating a single anchor", ex);
         }
     }
-
-    public static AnchorPosition generateAnchorPosition(ValueRange xRange, ValueRange yRange, ValueRange zRange) {
-        try {
-            final AnchorPosition position = new AnchorPosition();
-
-            double randomX = getRandomDoubleFromRange(xRange);
-            double randomY = getRandomDoubleFromRange(yRange);
-            double randomZ = getRandomDoubleFromRange(zRange);
-
-            position.setXPosition(randomX);
-            position.setYPosition(randomY);
-            position.setZPosition(randomZ);
-            position.setAnchor(generateAnchor());
-
-            return position;
-        }
-        catch(final Exception ex) {
-            throw new DataGeneratorException("Failed generating anchor positions", ex);
-        }
-    }
-
 
     private static String getLocalDateTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);

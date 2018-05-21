@@ -35,7 +35,7 @@ public class ProjectsControllerTest extends WithApplication {
 
     @Test
     public void createProjects_BestCase_OK() {
-        final Project project = DataGenerator.generateProject(5);
+        final Project project = DataGenerator.generateProjectAndRooms(5);
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(POST)
                 .bodyJson(Json.toJson(project))
