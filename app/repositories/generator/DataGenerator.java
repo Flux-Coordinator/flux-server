@@ -79,9 +79,9 @@ public class DataGenerator {
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
             room.setFloorSpace(random.nextInt(1000));
-            room.setxOffset(random.nextInt(200));
-            room.setyOffset(random.nextInt(200));
-            room.setScaleFactor(random.nextDouble());
+            room.setxOffset(random.nextInt(1650));
+            room.setyOffset(random.nextInt(300));
+            room.setScaleFactor(0.15);
             room.setProject(project);
 
             room.setMeasurements(new HashSet<>());
@@ -123,6 +123,8 @@ public class DataGenerator {
             measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
+            measurement.setTargetHeight(1100);
+            measurement.setHeightTolerance(100);
             measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());
@@ -151,8 +153,8 @@ public class DataGenerator {
     public static Set<Reading> generateHeatmap(final int amount, final Measurement measurement, ValueRange xRange, ValueRange yRange, ValueRange zRange,
         double luxBaseValue) {
         try {
-            int amountOfLightSources = random.nextInt(4) + 2;
-            double intensity = 20;
+            int amountOfLightSources = random.nextInt(5) + 3;
+            double intensity = 10;
             double radius = xRange.getMax() < yRange.getMax() ? xRange.getMax() / 5 : yRange.getMax() / 5;
             final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
                 amountOfLightSources, xRange, yRange, intensity, radius);
@@ -263,7 +265,8 @@ public class DataGenerator {
     public static Anchor generateAnchor() {
         try {
             final Anchor anchor = new Anchor();
-            anchor.setNetworkid("networkid" + random.nextDouble());
+            final int id = random.nextInt(0xefff) + 0x1000;
+            anchor.setNetworkid("0x" + Integer.toHexString(id) );
             return anchor;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a single anchor", ex);
