@@ -71,7 +71,7 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     private Room addRoom(final EntityManager em, final long projectId, final Room room) {
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
-        em.persist(room);
+        em.merge(room);
         return room;
     }
 
