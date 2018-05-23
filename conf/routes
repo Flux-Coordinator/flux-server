@@ -13,6 +13,7 @@ GET     /projects/:projectId/rooms          controllers.ProjectsController.getPr
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
+GET     /rooms/:roomId                      controllers.RoomsController.getRoom(roomId: Long)
 #TODO: Move to room controller
 POST    /rooms/:roomId/measurements         controllers.MeasurementsController.addMeasurement(roomId: Long)
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
