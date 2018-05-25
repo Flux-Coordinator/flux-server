@@ -80,7 +80,8 @@ public class AnchorPosition {
         AnchorPosition that = (AnchorPosition) o;
         return Double.compare(that.xPosition, xPosition) == 0 &&
                 Double.compare(that.yPosition, yPosition) == 0 &&
-                Double.compare(that.zPosition, zPosition) == 0;
+                Double.compare(that.zPosition, zPosition) == 0 &&
+                Objects.equals(getAnchor(), that.getAnchor());
     }
 
     @Override
