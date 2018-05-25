@@ -107,7 +107,7 @@ public class DataGenerator {
     }
 
     public static Measurement generateMeasurement() {
-        Room room = generateRoom();
+        final Room room = generateRoom();
         return generateMeasurement(room);
     }
 

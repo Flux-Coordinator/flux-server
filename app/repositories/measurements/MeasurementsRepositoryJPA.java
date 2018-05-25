@@ -101,8 +101,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
         measurement.setRoom(em.getReference(Room.class, roomId));
-        em.merge(measurement);
-        return measurement;
+        return em.merge(measurement);
     }
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {

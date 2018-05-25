@@ -180,4 +180,11 @@ public class Measurement {
     public int hashCode() {
         return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getTargetHeight(), getHeightTolerance(), getOffset(), getFactor(), getMeasurementState());
     }
+
+    @PrePersist
+    void preInsert() {
+        if(this.getMeasurementState() == null) {
+            this.setMeasurementState(MeasurementState.READY);
+        }
+    }
 }
