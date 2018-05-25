@@ -266,7 +266,7 @@ public class DataGenerator {
         try {
             final Anchor anchor = new Anchor();
             final int id = random.nextInt(0xefff) + 0x1000;
-            anchor.setNetworkid("0x" + Integer.toHexString(id) );
+            anchor.setNetworkid(Integer.toHexString(id) );
             return anchor;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a single anchor", ex);
