@@ -6,7 +6,6 @@ import models.Reading;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -73,16 +72,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         return CompletableFuture
                 .supplyAsync(() -> wrap(jpaApi,
                         em -> getMeasurementsByState(em, state)), databaseExecutionContext);
-    }
-
-    @Override
-    public void resetRepository() {
-
-    }
-
-    @Override
-    public void addMeasurements(final Set<Measurement> measurements) {
-        throw new NotImplementedException();
     }
 
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {

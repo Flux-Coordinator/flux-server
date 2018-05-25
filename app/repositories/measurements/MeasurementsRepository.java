@@ -22,7 +22,4 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Set<Measurement>> getMeasurementsByState(final MeasurementState state);
 
-    void resetRepository();
-
-    void addMeasurements(final Set<Measurement> measurements);
 }
