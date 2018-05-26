@@ -16,21 +16,24 @@ import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
 import repositories.rooms.RoomsRepository;
+import utils.jwt.JwtHelper;
+import utils.jwt.JwtHelperFake;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static play.inject.Bindings.bind;
 import static play.test.Helpers.*;
 
 public class MeasurementsControllerTest extends WithApplication {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
-            .build();
+                .overrides(bind(JwtHelper.class).to(JwtHelperFake.class))
+                .build();
     }
 
     @Before
