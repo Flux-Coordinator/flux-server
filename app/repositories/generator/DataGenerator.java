@@ -121,8 +121,6 @@ public class DataGenerator {
             measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
-            measurement.setTargetHeight(1100);
-            measurement.setHeightTolerance(100);
             measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());

@@ -20,8 +20,6 @@ public class Measurement {
     private Date startDate;
     private Date endDate;
     private String creator;
-    private double targetHeight;
-    private double heightTolerance;
     @Column(name = "xoffset")
     private double xOffset;
     @Column(name = "yoffset")
@@ -94,22 +92,6 @@ public class Measurement {
         this.creator = creator;
     }
 
-    public double getTargetHeight() {
-        return targetHeight;
-    }
-
-    public void setTargetHeight(double targetHeight) {
-        this.targetHeight = targetHeight;
-    }
-
-    public double getHeightTolerance() {
-        return heightTolerance;
-    }
-
-    public void setHeightTolerance(double heightTolerance) {
-        this.heightTolerance = heightTolerance;
-    }
-
     public double getxOffset() {
         return xOffset;
     }
@@ -171,9 +153,7 @@ public class Measurement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Measurement that = (Measurement) o;
-        return Double.compare(that.getTargetHeight(), getTargetHeight()) == 0 &&
-                Double.compare(that.getHeightTolerance(), getHeightTolerance()) == 0 &&
-                Double.compare(that.getxOffset(), getxOffset()) == 0 &&
+        return Double.compare(that.getxOffset(), getxOffset()) == 0 &&
                 Double.compare(that.getyOffset(), getyOffset()) == 0 &&
                 Double.compare(that.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), that.getName()) &&
@@ -187,7 +167,7 @@ public class Measurement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getTargetHeight(), getHeightTolerance(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurementState());
+        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurementState());
     }
 
     @PrePersist
