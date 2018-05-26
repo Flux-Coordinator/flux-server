@@ -24,7 +24,6 @@ GET     /streamMeasurements                 controllers.MeasurementsController.s
 POST    /export                             controllers.ImportExportController.exportMeasurements
 POST    /import                             controllers.ImportExportController.importMeasurements
 POST    /login                              controllers.LoginController.login
-GET     /login                              controllers.LoginController.validateToken
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)

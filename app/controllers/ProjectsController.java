@@ -1,5 +1,6 @@
 package controllers;
 
+import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Project;
 import play.Logger;
@@ -8,12 +9,14 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class ProjectsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
