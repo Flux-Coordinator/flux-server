@@ -82,8 +82,7 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project addProject(final EntityManager em, final Project project) {
-        em.merge(project);
-        return project;
+        return em.merge(project);
     }
 
     private void addProjects(final EntityManager em, final List<Project> projects) {

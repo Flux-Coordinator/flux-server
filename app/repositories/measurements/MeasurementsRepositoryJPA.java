@@ -6,7 +6,6 @@ import models.Reading;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -75,16 +74,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
                         em -> getMeasurementsByState(em, state)), databaseExecutionContext);
     }
 
-    @Override
-    public void resetRepository() {
-
-    }
-
-    @Override
-    public void addMeasurements(final Set<Measurement> measurements) {
-        throw new NotImplementedException();
-    }
-
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
         final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
 
@@ -101,8 +90,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
         measurement.setRoom(em.getReference(Room.class, roomId));
-        em.persist(measurement);
-        return measurement;
+        return em.merge(measurement);
     }
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {
