@@ -7,16 +7,14 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
+import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.streams.ActorFlow;
-import play.mvc.BodyParser;
-import play.mvc.Controller;
-import play.mvc.Result;
-import play.mvc.WebSocket;
+import play.mvc.*;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
@@ -25,6 +23,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;

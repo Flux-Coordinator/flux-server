@@ -10,7 +10,7 @@ import repositories.rooms.RoomsRepositoryJPA;
 import startup.StartupManager;
 import startup.StartupManagerImpl;
 import utils.jwt.JwtHelper;
-import utils.jwt.JwtHelperImpl;
+import utils.jwt.JwtHelperFake;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -32,7 +32,10 @@ public class Module extends AbstractModule {
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
         bind(AuthenticationRepository.class).to(LocalAuthenticationRepository.class);
-        bind(JwtHelper.class).to(JwtHelperImpl.class);
+
+        // TODO: Use this binding when the application is delivered to the customer
+        // bind(JwtHelper.class).to(JwtHelperImpl.class);
+        bind(JwtHelper.class).to(JwtHelperFake.class);
 
         // HACK: Initializes demo data, etc.
         bind(StartupManager.class).to(StartupManagerImpl.class).asEagerSingleton();
