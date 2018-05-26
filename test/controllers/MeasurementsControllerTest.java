@@ -113,12 +113,11 @@ public class MeasurementsControllerTest extends WithApplication {
         @SuppressWarnings("ConstantConditions")
         final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
 
-        final CompletableFuture<Long> newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement);
-        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId.get()).get();
-        final long id = newMeasurementId.get();
+        final long newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement).get();
+        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId).get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + id);
+                .uri("/measurements/" + newMeasurementId);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
         final Measurement actualMeasurement = Helpers.convertFromJSON(result, Measurement.class);
