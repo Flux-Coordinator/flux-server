@@ -1,11 +1,13 @@
 package controllers;
 
+import authentication.JWTAuthenticator;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import models.Project;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import repositories.projects.ProjectsRepository;
 import repositories.utils.DemoDataHelper;
 
@@ -14,6 +16,7 @@ import java.util.concurrent.CompletionStage;
 
 import static repositories.utils.DemoDataHelper.*;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class AdminController extends Controller {
     private final ProjectsRepository projectsRepository;

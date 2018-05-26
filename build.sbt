@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   guice,
   javaJpa,
   "org.postgresql" % "postgresql" % "42.2.2",
-  "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final"
+  "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final",
+  "org.mindrot" % "jbcrypt" % "0.4"
 ) ++ guiceDeps
 
 PlayKeys.externalizeResources := false

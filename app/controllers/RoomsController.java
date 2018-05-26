@@ -1,5 +1,6 @@
 package controllers;
 
+import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Room;
 import play.libs.Json;
@@ -7,12 +8,14 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import repositories.rooms.RoomsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class RoomsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
