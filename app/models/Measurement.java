@@ -20,11 +20,11 @@ public class Measurement {
     private Date startDate;
     private Date endDate;
     private String creator;
-    private double targetHeight;
-    private double heightTolerance;
-    @Column(name = "measurementoffset")
-    private double offset;
-    private double factor;
+    @Column(name = "xoffset")
+    private double xOffset;
+    @Column(name = "yoffset")
+    private double yOffset;
+    private double scaleFactor;
 
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
@@ -42,9 +42,7 @@ public class Measurement {
     @JsonBackReference
     private Room room;
 
-    public Measurement() {
-
-    }
+    public Measurement() { }
 
     public long getMeasurementId() {
         return measurementId;
@@ -94,36 +92,28 @@ public class Measurement {
         this.creator = creator;
     }
 
-    public double getTargetHeight() {
-        return targetHeight;
+    public double getxOffset() {
+        return xOffset;
     }
 
-    public void setTargetHeight(double targetHeight) {
-        this.targetHeight = targetHeight;
+    public void setxOffset(double xOffset) {
+        this.xOffset = xOffset;
     }
 
-    public double getHeightTolerance() {
-        return heightTolerance;
+    public double getyOffset() {
+        return yOffset;
     }
 
-    public void setHeightTolerance(double heightTolerance) {
-        this.heightTolerance = heightTolerance;
+    public void setyOffset(double yOffset) {
+        this.yOffset = yOffset;
     }
 
-    public double getOffset() {
-        return offset;
+    public double getScaleFactor() {
+        return scaleFactor;
     }
 
-    public void setOffset(double offset) {
-        this.offset = offset;
-    }
-
-    public double getFactor() {
-        return factor;
-    }
-
-    public void setFactor(double factor) {
-        this.factor = factor;
+    public void setScaleFactor(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
     }
 
     public Set<Reading> getReadings() {
@@ -163,10 +153,9 @@ public class Measurement {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Measurement that = (Measurement) o;
-        return Double.compare(that.getTargetHeight(), getTargetHeight()) == 0 &&
-                Double.compare(that.getHeightTolerance(), getHeightTolerance()) == 0 &&
-                Double.compare(that.getOffset(), getOffset()) == 0 &&
-                Double.compare(that.getFactor(), getFactor()) == 0 &&
+        return Double.compare(that.getxOffset(), getxOffset()) == 0 &&
+                Double.compare(that.getyOffset(), getyOffset()) == 0 &&
+                Double.compare(that.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
                 getStartDate() != null && getEndDate() != null &&
@@ -178,7 +167,7 @@ public class Measurement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getTargetHeight(), getHeightTolerance(), getOffset(), getFactor(), getMeasurementState());
+        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurementState());
     }
 
     @PrePersist

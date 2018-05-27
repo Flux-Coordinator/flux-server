@@ -1,8 +1,6 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -14,7 +12,6 @@ public class Reading {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reading_seq_generator") @Column(name = "id")
     @SequenceGenerator(name = "reading_seq_generator", sequenceName = "reading_id_seq", allocationSize = 1)
     private long readingId;
-    @JsonSerialize(using = ToStringSerializer.class)
     private double luxValue;
     private Date timestamp;
     private double xPosition;
