@@ -11,7 +11,7 @@ public class Anchor {
     @Column(name = "id")
     @SequenceGenerator(name = "anchor_seq_generator", sequenceName = "anchor_id_seq", allocationSize = 1)
     private long anchorId;
-    private String networkid;
+    private String networkId;
 
     public long getAnchorId() {
         return anchorId;
@@ -21,12 +21,12 @@ public class Anchor {
         this.anchorId = anchorId;
     }
 
-    public String getNetworkid() {
-        return networkid;
+    public String getNetworkId() {
+        return networkId;
     }
 
-    public void setNetworkid(String networkid) {
-        this.networkid = networkid;
+    public void setNetworkId(String networkId) {
+        this.networkId = networkId;
     }
 
     @Override
@@ -34,11 +34,11 @@ public class Anchor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Anchor anchor = (Anchor) o;
-        return Objects.equals(getNetworkid(), anchor.getNetworkid());
+        return Objects.equals(getNetworkId(), anchor.getNetworkId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNetworkid());
+        return Objects.hash(getNetworkId());
     }
 }
