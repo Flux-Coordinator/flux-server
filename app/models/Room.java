@@ -17,11 +17,6 @@ public class Room {
     private String description;
     private String floorPlan;
     private double floorSpace;
-    @Column(name = "xoffset")
-    private double xOffset;
-    @Column(name = "yoffset")
-    private double yOffset;
-    private double scaleFactor;
 
 
     @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -76,30 +71,6 @@ public class Room {
         this.floorSpace = floorSpace;
     }
 
-    public double getxOffset() {
-        return xOffset;
-    }
-
-    public void setxOffset(double xOffset) {
-        this.xOffset = xOffset;
-    }
-
-    public double getyOffset() {
-        return yOffset;
-    }
-
-    public void setyOffset(double yOffset) {
-        this.yOffset = yOffset;
-    }
-
-    public double getScaleFactor() {
-        return scaleFactor;
-    }
-
-    public void setScaleFactor(double scaleFactor) {
-        this.scaleFactor = scaleFactor;
-    }
-
     public Set<Measurement> getMeasurements() {
         return measurements;
     }
@@ -122,9 +93,6 @@ public class Room {
         if (o == null || getClass() != o.getClass()) return false;
         Room room = (Room) o;
         return Double.compare(room.getFloorSpace(), getFloorSpace()) == 0 &&
-                Double.compare(room.getxOffset(), getxOffset()) == 0 &&
-                Double.compare(room.getyOffset(), getyOffset()) == 0 &&
-                Double.compare(room.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), room.getName()) &&
                 Objects.equals(getDescription(), room.getDescription()) &&
                 Objects.equals(getFloorPlan(), room.getFloorPlan()) &&
@@ -134,6 +102,6 @@ public class Room {
     @Override
     public int hashCode() {
 
-        return Objects.hash(getName(), getDescription(), getFloorPlan(), getFloorSpace(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurements());
+        return Objects.hash(getName(), getDescription(), getFloorPlan(), getFloorSpace(), getMeasurements());
     }
 }

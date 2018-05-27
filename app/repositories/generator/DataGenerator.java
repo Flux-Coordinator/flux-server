@@ -79,9 +79,6 @@ public class DataGenerator {
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
             room.setFloorSpace(random.nextInt(1000));
-            room.setxOffset(1650);
-            room.setyOffset(300);
-            room.setScaleFactor(0.15);
             room.setProject(project);
 
             room.setMeasurements(new HashSet<>());
@@ -118,13 +115,12 @@ public class DataGenerator {
             measurement.setName("Measurement-" + random.nextInt(Integer.MAX_VALUE));
             measurement.setDescription("This is an example measurement and was automatically generated on " + getLocalDateTime() + ".");
             measurement.setCreator("Hans Muster");
-            measurement.setFactor(random.nextDouble() * 10);
-            measurement.setOffset(random.nextDouble() * 100);
+            measurement.setxOffset(1650);
+            measurement.setyOffset(300);
+            measurement.setScaleFactor(0.15);
             measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
-            measurement.setTargetHeight(1100);
-            measurement.setHeightTolerance(100);
             measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());
