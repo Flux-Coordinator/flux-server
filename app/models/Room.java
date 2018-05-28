@@ -15,9 +15,9 @@ public class Room {
     private long roomId;
     private String name;
     private String description;
+    @Column(columnDefinition = "varchar")
     private String floorPlan;
     private double floorSpace;
-
 
     @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
