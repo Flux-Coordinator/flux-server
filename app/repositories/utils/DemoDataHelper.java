@@ -1,5 +1,6 @@
 package repositories.utils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import models.AnchorPosition;
@@ -24,6 +25,7 @@ public class DemoDataHelper {
     private static final double Y_MAX = 13000;
     private static final double Z_MAX = 3000;
     private static final double LUX_BASE_VALUE = 400;
+    private static final boolean FIX_DEMO_ANCHORS = false;
 
     public static List<Project> generateDemoData() {
         ValueRange xValueRange = new ValueRange(X_MIN, X_MAX);
@@ -38,9 +40,18 @@ public class DemoDataHelper {
                 final Set<Measurement> measurements = DataGenerator
                     .generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM, room);
                 measurements.forEach(measurement -> {
-                    final Set<AnchorPosition> anchorPositions = DataGenerator
-                        .generateAnchorPositions(AMOUNT_OF_ANCHORS, measurement, xValueRange,
-                            yValueRange, zValueRange);
+                    final Set<AnchorPosition> anchorPositions;
+                    if (FIX_DEMO_ANCHORS) {
+                        anchorPositions = new HashSet<>(4);
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e4e", -100, 100, 1150));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6964", 8450, 1200, 2150));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e5f", 1250, 12000, 1150));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e62", 7350, 11660, 1590));
+                    } else {
+                        anchorPositions = DataGenerator
+                            .generateAnchorPositions(AMOUNT_OF_ANCHORS, measurement, xValueRange,
+                                yValueRange, zValueRange);
+                    }
                     measurement.setAnchorPositions(anchorPositions);
 
                     final Set<Reading> readings = DataGenerator
