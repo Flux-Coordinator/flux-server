@@ -115,9 +115,9 @@ public class DataGenerator {
             measurement.setName("Measurement-" + random.nextInt(Integer.MAX_VALUE));
             measurement.setDescription("This is an example measurement and was automatically generated on " + getLocalDateTime() + ".");
             measurement.setCreator("Hans Muster");
-            measurement.setxOffset(1650);
-            measurement.setyOffset(300);
-            measurement.setScaleFactor(0.15);
+            measurement.setxOffset(1619);
+            measurement.setyOffset(340);
+            measurement.setScaleFactor(0.16);
             measurement.setMeasurementState(MeasurementState.READY);
             measurement.setStartDate(new Date());
             measurement.setEndDate(new Date());
@@ -238,6 +238,25 @@ public class DataGenerator {
             return anchorPositions;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of anchor positions", ex);
+        }
+    }
+
+    public static AnchorPosition createAnchorPosition(final Measurement measurement, String networkId, int xPosition, int yPosition, int zPosition) {
+        try {
+            final AnchorPosition anchorPosition = new AnchorPosition();
+
+            anchorPosition.setXPosition(xPosition);
+            anchorPosition.setYPosition(yPosition);
+            anchorPosition.setZPosition(zPosition);
+            final Anchor anchor = new Anchor();
+            anchor.setNetworkId(networkId);
+            anchorPosition.setAnchor(anchor);
+            anchorPosition.setMeasurement(measurement);
+
+            return anchorPosition;
+        }
+        catch(final Exception ex) {
+            throw new DataGeneratorException("Failed creating a single anchor position", ex);
         }
     }
 
