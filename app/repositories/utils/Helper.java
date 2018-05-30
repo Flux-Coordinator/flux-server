@@ -11,4 +11,9 @@ public class Helper {
     public static <T> T wrap(final JPAApi jpaApi, Function<EntityManager, T> function) {
         return jpaApi.withTransaction(function);
     }
+
+    public static void flushAndClear(final EntityManager em) {
+        em.flush();
+        em.clear();
+    }
 }

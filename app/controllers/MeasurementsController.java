@@ -143,6 +143,14 @@ public class MeasurementsController extends Controller {
                 });
     }
 
+    public CompletionStage<Result> removeMeasurement(final long measurementId) {
+        return measurementsRepository.removeMeasurement(measurementId).thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Failed removing measurement with the id: " + measurementId, throwable);
+                    return badRequest("Die Messung konnte nicht gelöscht werden (Messung ID: " + measurementId  + ").");
+                });
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> addReadings() {
         final CompletableFuture<Reading[]> futureReadings = CompletableFuture.supplyAsync(() -> {

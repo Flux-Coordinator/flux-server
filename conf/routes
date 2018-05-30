@@ -13,6 +13,7 @@ POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(
 GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
+DELETE  /measurements/:measurementId        controllers.MeasurementsController.removeMeasurement(measurementId: Long)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
 GET     /rooms/:roomId                      controllers.RoomsController.getRoom(roomId: Long)
 DELETE  /rooms/:roomId                      controllers.RoomsController.removeRoom(roomId: Long)

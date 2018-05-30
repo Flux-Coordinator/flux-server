@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static repositories.utils.Helper.flushAndClear;
 import static repositories.utils.Helper.wrap;
 
 @Singleton
@@ -75,8 +76,10 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     private void removeRoom(final EntityManager em, final long roomId) {
-        final Room room = em.find(Room.class, roomId);
+        Room room = em.find(Room.class, roomId);
         room.setProject(null);
+        flushAndClear(em);
+        room = em.getReference(Room.class, roomId);
         em.remove(room);
     }
 }
