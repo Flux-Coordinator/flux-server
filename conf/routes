@@ -7,6 +7,7 @@ GET     /                                   controllers.HomeController.index
 GET     /reset                              controllers.AdminController.resetData
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
 POST    /projects                           controllers.ProjectsController.addProject()
+DELETE  /projects/:projectId                controllers.ProjectsController.removeProject(projectId: Int)
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)
 POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
 GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)
@@ -14,6 +15,7 @@ GET     /measurements/active                controllers.MeasurementsController.g
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
 GET     /rooms/:roomId                      controllers.RoomsController.getRoom(roomId: Long)
+DELETE  /rooms/:roomId                      controllers.RoomsController.removeRoom(roomId: Long)
 #TODO: Move to room controller
 POST    /rooms/:roomId/measurements         controllers.MeasurementsController.addMeasurement(roomId: Long)
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)

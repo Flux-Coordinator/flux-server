@@ -76,6 +76,14 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
+    public CompletableFuture<Void> removeProject(final long projectId) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            removeProject(em, projectId);
+            return null;
+        }), databaseExecutionContext);
+    }
+
+    @Override
     public void resetRepository() {
         Logger.warn("Resetting the repository");
         wrap(jpaApi, this::resetRepository);
@@ -143,6 +151,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         }
 
         return projects;
+    }
+
+    private void removeProject(final EntityManager em, final long projectId) {
+        final Project projectReference = em.getReference(Project.class, projectId);
+        em.remove(projectReference);
     }
 
     private Void resetRepository(final EntityManager em) {

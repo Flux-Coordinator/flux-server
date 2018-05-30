@@ -3,6 +3,7 @@ package controllers;
 import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Room;
+import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
@@ -33,6 +34,15 @@ public class RoomsController extends Controller {
         final Room room = Json.fromJson(jsonNode, Room.class);
         return roomsRepository.addRoom(projectId, room)
                 .thenApplyAsync(roomId -> created(Json.toJson(roomId)), httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> removeRoom(final long roomId) {
+        return roomsRepository.removeRoom(roomId)
+                .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error removing room with room ID: " + roomId, throwable);
+                    return badRequest("Der Raum konnte nicht gelöscht werden (Raum ID: " + roomId + ").");
+                });
     }
 
     public CompletionStage<Result> getRooms(final int limit) {
