@@ -84,9 +84,11 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public void resetRepository() {
-        Logger.warn("Resetting the repository");
-        wrap(jpaApi, this::resetRepository);
+    public CompletableFuture<Void> resetRepository() {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            this.resetRepository(em);
+            return null;
+        }), databaseExecutionContext);
     }
 
     private Project addProject(final EntityManager em, final Project project) {
@@ -158,9 +160,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         em.remove(projectReference);
     }
 
-    private Void resetRepository(final EntityManager em) {
+    private void resetRepository(final EntityManager em) {
         final Query q = em.createNativeQuery(SqlNativeHelper.getTruncateAllTables());
         q.executeUpdate();
-        return null;
     }
 }

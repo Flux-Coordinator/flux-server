@@ -13,7 +13,6 @@ POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(
 GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)
 GET     /measurements/active                controllers.MeasurementsController.getActiveMeasurement
 GET     /measurements                       controllers.MeasurementsController.getMeasurements(limit: Int ?=5)
-DELETE  /measurements/:measurementId        controllers.MeasurementsController.removeMeasurement(measurementId: Long)
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
 GET     /rooms/:roomId                      controllers.RoomsController.getRoom(roomId: Long)
 DELETE  /rooms/:roomId                      controllers.RoomsController.removeRoom(roomId: Long)
@@ -23,6 +22,7 @@ GET     /measurements/:measurementId        controllers.MeasurementsController.g
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)
 DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement()
 POST    /measurements/active/readings       controllers.MeasurementsController.addReadings()
+DELETE  /measurements/:measurementId        controllers.MeasurementsController.removeMeasurement(measurementId: Long)
 GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
 POST    /export                             controllers.ImportExportController.exportMeasurements
 POST    /import                             controllers.ImportExportController.importMeasurements

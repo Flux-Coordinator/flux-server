@@ -80,7 +80,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
             removeMeasurement(em, measurementId);
             return null;
-        }));
+        }), databaseExecutionContext);
     }
 
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
