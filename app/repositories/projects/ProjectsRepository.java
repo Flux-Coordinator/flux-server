@@ -23,5 +23,7 @@ public interface ProjectsRepository {
 
     CompletableFuture<Long> countProjects();
 
-    void resetRepository();
+    CompletableFuture<Void> removeProject(final long projectId);
+
+    CompletableFuture<Void> resetRepository();
 }

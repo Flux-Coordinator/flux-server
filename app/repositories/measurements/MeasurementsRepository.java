@@ -22,4 +22,5 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Set<Measurement>> getMeasurementsByState(final MeasurementState state);
 
+    CompletableFuture<Void> removeMeasurement(final long measurementId);
 }

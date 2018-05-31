@@ -29,11 +29,11 @@ public class Measurement {
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference
     private Set<Reading> readings;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference
     private Set<AnchorPosition> anchorPositions;
 

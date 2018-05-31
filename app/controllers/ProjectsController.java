@@ -68,4 +68,13 @@ public class ProjectsController extends Controller {
             return badRequest("Fehler beim Erstellen des neuen Projekts");
         });
     }
+
+    public CompletionStage<Result> removeProject(final int projectId) {
+        return this.projectsRepository.removeProject(projectId)
+                .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error while removing the project with the id " + projectId, throwable);
+                    return badRequest("Fehler beim Entfernen des Projektes (Projekt ID: " + projectId + ").");
+                });
+    }
 }

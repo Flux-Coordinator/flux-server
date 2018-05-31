@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static repositories.utils.Helper.flushAndClear;
 import static repositories.utils.Helper.wrap;
 
 @Singleton
@@ -74,6 +75,14 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
                         em -> getMeasurementsByState(em, state)), databaseExecutionContext);
     }
 
+    @Override
+    public CompletableFuture<Void> removeMeasurement(final long measurementId) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            removeMeasurement(em, measurementId);
+            return null;
+        }), databaseExecutionContext);
+    }
+
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
         final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
 
@@ -95,9 +104,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {
         final Measurement measurement = em.getReference(Measurement.class, measurementId);
-        readings.forEach(reading -> {
-            reading.setMeasurement(measurement);
-        });
+        readings.forEach(reading -> reading.setMeasurement(measurement));
         readings.forEach(em::persist);
     }
 
@@ -114,5 +121,13 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         query.setParameter("state", state);
 
         return new HashSet<>(query.getResultList());
+    }
+
+    private void removeMeasurement(final EntityManager em, final long measurementId) {
+        Measurement measurement = em.find(Measurement.class, measurementId);
+        measurement.setRoom(null);
+        flushAndClear(em);
+        measurement = em.getReference(Measurement.class, measurementId);
+        em.remove(measurement);
     }
 }
