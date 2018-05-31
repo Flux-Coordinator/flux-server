@@ -35,9 +35,7 @@ public class Module extends AbstractModule {
 
         // TODO: Use this binding when the application is delivered to the customer
         // bind(JwtHelper.class).to(JwtHelperImpl.class);
-        bind(JwtHelper.class).to(JwtHelperFake.class);
-
-        // HACK: Initializes demo data, etc.
         bind(StartupManager.class).to(StartupManagerImpl.class).asEagerSingleton();
+        bind(JwtHelper.class).to(JwtHelperFake.class);
     }
 }
