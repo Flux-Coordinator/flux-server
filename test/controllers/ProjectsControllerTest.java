@@ -11,6 +11,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.WithApplication;
 import repositories.generator.DataGenerator;
+import startup.StartupManager;
+import startup.StartupManagerFake;
 import utils.jwt.JwtHelper;
 import utils.jwt.JwtHelperFake;
 
@@ -23,6 +25,7 @@ public class ProjectsControllerTest extends WithApplication {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
+                .overrides(bind(StartupManager.class).to(StartupManagerFake.class))
                 .overrides(bind(JwtHelper.class).to(JwtHelperFake.class))
                 .build();
     }
