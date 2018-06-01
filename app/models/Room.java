@@ -71,6 +71,13 @@ public class Room {
         this.floorSpace = floorSpace;
     }
 
+    public Long getProjectId() {
+        if(project != null) {
+            return project.getProjectId();
+        }
+        return null;
+    }
+
     public Set<Measurement> getMeasurements() {
         return measurements;
     }

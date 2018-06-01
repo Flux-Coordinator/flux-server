@@ -116,6 +116,20 @@ public class Measurement {
         this.scaleFactor = scaleFactor;
     }
 
+    public Long getRoomId() {
+        if(room != null) {
+            return room.getRoomId();
+        }
+        return null;
+    }
+
+    public Long getProjectId() {
+        if(room != null && room.getProjectId() != null) {
+            return room.getProjectId();
+        }
+        return null;
+    }
+
     public Set<Reading> getReadings() {
         return readings;
     }
@@ -131,6 +145,7 @@ public class Measurement {
     public void setRoom(Room room) {
         this.room = room;
     }
+
 
     public Set<AnchorPosition> getAnchorPositions() {
         return anchorPositions;
