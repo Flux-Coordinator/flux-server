@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
   javaJpa,
   "org.postgresql" % "postgresql" % "42.2.2",
   "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-hibernate5" % "2.9.5",
   "org.mindrot" % "jbcrypt" % "0.4"
 ) ++ guiceDeps
 
