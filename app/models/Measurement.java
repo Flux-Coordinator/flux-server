@@ -33,7 +33,7 @@ public class Measurement {
     @JsonManagedReference
     private Set<Reading> readings;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<AnchorPosition> anchorPositions;
 
