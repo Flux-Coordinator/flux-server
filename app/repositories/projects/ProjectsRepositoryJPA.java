@@ -3,7 +3,6 @@ package repositories.projects;
 import models.Measurement;
 import models.Project;
 import models.Room;
-import play.Logger;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 import repositories.utils.CollectionHelper;
@@ -21,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static repositories.utils.Helper.wrap;
+import static repositories.utils.JpaHelper.wrap;
 
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {

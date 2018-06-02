@@ -9,6 +9,7 @@ import repositories.rooms.RoomsRepository;
 import repositories.rooms.RoomsRepositoryJPA;
 import startup.StartupManager;
 import startup.StartupManagerImpl;
+import utils.json.JacksonCustomObjectMapper;
 import utils.jwt.JwtHelper;
 import utils.jwt.JwtHelperFake;
 
@@ -35,6 +36,7 @@ public class Module extends AbstractModule {
 
         // TODO: Use this binding when the application is delivered to the customer
         // bind(JwtHelper.class).to(JwtHelperImpl.class);
+        bind(JacksonCustomObjectMapper.class).asEagerSingleton();
         bind(StartupManager.class).to(StartupManagerImpl.class).asEagerSingleton();
         bind(JwtHelper.class).to(JwtHelperFake.class);
     }

@@ -14,8 +14,9 @@ import play.mvc.Result;
 import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
-import repositories.projects.ProjectsRepository;
 import repositories.rooms.RoomsRepository;
+import startup.StartupManager;
+import startup.StartupManagerFake;
 import utils.jwt.JwtHelper;
 import utils.jwt.JwtHelperFake;
 
@@ -32,6 +33,7 @@ public class MeasurementsControllerTest extends WithApplication {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
+                .overrides(bind(StartupManager.class).to(StartupManagerFake.class))
                 .overrides(bind(JwtHelper.class).to(JwtHelperFake.class))
                 .build();
     }
@@ -201,17 +203,16 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {
-        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
-        final Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
+        Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/active");
-        final Result getResult = route(app, getActiveRequest);
+        Result getResult = route(app, getActiveRequest);
 
         Measurement measurement;
         if(getResult.status() == OK) {
             measurement = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
-            final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
+            final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
             final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
             measurement = room.getMeasurements().stream().findAny().get();
 
@@ -220,6 +221,12 @@ public class MeasurementsControllerTest extends WithApplication {
                     .uri("/measurements/active/" + measurement.getMeasurementId());
             final Result setActiveResult = route(app, setActiveRequest);
             assertEquals(OK, setActiveResult.status());
+
+            getActiveRequest = new Http.RequestBuilder()
+                    .method(GET)
+                    .uri("/measurements/active");
+            getResult = route(app, getActiveRequest);
+            measurement = Helpers.convertFromJSON(getResult, Measurement.class);
         }
 
         return measurement;

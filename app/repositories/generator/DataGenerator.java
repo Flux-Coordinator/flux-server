@@ -17,7 +17,7 @@ import models.Reading;
 import models.Room;
 
 /**
- * Helper class to generate data more easily.
+ * JpaHelper class to generate data more easily.
  */
 public class DataGenerator {
     private static final Random random = new Random();

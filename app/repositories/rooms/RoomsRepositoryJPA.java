@@ -13,8 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static repositories.utils.Helper.flushAndClear;
-import static repositories.utils.Helper.wrap;
+import static repositories.utils.JpaHelper.flushAndClear;
+import static repositories.utils.JpaHelper.wrap;
 
 @Singleton
 public class RoomsRepositoryJPA implements RoomsRepository {

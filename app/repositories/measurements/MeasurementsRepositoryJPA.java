@@ -9,15 +9,12 @@ import repositories.DatabaseExecutionContext;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static repositories.utils.Helper.flushAndClear;
-import static repositories.utils.Helper.wrap;
+import static repositories.utils.JpaHelper.flushAndClear;
+import static repositories.utils.JpaHelper.wrap;
 
 @Singleton
 public class MeasurementsRepositoryJPA implements MeasurementsRepository {
@@ -83,6 +80,18 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         }), databaseExecutionContext);
     }
 
+    private static EntityGraph<Measurement> retrieveGraphWithReadings(final EntityManager em) {
+        final EntityGraph<Measurement> measurementEntityGraph = em.createEntityGraph(Measurement.class);
+        measurementEntityGraph.addAttributeNodes("readings");
+        return measurementEntityGraph;
+    }
+
+    private static Map<String, Object> retrieveGraphWithReadingsHints(final EntityManager em) {
+        final Map<String, Object> hints = new HashMap<>();
+        hints.put("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
+        return hints;
+    }
+
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
         final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
 
@@ -94,7 +103,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
-        return em.find(Measurement.class, measurementId);
+        return em.find(Measurement.class, measurementId, retrieveGraphWithReadingsHints(em));
     }
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
@@ -119,6 +128,7 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
                         Measurement.class);
 
         query.setParameter("state", state);
+        query.setHint("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
 
         return new HashSet<>(query.getResultList());
     }

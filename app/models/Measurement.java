@@ -29,7 +29,7 @@ public class Measurement {
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
     private Set<Reading> readings;
 
