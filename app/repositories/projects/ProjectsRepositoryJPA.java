@@ -123,7 +123,10 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     private Set<Project> getRelatedProjects(final EntityManager em, final List<Measurement> measurements) {
         final List<Long> ids = measurements.stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p INNER JOIN p.rooms as r INNER JOIN r.measurements as m WHERE m.id in (:measurementIds)", Project.class);
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p INNER JOIN p.rooms as r " +
+                "INNER JOIN r.measurements as m " +
+                "INNER JOIN m.readings as reading " +
+                "WHERE m.id in (:measurementIds)", Project.class);
         typedQuery.setParameter("measurementIds", ids);
 
         final Set<Project> projects = new HashSet<>(typedQuery.getResultList());
