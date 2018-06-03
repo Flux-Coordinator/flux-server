@@ -10,6 +10,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import repositories.importexport.ImportExportRepository;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
@@ -22,20 +23,20 @@ import java.util.concurrent.CompletionStage;
 @Singleton
 public class ImportExportController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
-    private final ProjectsRepository projectsRepository;
+    private final ImportExportRepository importExportRepository;
 
     @Inject
     public ImportExportController(final HttpExecutionContext httpExecutionContext,
-                                  final ProjectsRepository projectsRepository) {
+                                  final ImportExportRepository importExportRepository) {
         this.httpExecutionContext = httpExecutionContext;
-        this.projectsRepository = projectsRepository;
+        this.importExportRepository = importExportRepository;
     }
 
     @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> exportMeasurements() {
         final JsonNode jsonNode = request().body().asJson();
         final Measurement[] measurementsToExport = Json.fromJson(jsonNode, Measurement[].class);
-        return this.projectsRepository
+        return this.importExportRepository
                 .getRelatedProjects(Arrays.asList(measurementsToExport))
                 .thenApplyAsync(projects -> ok(Json.toJson(projects)), httpExecutionContext.current());
     }
@@ -45,8 +46,8 @@ public class ImportExportController extends Controller {
         final JsonNode jsonNode = request().body().asJson();
         final List<Project> importedProjects = Arrays.asList(Json.fromJson(jsonNode, Project[].class));
 
-        return this.projectsRepository
-                .addProjects(importedProjects)
+        return this.importExportRepository
+                .importProjects(importedProjects)
                 .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current());
     }
 }

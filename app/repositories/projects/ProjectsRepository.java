@@ -1,6 +1,5 @@
 package repositories.projects;
 
-import models.Measurement;
 import models.Project;
 import models.Room;
 
@@ -17,9 +16,9 @@ public interface ProjectsRepository {
 
     CompletableFuture<Project> getProjectById(final long projectId);
 
-    CompletableFuture<Set<Room>> getProjectRooms(final long projectId);
+    CompletableFuture<Set<Project>> getProjectsById(final List<Long> projectIds);
 
-    CompletableFuture<Set<Project>> getRelatedProjects(final List<Measurement> measurements);
+    CompletableFuture<Set<Room>> getProjectRooms(final long projectId);
 
     CompletableFuture<Long> countProjects();
 

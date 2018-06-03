@@ -1,6 +1,8 @@
 import com.google.inject.AbstractModule;
 import repositories.authentication.AuthenticationRepository;
 import repositories.authentication.LocalAuthenticationRepository;
+import repositories.importexport.ImportExportRepository;
+import repositories.importexport.ImportExportRepositoryJPA;
 import repositories.measurements.MeasurementsRepository;
 import repositories.measurements.MeasurementsRepositoryJPA;
 import repositories.projects.ProjectsRepository;
@@ -32,6 +34,7 @@ public class Module extends AbstractModule {
         bind(RoomsRepository.class).to(RoomsRepositoryJPA.class);
         bind(MeasurementsRepository.class).to(MeasurementsRepositoryJPA.class);
         bind(ProjectsRepository.class).to(ProjectsRepositoryJPA.class);
+        bind(ImportExportRepository.class).to(ImportExportRepositoryJPA.class);
         bind(AuthenticationRepository.class).to(LocalAuthenticationRepository.class);
 
         // TODO: Use this binding when the application is delivered to the customer
