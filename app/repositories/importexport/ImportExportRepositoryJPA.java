@@ -48,9 +48,9 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
     }
 
     @Override
-    public CompletableFuture<Void> importProjects(final List<Project> projects) {
+    public CompletableFuture<Void> importData(final List<Project> projects) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
-            this.importProjects(em, projects);
+            this.importProjects(projects);
             return null;
         }), databaseExecutionContext);
     }
@@ -98,20 +98,21 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
         return projects;
     }
 
-    private void importProjects(final EntityManager em, final List<Project> projects) {
-        final List<Long> projectIds = projects.stream().map(Project::getProjectId).collect(Collectors.toList());
-        this.projectsRepository.getProjectsById(projectIds).thenAccept(existingProjects -> {
+    private void importProjects(final List<Project> projects) {
+        final List<String> projectNames = projects.stream().map(Project::getName).collect(Collectors.toList());
+        this.projectsRepository.getProjectsByName(projectNames).thenAccept(existingProjects -> {
             // Handle non-existing projects
-            final List<Project> existingImportedProjects = getContainedItemsByComparator(existingProjects, projects, (p1, p2) -> p1.getProjectId() == p2.getProjectId());
+            final List<Project> existingImportedProjects = getContainedItemsByComparator(existingProjects, projects, (p1, p2) -> p1.getName().equals(p2.getName()));
             final List<Project> newProjects = new ArrayList<>(projects);
             newProjects.removeAll(existingImportedProjects);
+            newProjects.forEach(project -> project.setProjectId(-1));
             final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedProjects.size());
             futures.add(this.projectsRepository.addProjects(newProjects));
 
             existingImportedProjects.forEach(importedProject -> {
                 final Optional<Project> correspondingExistingProject = existingProjects
                         .stream()
-                        .filter(p -> p.getProjectId() == importedProject.getProjectId() && p.getName().equals(importedProject.getName()))
+                        .filter(p -> p.getName().equals(importedProject.getName()))
                         .findFirst();
 
                 if(correspondingExistingProject.isPresent()) {
@@ -126,9 +127,9 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
     }
 
     private CompletableFuture<Void> importRooms(final Project parentProject, final Set<Room> rooms) {
-        final List<Long> roomIds = rooms.stream().map(Room::getRoomId).collect(Collectors.toList());
-        return this.roomsRepository.getRoomsById(roomIds).thenAccept(existingRooms -> {
-            final List<Room> existingImportedRooms = getContainedItemsByComparator(existingRooms, rooms, (r1, r2) -> r1.getRoomId() == r2.getRoomId());
+        final List<String> roomNames = rooms.stream().map(Room::getName).collect(Collectors.toList());
+        return this.roomsRepository.getRoomsByName(roomNames).thenAccept(existingRooms -> {
+            final List<Room> existingImportedRooms = getContainedItemsByComparator(existingRooms, rooms, (r1, r2) -> r1.getName().equals(r2.getName()));
             final List<Room> newRooms = new ArrayList<>(rooms);
             newRooms.removeAll(existingImportedRooms);
             final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedRooms.size());
@@ -138,10 +139,12 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
             existingImportedRooms.forEach(importedRoom -> {
                 final Optional<Room> correspondingExistingRoom = existingRooms
                         .stream()
-                        .filter(room -> room.getRoomId() == importedRoom.getRoomId() && room.getName().equals(importedRoom.getName()))
+                        .filter(room -> room.getName().equals(importedRoom.getName()))
                         .findFirst();
 
                 if(correspondingExistingRoom.isPresent()) {
+                    importedRoom.setRoomId(correspondingExistingRoom.get().getRoomId());
+                    importedRoom.getMeasurements().forEach(measurement -> measurement.setRoom(correspondingExistingRoom.get()));
                     futures.add(importMeasurements(importedRoom.getMeasurements()));
                 } else {
                     importedRoom.setRoomId(-1);
@@ -166,7 +169,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
             existingImportedMeasurements.forEach(importedMeasurement -> {
                 final Optional<Measurement> correspondingExistingMeasurement = existingMeasurements
                         .stream()
-                        .filter(m -> m.getMeasurementId() == importedMeasurement.getMeasurementId() && m.getName().equals(importedMeasurement.getName()))
+                        .filter(m -> m.getName().equals(importedMeasurement.getName()))
                         .findFirst();
 
                 importedMeasurement.setMeasurementId(-1);

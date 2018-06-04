@@ -42,11 +42,15 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     @Override
-    public CompletableFuture<Set<Room>> getRoomsById(final List<Long> roomIds) {
+    public CompletableFuture<Set<Room>> getRoomsByIds(final List<Long> roomIds) {
         return CompletableFuture
-                .supplyAsync(() -> wrap(jpaApi, em -> getRoomsById(em, roomIds)), databaseExecutionContext);
+                .supplyAsync(() -> wrap(jpaApi, em -> getRoomsByIds(em, roomIds)), databaseExecutionContext);
     }
 
+    @Override
+    public CompletableFuture<Set<Room>> getRoomsByName(final List<String> roomNames) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> getRoomsByName(em, roomNames)), databaseExecutionContext);
+    }
 
     @Override
     public CompletableFuture<Long> addRoom(final long projectId, final Room room) {
@@ -85,9 +89,15 @@ public class RoomsRepositoryJPA implements RoomsRepository {
         return em.find(Room.class, roomId);
     }
 
-    private Set<Room> getRoomsById(final EntityManager em, final List<Long> roomIds) {
+    private Set<Room> getRoomsByIds(final EntityManager em, final List<Long> roomIds) {
         final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.roomId in (:roomIds)", Room.class);
         typedQuery.setParameter("roomIds", roomIds);
+        return new HashSet<>(typedQuery.getResultList());
+    }
+
+    private Set<Room> getRoomsByName(final EntityManager em, final List<String> roomNames) {
+        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.name in (:roomNames)", Room.class);
+        typedQuery.setParameter("roomNames", roomNames);
         return new HashSet<>(typedQuery.getResultList());
     }
 

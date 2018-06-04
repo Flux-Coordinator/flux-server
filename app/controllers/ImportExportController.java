@@ -11,7 +11,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 import repositories.importexport.ImportExportRepository;
-import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,7 +46,7 @@ public class ImportExportController extends Controller {
         final List<Project> importedProjects = Arrays.asList(Json.fromJson(jsonNode, Project[].class));
 
         return this.importExportRepository
-                .importProjects(importedProjects)
+                .importData(importedProjects)
                 .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current());
     }
 }

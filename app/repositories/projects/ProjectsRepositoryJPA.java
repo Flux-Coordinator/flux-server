@@ -56,9 +56,15 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletableFuture<Set<Project>> getProjectsById(final List<Long> projectIds) {
+    public CompletableFuture<Set<Project>> getProjectsByIds(final List<Long> projectIds) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi,
-                em -> getProjectsById(em, projectIds)), databaseExecutionContext);
+                em -> getProjectsByIds(em, projectIds)), databaseExecutionContext);
+    }
+
+    @Override
+    public CompletableFuture<Set<Project>> getProjectsByName(final List<String> projectNames) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi,
+                em -> getProjectsByName(em, projectNames)), databaseExecutionContext);
     }
 
     @Override
@@ -108,14 +114,20 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return em.find(Project.class, projectId);
     }
 
-    private Set<Project> getProjectsById(final EntityManager em, final List<Long> projectIds) {
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p WHERE p.id in (:projectIds)", Project.class);
+    private Set<Project> getProjectsByIds(final EntityManager em, final List<Long> projectIds) {
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p WHERE p.projectId in (:projectIds)", Project.class);
         typedQuery.setParameter("projectIds", projectIds);
         return new HashSet<>(typedQuery.getResultList());
     }
 
+    private Set<Project> getProjectsByName(final EntityManager em, final List<String> projectNames) {
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p WHERE p.name in (:projectNames)", Project.class);
+        typedQuery.setParameter("projectNames", projectNames);
+        return new HashSet<>(typedQuery.getResultList());
+    }
+
     private Set<Room> getProjectRooms(final EntityManager em, final long projectId) {
-        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.id = " + projectId, Room.class);
+        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.projectId = " + projectId, Room.class);
         return new HashSet<>(typedQuery.getResultList());
     }
 

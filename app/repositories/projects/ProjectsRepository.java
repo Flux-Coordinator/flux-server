@@ -16,7 +16,9 @@ public interface ProjectsRepository {
 
     CompletableFuture<Project> getProjectById(final long projectId);
 
-    CompletableFuture<Set<Project>> getProjectsById(final List<Long> projectIds);
+    CompletableFuture<Set<Project>> getProjectsByIds(final List<Long> projectIds);
+
+    CompletableFuture<Set<Project>> getProjectsByName(final List<String> projectNames);
 
     CompletableFuture<Set<Room>> getProjectRooms(final long projectId);
 

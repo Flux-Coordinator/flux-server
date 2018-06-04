@@ -47,6 +47,11 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
+    public CompletableFuture<Set<Measurement>> getMeasurementsByNames(final List<String> measurementNames) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> getMeasurementsByNames(em, measurementNames)), databaseExecutionContext);
+    }
+
+    @Override
     public CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
             final Measurement persistedMeasurement = addMeasurement(em, roomId, measurement);
@@ -123,8 +128,16 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private Set<Measurement> getMeasurementsById(final EntityManager em, final List<Long> measurementIds) {
         final TypedQuery<Measurement> query = em
-                .createQuery("SELECT m FROM Measurement m WHERE m.id in (:measurementIds)", Measurement.class);
+                .createQuery("SELECT m FROM Measurement m WHERE m.measurementId in (:measurementIds)", Measurement.class);
         query.setParameter("measurementIds", measurementIds);
+        query.setHint("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
+        return new HashSet<>(query.getResultList());
+    }
+
+    private Set<Measurement> getMeasurementsByNames(final EntityManager em, final List<String> measurementNames) {
+        final TypedQuery<Measurement> query = em
+                .createQuery("SELECT m FROM Measurement m WHERE m.name in (:measurementNames)", Measurement.class);
+        query.setParameter("measurementNames", measurementNames);
         query.setHint("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
         return new HashSet<>(query.getResultList());
     }

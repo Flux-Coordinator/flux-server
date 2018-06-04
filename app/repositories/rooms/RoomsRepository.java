@@ -11,7 +11,9 @@ public interface RoomsRepository {
 
     CompletableFuture<Room> getRoomById(final long roomId);
 
-    CompletableFuture<Set<Room>> getRoomsById(final List<Long> roomIds);
+    CompletableFuture<Set<Room>> getRoomsByIds(final List<Long> roomIds);
+
+    CompletableFuture<Set<Room>> getRoomsByName(final List<String> roomNames);
 
     CompletableFuture<Long> addRoom(final long projectId, final Room room);
 

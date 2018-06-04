@@ -9,5 +9,5 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ImportExportRepository {
     CompletableFuture<Set<Project>> getRelatedProjects(final List<Measurement> measurements);
-    CompletableFuture<Void> importProjects(final List<Project> projects);
+    CompletableFuture<Void> importData(final List<Project> projects);
 }
