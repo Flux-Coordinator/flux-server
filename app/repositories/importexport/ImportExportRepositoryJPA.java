@@ -7,6 +7,7 @@ import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
 import repositories.measurements.MeasurementsRepository;
 import repositories.projects.ProjectsRepository;
+import repositories.rooms.RoomsRepository;
 import repositories.utils.CollectionHelper;
 import utils.multithreading.CompletableFutureHelper;
 
@@ -23,16 +24,19 @@ import static repositories.utils.JpaHelper.wrap;
 public class ImportExportRepositoryJPA implements ImportExportRepository {
     private final JPAApi jpaApi;
     private final ProjectsRepository projectsRepository;
+    private final RoomsRepository roomsRepository;
     private final MeasurementsRepository measurementsRepository;
     private final DatabaseExecutionContext databaseExecutionContext;
 
     @Inject
     public ImportExportRepositoryJPA(final JPAApi jpaApi,
                                      final ProjectsRepository projectsRepository,
+                                     final RoomsRepository roomsRepository,
                                      final MeasurementsRepository measurementsRepository,
                                      final DatabaseExecutionContext databaseExecutionContext) {
         this.jpaApi = jpaApi;
         this.projectsRepository = projectsRepository;
+        this.roomsRepository = roomsRepository;
         this.measurementsRepository = measurementsRepository;
         this.databaseExecutionContext = databaseExecutionContext;
     }
@@ -126,6 +130,9 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
     }
 
     private CompletableFuture<Void> importRooms(final EntityManager em, final Project parentProject, final Set<Room> rooms) {
-        return null;
+        final List<Long> roomIds = rooms.stream().map(Room::getRoomId).collect(Collectors.toList());
+        return this.roomsRepository.getRoomsById(roomIds).thenAccept(existingRooms -> {
+
+        });
     }
 }
