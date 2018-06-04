@@ -65,8 +65,8 @@ public class ImportExportController extends Controller {
                             .map(Set::size)
                             .reduce((integer, integer2) -> integer + integer2);
                     return amountOfMeasurements
-                            .map(integer -> ok("Es wurden " + integer + " Messungen importiert."))
-                            .orElseGet(() -> ok("Etwas ist merkwürdig. Wir konnten nicht feststellen, ob der Import geglückt ist. Bitte stellen Sie fest, ob die Messungen erfolgreich importiert wurden."));
+                            .map(integer -> ok("Die " + integer + " Messungen wurden erfolgreich importiert."))
+                            .orElseGet(() -> ok("Etwas stimmt nicht. Wir konnten nicht feststellen, ob der Import erfolgreich war. Bitte stellen Sie fest, ob die Messungen erfolgreich importiert wurden."));
                 }, httpExecutionContext.current())
                 .exceptionally(throwable -> {
                     Logger.error("There was an error importing measurements.", throwable);
