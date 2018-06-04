@@ -6,6 +6,7 @@ import models.Reading;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.exceptions.AlreadyExistsException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -134,6 +135,12 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         return new HashSet<>(query.getResultList());
     }
 
+    private Long countMeasurementsByName(final EntityManager em, final String measurementName) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT COUNT(m) from Measurement m WHERE m.name LIKE (:measurementName)", Long.class);
+        typedQuery.setParameter("measurementName", measurementName);
+        return typedQuery.getSingleResult();
+    }
+
     private Set<Measurement> getMeasurementsByNames(final EntityManager em, final List<String> measurementNames) {
         final TypedQuery<Measurement> query = em
                 .createQuery("SELECT m FROM Measurement m WHERE m.name in (:measurementNames)", Measurement.class);
@@ -143,6 +150,9 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
+        if(countMeasurementsByName(em, measurement.getName()) > 0) {
+            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
+        }
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
     }

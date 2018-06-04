@@ -10,6 +10,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
@@ -63,10 +64,15 @@ public class ProjectsController extends Controller {
         return this.projectsRepository.addProject(project).thenApplyAsync(createdId -> {
             final String absoluteUrl = routes.ProjectsController.getProjectById(createdId).absoluteURL(request());
             return created(absoluteUrl);
-        }, httpExecutionContext.current()).exceptionally(throwable -> {
-            Logger.error("Error while creating a new project.", throwable);
-            return badRequest("Fehler beim Erstellen des neuen Projekts");
-        });
+        }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    if (throwable.getCause() instanceof AlreadyExistsException) {
+                        return badRequest(throwable.getCause().getMessage());
+                    } else {
+                        Logger.error("Error while creating a new project.", throwable);
+                        return badRequest("Fehler beim Erstellen des neuen Projekts");
+                    }
+                });
     }
 
     public CompletionStage<Result> removeProject(final int projectId) {

@@ -4,6 +4,7 @@ import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.exceptions.AlreadyExistsException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -95,6 +96,12 @@ public class RoomsRepositoryJPA implements RoomsRepository {
         return new HashSet<>(typedQuery.getResultList());
     }
 
+    private long countRoomsByName(final EntityManager em, final String roomName) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT COUNT(r) FROM Room r WHERE r.name LIKE (:roomName)", Long.class);
+        typedQuery.setParameter("roomName", roomName);
+        return typedQuery.getSingleResult();
+    }
+
     private Set<Room> getRoomsByName(final EntityManager em, final List<String> roomNames) {
         final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.name in (:roomNames)", Room.class);
         typedQuery.setParameter("roomNames", roomNames);
@@ -102,6 +109,9 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     private Room addRoom(final EntityManager em, final long projectId, final Room room) {
+        if(countRoomsByName(em, room.getName()) > 0) {
+            throw new AlreadyExistsException("Es ist bereits ein Raum mit diesem Namen vorhanden.");
+        }
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
         return em.merge(room);

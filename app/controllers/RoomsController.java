@@ -10,6 +10,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.rooms.RoomsRepository;
 
 import javax.inject.Inject;
@@ -33,7 +34,14 @@ public class RoomsController extends Controller {
         final JsonNode jsonNode = request().body().asJson();
         final Room room = Json.fromJson(jsonNode, Room.class);
         return roomsRepository.addRoom(projectId, room)
-                .thenApplyAsync(roomId -> created(Json.toJson(roomId)), httpExecutionContext.current());
+                .thenApplyAsync(roomId -> created(Json.toJson(roomId)), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    if(throwable.getCause() instanceof AlreadyExistsException) {
+                        return badRequest(throwable.getCause().getMessage());
+                    }
+                    Logger.error("Error while creating a new room.", throwable);
+                    return badRequest("Fehler beim Erstellen des neuen Raumes");
+                });
     }
 
     public CompletionStage<Result> removeRoom(final long roomId) {

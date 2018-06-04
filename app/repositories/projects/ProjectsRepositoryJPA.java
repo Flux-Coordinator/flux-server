@@ -4,6 +4,7 @@ import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.utils.SqlNativeHelper;
 
 import javax.inject.Inject;
@@ -73,8 +74,8 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
-    public CompletableFuture<Long> countProjects() {
-        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, this::countProjects), databaseExecutionContext);
+    public CompletableFuture<Long> countProjectsByName(final String projectName) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> countProjectsByName(em, projectName)), databaseExecutionContext);
     }
 
     @Override
@@ -94,6 +95,9 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project addProject(final EntityManager em, final Project project) {
+        if(countProjectsByName(em, project.getName()) > 0) {
+            throw new AlreadyExistsException("Ein Projekt mit dem Namen " + project.getName() + " ist bereits vorhanden.");
+        }
         return em.merge(project);
     }
 
@@ -131,8 +135,9 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return new HashSet<>(typedQuery.getResultList());
     }
 
-    private Long countProjects(final EntityManager em) {
-        final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
+    private Long countProjectsByName(final EntityManager em, final String projectName) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT COUNT(p) from Project p WHERE p.name LIKE (:projectName)", Long.class);
+        typedQuery.setParameter("projectName", projectName);
         return typedQuery.getSingleResult();
     }
 

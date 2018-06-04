@@ -22,7 +22,7 @@ public interface ProjectsRepository {
 
     CompletableFuture<Set<Room>> getProjectRooms(final long projectId);
 
-    CompletableFuture<Long> countProjects();
+    CompletableFuture<Long> countProjectsByName(final String projectName);
 
     CompletableFuture<Void> removeProject(final long projectId);
 
