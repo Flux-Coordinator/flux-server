@@ -31,10 +31,16 @@ public class CollectionHelper {
         return collectionWasChanged;
     }
 
+    /**
+     * Returns the items from toContain that are contained in base.
+     * @param base The base list that should contain the toContain items.
+     * @param toContain The list that should be contained inside the base list.
+     * @param comparator The comparator compares an item of the base and an item of the toContain list and should return true, if they are the same.
+     * @return Returns a new list containing the items of the toContain list that were inside the base list.
+     */
     public static <T> List<T> getContainedItemsByComparator(final Collection<T> base, final Collection<T> toContain, BiFunction<T, T, Boolean> comparator) {
         Objects.requireNonNull(base);
         Objects.requireNonNull(toContain);
-        final Iterator<T> toContainIterator = toContain.iterator();
         final List<T> returnList = new ArrayList<>();
         toContain.forEach(toContainItem -> {
             for (T aBase : base) {

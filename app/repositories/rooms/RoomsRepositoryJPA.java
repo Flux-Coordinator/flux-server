@@ -58,6 +58,14 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     @Override
+    public CompletableFuture<Void> addRooms(final List<Room> rooms) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            addRooms(em, rooms);
+            return null;
+        }), databaseExecutionContext);
+    }
+
+    @Override
     public CompletableFuture<Void> removeRoom(long roomId) {
         return CompletableFuture.runAsync(() -> wrap(jpaApi, entityManager -> {
             removeRoom(entityManager, roomId);
@@ -87,6 +95,10 @@ public class RoomsRepositoryJPA implements RoomsRepository {
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
         return em.merge(room);
+    }
+
+    private void addRooms(final EntityManager em, final List<Room> rooms) {
+        rooms.forEach(em::merge);
     }
 
     private void removeRoom(final EntityManager em, final long roomId) {

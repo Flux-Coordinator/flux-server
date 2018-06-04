@@ -16,4 +16,6 @@ public interface RoomsRepository {
     CompletableFuture<Long> addRoom(final long projectId, final Room room);
 
     CompletableFuture<Void> removeRoom(final long roomId);
+
+    CompletableFuture<Void> addRooms(final List<Room> rooms);
 }

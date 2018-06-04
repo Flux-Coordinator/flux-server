@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static repositories.utils.CollectionHelper.containsByComparator;
+import static repositories.utils.CollectionHelper.getContainedItemsByComparator;
 import static repositories.utils.JpaHelper.wrap;
 
 public class ImportExportRepositoryJPA implements ImportExportRepository {
@@ -47,7 +48,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
     }
 
     @Override
-    public CompletableFuture<Void> importProjects(List<Project> projects) {
+    public CompletableFuture<Void> importProjects(final List<Project> projects) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
             this.importProjects(em, projects);
             return null;
@@ -101,38 +102,81 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
         final List<Long> projectIds = projects.stream().map(Project::getProjectId).collect(Collectors.toList());
         this.projectsRepository.getProjectsById(projectIds).thenAccept(existingProjects -> {
             // Handle non-existing projects
-            final List<Project> newProjects = projects
-                    .stream()
-                    .filter(p -> !containsByComparator(existingProjects, ep -> ep.getProjectId() == p.getProjectId()))
-                    .collect(Collectors.toList());
-            final List<CompletableFuture> futures = new ArrayList<>();
+            final List<Project> existingImportedProjects = getContainedItemsByComparator(existingProjects, projects, (p1, p2) -> p1.getProjectId() == p2.getProjectId());
+            final List<Project> newProjects = new ArrayList<>(projects);
+            newProjects.removeAll(existingImportedProjects);
+            final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedProjects.size());
             futures.add(this.projectsRepository.addProjects(newProjects));
-
-            // Handle existing projects
-            final List<Project> existingImportedProjects = projects
-                    .stream()
-                    .filter(p -> containsByComparator(existingProjects, ep -> ep.getProjectId() == p.getProjectId()))
-                    .collect(Collectors.toList());
 
             existingImportedProjects.forEach(importedProject -> {
                 final Optional<Project> correspondingExistingProject = existingProjects
                         .stream()
-                        .filter(p -> p.getProjectId() == importedProject.getProjectId())
+                        .filter(p -> p.getProjectId() == importedProject.getProjectId() && p.getName().equals(importedProject.getName()))
                         .findFirst();
 
-                correspondingExistingProject.ifPresent(existingProject -> {
-                    futures.add(importRooms(em, existingProject, importedProject.getRooms()));
-                });
-
+                if(correspondingExistingProject.isPresent()) {
+                    futures.add(importRooms(importedProject, importedProject.getRooms()));
+                } else {
+                    importedProject.setProjectId(-1);
+                    futures.add(this.projectsRepository.addProject(importedProject));
+                }
             });
             CompletableFutureHelper.waitForAllOf(futures);
         }).join();
     }
 
-    private CompletableFuture<Void> importRooms(final EntityManager em, final Project parentProject, final Set<Room> rooms) {
+    private CompletableFuture<Void> importRooms(final Project parentProject, final Set<Room> rooms) {
         final List<Long> roomIds = rooms.stream().map(Room::getRoomId).collect(Collectors.toList());
         return this.roomsRepository.getRoomsById(roomIds).thenAccept(existingRooms -> {
+            final List<Room> existingImportedRooms = getContainedItemsByComparator(existingRooms, rooms, (r1, r2) -> r1.getRoomId() == r2.getRoomId());
+            final List<Room> newRooms = new ArrayList<>(rooms);
+            newRooms.removeAll(existingImportedRooms);
+            final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedRooms.size());
+            futures.add(this.roomsRepository.addRooms(newRooms));
 
+            // Handle existing rooms
+            existingImportedRooms.forEach(importedRoom -> {
+                final Optional<Room> correspondingExistingRoom = existingRooms
+                        .stream()
+                        .filter(room -> room.getRoomId() == importedRoom.getRoomId() && room.getName().equals(importedRoom.getName()))
+                        .findFirst();
+
+                if(correspondingExistingRoom.isPresent()) {
+                    futures.add(importMeasurements(importedRoom.getMeasurements()));
+                } else {
+                    importedRoom.setRoomId(-1);
+                    importedRoom.setProject(null);
+                    futures.add(this.roomsRepository.addRoom(parentProject.getProjectId(), importedRoom));
+                }
+            });
+
+            CompletableFutureHelper.waitForAllOf(futures);
+        });
+    }
+
+    private CompletableFuture<Void> importMeasurements(final Set<Measurement> measurements) {
+        final List<Long> measurementIds = measurements.stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
+        return this.measurementsRepository.getMeasurementsById(measurementIds).thenAccept(existingMeasurements -> {
+            final List<Measurement> existingImportedMeasurements = getContainedItemsByComparator(existingMeasurements, measurements, (m1, m2) -> m1.getMeasurementId() == m2.getMeasurementId());
+            final List<Measurement> newMeasurements = new ArrayList<>(measurements);
+            newMeasurements.removeAll(existingImportedMeasurements);
+            final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedMeasurements.size());
+            futures.add(this.measurementsRepository.addMeasurements(newMeasurements));
+
+            existingImportedMeasurements.forEach(importedMeasurement -> {
+                final Optional<Measurement> correspondingExistingMeasurement = existingMeasurements
+                        .stream()
+                        .filter(m -> m.getMeasurementId() == importedMeasurement.getMeasurementId() && m.getName().equals(importedMeasurement.getName()))
+                        .findFirst();
+
+                importedMeasurement.setMeasurementId(-1);
+                if(correspondingExistingMeasurement.isPresent()) {
+                    importedMeasurement.setName(importedMeasurement.getName() + " (Duplikat)");
+                }
+            });
+            futures.add(measurementsRepository.addMeasurements(existingImportedMeasurements));
+
+            CompletableFutureHelper.waitForAllOf(futures);
         });
     }
 }

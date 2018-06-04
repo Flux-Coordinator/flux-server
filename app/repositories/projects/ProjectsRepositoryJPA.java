@@ -71,7 +71,6 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, this::countProjects), databaseExecutionContext);
     }
 
-
     @Override
     public CompletableFuture<Void> removeProject(final long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {

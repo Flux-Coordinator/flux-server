@@ -54,6 +54,14 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         }), databaseExecutionContext);
     }
 
+    @Override
+    public CompletableFuture<Void> addMeasurements(final List<Measurement> measurements) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            addMeasurements(em, measurements);
+            return null;
+        }), databaseExecutionContext);
+    }
+
 
     @Override
     public CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings) {
@@ -124,6 +132,10 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
+    }
+
+    private void addMeasurements(final EntityManager em, final List<Measurement> measurements) {
+        measurements.forEach(em::merge);
     }
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {
