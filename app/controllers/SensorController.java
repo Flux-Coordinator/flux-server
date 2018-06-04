@@ -12,12 +12,10 @@ public class SensorController extends Controller {
     private static final long SENSOR_DEVICE_TIMEOUT = 10000;
 
     public Result getSensorState() {
-        if (SensorActivityFilter.lastActivity == 0) {
-            return notFound();
-        } else if (System.currentTimeMillis() - SensorActivityFilter.lastActivity < SENSOR_DEVICE_TIMEOUT) {
-            return ok();
+        if (SensorActivityFilter.lastActivity != 0 && System.currentTimeMillis() - SensorActivityFilter.lastActivity < SENSOR_DEVICE_TIMEOUT) {
+            return ok("Sensor is active");
         } else {
-            return noContent();
+            return notFound("No sensor connected");
         }
     }
 
