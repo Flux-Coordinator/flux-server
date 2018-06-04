@@ -5,18 +5,17 @@ import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.measurements.MeasurementsRepository;
 import repositories.utils.CollectionHelper;
 import repositories.utils.SqlNativeHelper;
+import utils.multithreading.CompletableFutureHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -25,11 +24,13 @@ import static repositories.utils.JpaHelper.wrap;
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {
     private final JPAApi jpaApi;
+    private final MeasurementsRepository measurementsRepository;
     private final DatabaseExecutionContext databaseExecutionContext;
 
     @Inject
-    public ProjectsRepositoryJPA(final JPAApi jpaApi, final DatabaseExecutionContext databaseExecutionContext) {
+    public ProjectsRepositoryJPA(final JPAApi jpaApi, final MeasurementsRepository measurementsRepository, final DatabaseExecutionContext databaseExecutionContext) {
         this.jpaApi = jpaApi;
+        this.measurementsRepository = measurementsRepository;
         this.databaseExecutionContext = databaseExecutionContext;
     }
 
@@ -123,8 +124,13 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
 
     private Set<Project> getRelatedProjects(final EntityManager em, final List<Measurement> measurements) {
         final List<Long> ids = measurements.stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p INNER JOIN p.rooms as r INNER JOIN r.measurements as m WHERE m.id in (:measurementIds)", Project.class);
+
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p " +
+                "JOIN p.rooms as r " +
+                "JOIN r.measurements as m " +
+                "WHERE m.id in (:measurementIds)", Project.class);
         typedQuery.setParameter("measurementIds", ids);
+        final List<CompletableFuture> mergeMeasurementsTasks = new ArrayList<>();
 
         final Set<Project> projects = new HashSet<>(typedQuery.getResultList());
 
@@ -145,12 +151,17 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
                                 -> measurement.getMeasurementId() == questionableMeasurement.getMeasurementId()));
 
                 if (!currentRoom.getMeasurements().isEmpty()) {
+                    final List<Long> measurementIds = currentRoom.getMeasurements().stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
+                    final CompletableFuture future = this.measurementsRepository
+                            .getMeasurementsById(measurementIds)
+                            .thenAccept(currentRoom::setMeasurements);
+                    mergeMeasurementsTasks.add(future);
                     cleanedRooms.add(currentRoom);
                 }
             }
             currentProject.setRooms(cleanedRooms);
         }
-
+        CompletableFutureHelper.waitForAllOf(mergeMeasurementsTasks);
         return projects;
     }
 
