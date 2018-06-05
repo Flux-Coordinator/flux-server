@@ -3,8 +3,7 @@ organization := "ch.hsr.flux"
 
 version := "1.0"
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava)
-
+lazy val root = (project in file(".")).enablePlugins(PlayJava, LauncherJarPlugin)
 scalaVersion := "2.12.6"
 
 val guiceVersion = "4.2.0"
