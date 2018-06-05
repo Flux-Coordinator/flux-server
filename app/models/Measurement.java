@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.CreationTimestamp;
+import utils.DateHelper;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -178,17 +179,16 @@ public class Measurement {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Measurement that = (Measurement) o;
+        final Measurement that = (Measurement) o;
         return Double.compare(that.getxOffset(), getxOffset()) == 0 &&
                 Double.compare(that.getyOffset(), getyOffset()) == 0 &&
                 Double.compare(that.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
-                getStartDate() != null && getEndDate() != null &&
-                getStartDate().compareTo(that.getStartDate()) == 0 && // Dont use the standard equals with dates! The database changes the type!!
-                getEndDate().compareTo(that.getEndDate()) == 0 &&
+                DateHelper.dateEquals(getStartDate(), that.getStartDate()) && // Dont use the standard equals with dates! The database changes the type!!
+                DateHelper.dateEquals(getEndDate(), that.getEndDate()) &&
                 Objects.equals(getCreator(), that.getCreator()) &&
-                getCreatedDate().compareTo(that.getCreatedDate()) == 0 &&
+                DateHelper.dateEquals(getCreatedDate(), that.getCreatedDate()) &&
                 getMeasurementState() == that.getMeasurementState();
     }
 
