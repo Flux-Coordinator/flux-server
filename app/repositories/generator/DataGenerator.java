@@ -115,12 +115,10 @@ public class DataGenerator {
             measurement.setName("Measurement-" + random.nextInt(Integer.MAX_VALUE));
             measurement.setDescription("This is an example measurement and was automatically generated on " + getLocalDateTime() + ".");
             measurement.setCreator("Hans Muster");
-            measurement.setxOffset(1619);
-            measurement.setyOffset(340);
-            measurement.setScaleFactor(0.16);
+            measurement.setxOffset(0);
+            measurement.setyOffset(0);
+            measurement.setScaleFactor(0.214);
             measurement.setMeasurementState(MeasurementState.READY);
-            measurement.setStartDate(new Date());
-            measurement.setEndDate(new Date());
             measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());
