@@ -17,7 +17,6 @@ GET     /measurements                       controllers.MeasurementsController.g
 GET     /rooms                              controllers.RoomsController.getRooms(limit: Int ?=5)
 GET     /rooms/:roomId                      controllers.RoomsController.getRoom(roomId: Long)
 DELETE  /rooms/:roomId                      controllers.RoomsController.removeRoom(roomId: Long)
-#TODO: Move to room controller
 POST    /rooms/:roomId/measurements         controllers.MeasurementsController.addMeasurement(roomId: Long)
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)

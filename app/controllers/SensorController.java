@@ -12,15 +12,14 @@ import javax.inject.Singleton;
 @Security.Authenticated(value = JWTAuthenticator.class)
 public class SensorController extends Controller {
 
-    private static final long SENSOR_DEVICE_TIMEOUT = 10000;
+    private static final long SENSOR_DEVICE_TIMEOUT = 5000;
 
     public Result getSensorState() {
         Date currentDate = new Date();
         if (SensorActivityFilter.lastActivity != null && currentDate.getTime() - SensorActivityFilter.lastActivity.getTime() < SENSOR_DEVICE_TIMEOUT) {
             return ok("Sensor is active");
         } else {
-            return notFound("No sensor connected");
+            return noContent();
         }
     }
-
 }
