@@ -2,8 +2,10 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
@@ -25,6 +27,8 @@ public class Measurement {
     @Column(name = "yoffset")
     private double yOffset;
     private double scaleFactor;
+    @CreationTimestamp
+    private Timestamp createdDate;
 
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
@@ -146,7 +150,6 @@ public class Measurement {
         this.room = room;
     }
 
-
     public Set<AnchorPosition> getAnchorPositions() {
         return anchorPositions;
     }
@@ -163,8 +166,16 @@ public class Measurement {
         this.measurementState = measurementState;
     }
 
+    public Timestamp getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(final Timestamp createdDate) {
+        this.createdDate = createdDate;
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Measurement that = (Measurement) o;
@@ -177,6 +188,7 @@ public class Measurement {
                 getStartDate().compareTo(that.getStartDate()) == 0 && // Dont use the standard equals with dates! The database changes the type!!
                 getEndDate().compareTo(that.getEndDate()) == 0 &&
                 Objects.equals(getCreator(), that.getCreator()) &&
+                getCreatedDate().compareTo(that.getCreatedDate()) == 0 &&
                 getMeasurementState() == that.getMeasurementState();
     }
 
@@ -191,4 +203,5 @@ public class Measurement {
             this.setMeasurementState(MeasurementState.READY);
         }
     }
+
 }

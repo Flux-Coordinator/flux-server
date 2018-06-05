@@ -15,6 +15,7 @@ import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.streams.ActorFlow;
 import play.mvc.*;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
@@ -74,10 +75,18 @@ public class MeasurementsController extends Controller {
     public CompletionStage<Result> addMeasurement(final long roomId) {
         final JsonNode json = request().body().asJson();
         final Measurement measurement = Json.fromJson(json, Measurement.class);
-        return measurementsRepository.addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
-            final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
-            return created(absoluteUrl);
-        }, httpExecutionContext.current());
+        return measurementsRepository
+                .addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
+                    final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
+                    return created(absoluteUrl);
+                }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    if(throwable.getCause() instanceof AlreadyExistsException) {
+                        return badRequest(throwable.getCause().getMessage());
+                    }
+                    Logger.error("There was an error adding a measurement with the ID " + measurement.getMeasurementId() + ".", throwable);
+                    return badRequest("Die Messung konnte nicht erstellt werden.");
+                });
     }
 
     public CompletionStage<Result> startMeasurement(final long measurementId) {

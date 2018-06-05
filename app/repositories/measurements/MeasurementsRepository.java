@@ -16,7 +16,11 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Set<Measurement>> getMeasurementsById(final List<Long> measurementIds);
 
+    CompletableFuture<Set<Measurement>> getMeasurementsByNames(final List<String> measurementNames);
+
     CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement);
+
+    CompletableFuture<Void> addMeasurements(final List<Measurement> measurements);
 
     CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
 

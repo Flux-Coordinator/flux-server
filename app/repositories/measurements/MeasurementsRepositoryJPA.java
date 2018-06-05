@@ -6,6 +6,7 @@ import models.Reading;
 import models.Room;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
+import repositories.exceptions.AlreadyExistsException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,10 +48,23 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     @Override
+    public CompletableFuture<Set<Measurement>> getMeasurementsByNames(final List<String> measurementNames) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> getMeasurementsByNames(em, measurementNames)), databaseExecutionContext);
+    }
+
+    @Override
     public CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
             final Measurement persistedMeasurement = addMeasurement(em, roomId, measurement);
             return persistedMeasurement.getMeasurementId();
+        }), databaseExecutionContext);
+    }
+
+    @Override
+    public CompletableFuture<Void> addMeasurements(final List<Measurement> measurements) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            addMeasurements(em, measurements);
+            return null;
         }), databaseExecutionContext);
     }
 
@@ -115,15 +129,36 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private Set<Measurement> getMeasurementsById(final EntityManager em, final List<Long> measurementIds) {
         final TypedQuery<Measurement> query = em
-                .createQuery("SELECT m FROM Measurement m WHERE m.id in (:measurementIds)", Measurement.class);
+                .createQuery("SELECT m FROM Measurement m WHERE m.measurementId in (:measurementIds)", Measurement.class);
         query.setParameter("measurementIds", measurementIds);
         query.setHint("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
         return new HashSet<>(query.getResultList());
     }
 
+    private Long countMeasurementsByName(final EntityManager em, final String measurementName) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT COUNT(m) from Measurement m WHERE m.name LIKE (:measurementName)", Long.class);
+        typedQuery.setParameter("measurementName", measurementName);
+        return typedQuery.getSingleResult();
+    }
+
+    private Set<Measurement> getMeasurementsByNames(final EntityManager em, final List<String> measurementNames) {
+        final TypedQuery<Measurement> query = em
+                .createQuery("SELECT m FROM Measurement m WHERE m.name in (:measurementNames)", Measurement.class);
+        query.setParameter("measurementNames", measurementNames);
+        query.setHint("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
+        return new HashSet<>(query.getResultList());
+    }
+
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
+        if(countMeasurementsByName(em, measurement.getName()) > 0) {
+            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
+        }
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
+    }
+
+    private void addMeasurements(final EntityManager em, final List<Measurement> measurements) {
+        measurements.forEach(em::merge);
     }
 
     private void addReadings(final EntityManager em, final long measurementId, final List<Reading> readings) {

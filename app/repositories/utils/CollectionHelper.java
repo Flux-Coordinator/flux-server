@@ -2,9 +2,7 @@ package repositories.utils;
 
 import scala.Function2;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -33,6 +31,34 @@ public class CollectionHelper {
         return collectionWasChanged;
     }
 
+    /**
+     * Returns the items from toContain that are contained in base.
+     * @param base The base list that should contain the toContain items.
+     * @param toContain The list that should be contained inside the base list.
+     * @param comparator The comparator compares an item of the base and an item of the toContain list and should return true, if they are the same.
+     * @return Returns a new list containing the items of the toContain list that were inside the base list.
+     */
+    public static <T> List<T> getContainedItemsByComparator(final Collection<T> base, final Collection<T> toContain, BiFunction<T, T, Boolean> comparator) {
+        Objects.requireNonNull(base);
+        Objects.requireNonNull(toContain);
+        final List<T> returnList = new ArrayList<>();
+        toContain.forEach(toContainItem -> {
+            for (T aBase : base) {
+                if (comparator.apply(toContainItem, aBase)) {
+                    returnList.add(toContainItem);
+                    break;
+                }
+            }
+        });
+        return returnList;
+    }
+
+    /**
+     * Checks, if an item is contained in the base list by using a custom comparator.
+     * @param base The list in which the items could be contained.
+     * @param comparator Comparator used to compare each element in the list. The comparator must provide the item to compare!
+     * @return Returns true if the item is contained in the base list.
+     */
     public static <T> boolean containsByComparator(final Collection<T> base, final Function<T, Boolean> comparator) {
         Objects.requireNonNull(base);
 
