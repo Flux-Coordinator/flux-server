@@ -148,7 +148,7 @@ public class DataGenerator {
         double luxBaseValue) {
         try {
             int amountOfLightSources = random.nextInt(5) + 3;
-            double intensity = 10;
+            double intensity = 1.01;
             double radius = xRange.getMax() < yRange.getMax() ? xRange.getMax() / 5 : yRange.getMax() / 5;
             final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
                 amountOfLightSources, xRange, yRange, intensity, radius);
