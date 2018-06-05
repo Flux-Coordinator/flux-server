@@ -149,9 +149,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
-//        if(countMeasurementsByName(em, measurement.getName()) > 0) {
-//            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
-//        }
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
     }
