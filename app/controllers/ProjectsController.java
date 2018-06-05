@@ -66,12 +66,8 @@ public class ProjectsController extends Controller {
             return created(absoluteUrl);
         }, httpExecutionContext.current())
                 .exceptionally(throwable -> {
-                    if (throwable.getCause() instanceof AlreadyExistsException) {
-                        return badRequest(throwable.getCause().getMessage());
-                    } else {
-                        Logger.error("Error while creating a new project.", throwable);
-                        return badRequest("Fehler beim Erstellen des neuen Projekts");
-                    }
+                    Logger.error("Error while creating a new project.", throwable);
+                    return badRequest("Fehler beim Erstellen des neuen Projekts");
                 });
     }
 

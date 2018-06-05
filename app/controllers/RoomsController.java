@@ -36,9 +36,6 @@ public class RoomsController extends Controller {
         return roomsRepository.addRoom(projectId, room)
                 .thenApplyAsync(roomId -> created(Json.toJson(roomId)), httpExecutionContext.current())
                 .exceptionally(throwable -> {
-                    if(throwable.getCause() instanceof AlreadyExistsException) {
-                        return badRequest(throwable.getCause().getMessage());
-                    }
                     Logger.error("Error while creating a new room.", throwable);
                     return badRequest("Fehler beim Erstellen des neuen Raumes");
                 });

@@ -81,9 +81,6 @@ public class MeasurementsController extends Controller {
                     return created(absoluteUrl);
                 }, httpExecutionContext.current())
                 .exceptionally(throwable -> {
-                    if(throwable.getCause() instanceof AlreadyExistsException) {
-                        return badRequest(throwable.getCause().getMessage());
-                    }
                     Logger.error("There was an error adding a measurement with the ID " + measurement.getMeasurementId() + ".", throwable);
                     return badRequest("Die Messung konnte nicht erstellt werden.");
                 });
