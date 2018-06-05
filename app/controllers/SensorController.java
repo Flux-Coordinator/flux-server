@@ -6,7 +6,9 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 import java.util.Date;
+import javax.inject.Singleton;
 
+@Singleton
 @Security.Authenticated(value = JWTAuthenticator.class)
 public class SensorController extends Controller {
 
