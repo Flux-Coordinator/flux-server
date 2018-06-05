@@ -149,9 +149,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
-//        if(countMeasurementsByName(em, measurement.getName()) > 0) {
-//            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
-//        }
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
     }
@@ -168,6 +165,13 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private void changeMeasurementState(final EntityManager em, final long measurementId, final MeasurementState state) {
         final Measurement measurement = em.find(Measurement.class, measurementId);
+
+        if(measurement.getMeasurementState() == MeasurementState.READY && state == MeasurementState.RUNNING) {
+            measurement.setStartDate(new Date());
+        } else if(state == MeasurementState.DONE) {
+            measurement.setEndDate(new Date());
+        }
+
         measurement.setMeasurementState(state);
     }
 
