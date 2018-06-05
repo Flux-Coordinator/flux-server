@@ -2,6 +2,7 @@ package filters;
 
 import akka.stream.Materializer;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.inject.Inject;
 import play.Logger;
@@ -20,10 +21,11 @@ public class LoggingFilter extends Filter {
     public CompletionStage<Result> apply(Function<RequestHeader, CompletionStage<Result>> nextFilter,
         RequestHeader requestHeader) {
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         return nextFilter.apply(requestHeader).thenApply(result -> {
-            long endTime = System.currentTimeMillis();
+            long endTime = System.nanoTime();
             long requestTime = endTime - startTime;
+            requestTime = TimeUnit.MILLISECONDS.convert(requestTime, TimeUnit.NANOSECONDS);
 
             Logger.info("{} {} took {}ms and returned {}",
                 requestHeader.method(), requestHeader.uri(), requestTime, result.status());
