@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   guice,
   javaJpa,
   "org.postgresql" % "postgresql" % "42.2.2",
+  "com.h2database" % "h2" % "1.4.192",
   "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-hibernate5" % "2.9.5",
   "org.mindrot" % "jbcrypt" % "0.4"
@@ -31,3 +32,4 @@ jacocoReportSettings := JacocoReportSettings()
 jacocoExcludes := Seq("views*", "*Routes*", "controllers*routes*", "controllers*Reverse*", "controllers*javascript*", "controller*ref*")
 jacocoDirectory := baseDirectory.value /"target/jacoco"
 
+javaOptions in Test += "-Dconfig.file=conf/test.conf"

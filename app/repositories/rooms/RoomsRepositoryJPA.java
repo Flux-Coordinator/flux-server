@@ -109,9 +109,6 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     }
 
     private Room addRoom(final EntityManager em, final long projectId, final Room room) {
-        if(countRoomsByName(em, room.getName()) > 0) {
-            throw new AlreadyExistsException("Es ist bereits ein Raum mit diesem Namen vorhanden.");
-        }
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
         return em.merge(room);

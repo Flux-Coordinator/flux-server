@@ -95,9 +95,6 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project addProject(final EntityManager em, final Project project) {
-        if(countProjectsByName(em, project.getName()) > 0) {
-            throw new AlreadyExistsException("Ein Projekt mit dem Namen " + project.getName() + " ist bereits vorhanden.");
-        }
         return em.merge(project);
     }
 

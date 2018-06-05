@@ -68,7 +68,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         }), databaseExecutionContext);
     }
 
-
     @Override
     public CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings) {
         return CompletableFuture.runAsync(() -> wrap(jpaApi, em -> {
@@ -150,9 +149,9 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement addMeasurement(final EntityManager em, final long roomId, final Measurement measurement) {
-        if(countMeasurementsByName(em, measurement.getName()) > 0) {
-            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
-        }
+//        if(countMeasurementsByName(em, measurement.getName()) > 0) {
+//            throw new AlreadyExistsException("Eine Messung mit dem Namen " + measurement.getName() + " ist bereits vorhanden.");
+//        }
         measurement.setRoom(em.getReference(Room.class, roomId));
         return em.merge(measurement);
     }
