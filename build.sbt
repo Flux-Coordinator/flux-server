@@ -1,7 +1,7 @@
 name := """flux-server"""
 organization := "ch.hsr.flux"
 
-version := "0.1"
+version := "1.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
@@ -33,3 +33,7 @@ jacocoExcludes := Seq("views*", "*Routes*", "controllers*routes*", "controllers*
 jacocoDirectory := baseDirectory.value /"target/jacoco"
 
 javaOptions in Test += "-Dconfig.file=conf/test.conf"
+
+// Dont need the documentations built with the dist task
+sources in (Compile, doc) := Seq.empty
+publishArtifact in (Compile, packageDoc) := false
