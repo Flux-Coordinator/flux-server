@@ -165,6 +165,13 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
 
     private void changeMeasurementState(final EntityManager em, final long measurementId, final MeasurementState state) {
         final Measurement measurement = em.find(Measurement.class, measurementId);
+
+        if(measurement.getMeasurementState() == MeasurementState.READY && state == MeasurementState.RUNNING) {
+            measurement.setStartDate(new Date());
+        } else if(state == MeasurementState.DONE) {
+            measurement.setEndDate(new Date());
+        }
+
         measurement.setMeasurementState(state);
     }
 
