@@ -9,12 +9,8 @@ import repositories.utils.SqlNativeHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static repositories.utils.JpaHelper.wrap;
@@ -95,6 +91,17 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     private Project addProject(final EntityManager em, final Project project) {
+        if(project.getProjectId() != null) {
+            final EntityGraph graph = em.createEntityGraph(Room.class);
+            final Subgraph measurementsGraph = graph.addSubgraph("measurements");
+            measurementsGraph.addSubgraph("readings");
+
+            final TypedQuery<Room> roomTypedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.projectId = :projectId", Room.class);
+            roomTypedQuery.setHint("javax.persistence.loadgraph", graph);
+            roomTypedQuery.setParameter("projectId", project.getProjectId());
+            final HashSet<Room> rooms = new HashSet<>(roomTypedQuery.getResultList());
+            project.setRooms(rooms);
+        }
         return em.merge(project);
     }
 

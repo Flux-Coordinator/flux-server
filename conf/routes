@@ -8,7 +8,7 @@ GET     /reset                              controllers.AdminController.resetDat
 GET     /sensors                            controllers.SensorController.getSensorState
 GET     /projects                           controllers.ProjectsController.getProjects(limit: Int ?=5)
 POST    /projects                           controllers.ProjectsController.addProject()
-DELETE  /projects/:projectId                controllers.ProjectsController.removeProject(projectId: Int)
+DELETE  /projects/:projectId                controllers.ProjectsController.removeProject(projectId: Long)
 GET     /projects/:projectId                controllers.ProjectsController.getProjectById(projectId: Long)
 POST    /projects/:projectId/rooms          controllers.RoomsController.addRoom(projectId: Long)
 GET     /projects/:projectId/rooms          controllers.ProjectsController.getProjectRooms(projectId: Long)

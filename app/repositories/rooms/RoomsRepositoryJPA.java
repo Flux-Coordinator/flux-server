@@ -8,7 +8,9 @@ import repositories.exceptions.AlreadyExistsException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
+import javax.persistence.Subgraph;
 import javax.persistence.TypedQuery;
 import java.util.HashSet;
 import java.util.List;
@@ -111,6 +113,7 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     private Room addRoom(final EntityManager em, final long projectId, final Room room) {
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
+
         return em.merge(room);
     }
 

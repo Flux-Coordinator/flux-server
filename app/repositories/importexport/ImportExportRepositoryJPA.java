@@ -105,7 +105,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
             final List<Project> existingImportedProjects = getContainedItemsByComparator(existingProjects, projects, (p1, p2) -> p1.getName().equals(p2.getName()));
             final List<Project> newProjects = new ArrayList<>(projects);
             newProjects.removeAll(existingImportedProjects);
-            newProjects.forEach(project -> project.setProjectId(-1));
+            newProjects.forEach(project -> project.setProjectId(null));
             final List<CompletableFuture> futures = new ArrayList<>(1 + existingImportedProjects.size());
             futures.add(this.projectsRepository.addProjects(newProjects));
 
@@ -118,7 +118,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
                 if(correspondingExistingProject.isPresent()) {
                     futures.add(importRooms(importedProject, importedProject.getRooms()));
                 } else {
-                    importedProject.setProjectId(-1);
+                    importedProject.setProjectId(null);
                     futures.add(this.projectsRepository.addProject(importedProject));
                 }
             });
@@ -147,7 +147,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
                     importedRoom.getMeasurements().forEach(measurement -> measurement.setRoom(correspondingExistingRoom.get()));
                     futures.add(importMeasurements(importedRoom.getMeasurements()));
                 } else {
-                    importedRoom.setRoomId(-1);
+                    importedRoom.setRoomId(null);
                     importedRoom.setProject(null);
                     futures.add(this.roomsRepository.addRoom(parentProject.getProjectId(), importedRoom));
                 }
@@ -172,7 +172,7 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
                         .filter(m -> m.getName().equals(importedMeasurement.getName()))
                         .findFirst();
 
-                importedMeasurement.setMeasurementId(-1);
+                importedMeasurement.setMeasurementId(null);
                 if(correspondingExistingMeasurement.isPresent()) {
                     importedMeasurement.setName(importedMeasurement.getName() + " (Duplikat)");
                 }
