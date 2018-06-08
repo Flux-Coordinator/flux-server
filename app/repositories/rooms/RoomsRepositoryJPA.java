@@ -1,5 +1,6 @@
 package repositories.rooms;
 
+import models.Measurement;
 import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
@@ -113,6 +114,17 @@ public class RoomsRepositoryJPA implements RoomsRepository {
     private Room addRoom(final EntityManager em, final long projectId, final Room room) {
         final Project projectRef = em.getReference(Project.class, projectId);
         room.setProject(projectRef);
+
+        if(room.getRoomId() != null) {
+            final EntityGraph graph = em.createEntityGraph(Measurement.class);
+            graph.addSubgraph("readings");
+
+            final TypedQuery<Measurement> roomTypedQuery = em.createQuery("SELECT m FROM Measurement m WHERE m.room.roomId = :roomId", Measurement.class);
+            roomTypedQuery.setHint("javax.persistence.loadgraph", graph);
+            roomTypedQuery.setParameter("roomId", room.getRoomId());
+            final HashSet<Measurement> measurements = new HashSet<>(roomTypedQuery.getResultList());
+            room.setMeasurements(measurements);
+        }
 
         return em.merge(room);
     }
