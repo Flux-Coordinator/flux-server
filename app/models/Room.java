@@ -12,7 +12,7 @@ import java.util.Set;
 public class Room {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "room_seq_generator") @Column(name = "id")
     @SequenceGenerator(name="room_seq_generator", sequenceName = "room_id_seq", allocationSize = 1)
-    private long roomId;
+    private Long roomId;
     private String name;
     private String description;
     @Column(columnDefinition = "varchar")
@@ -31,11 +31,11 @@ public class Room {
     public Room() {
     }
 
-    public long getRoomId() {
+    public Long getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(long roomId) {
+    public void setRoomId(final Long roomId) {
         this.roomId = roomId;
     }
 

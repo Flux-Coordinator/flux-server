@@ -17,7 +17,7 @@ public class Measurement {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "measurement_seq_generator")
     @Column(name="id")
     @SequenceGenerator(name = "measurement_seq_generator", sequenceName = "measurement_id_seq", allocationSize = 1)
-    private long measurementId;
+    private Long measurementId;
     private String name;
     private String description;
     private Date startDate;
@@ -49,11 +49,11 @@ public class Measurement {
 
     public Measurement() { }
 
-    public long getMeasurementId() {
+    public Long getMeasurementId() {
         return measurementId;
     }
 
-    public void setMeasurementId(long measurementId) {
+    public void setMeasurementId(final Long measurementId) {
         this.measurementId = measurementId;
     }
 

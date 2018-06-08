@@ -71,7 +71,7 @@ public class ProjectsController extends Controller {
                 });
     }
 
-    public CompletionStage<Result> removeProject(final int projectId) {
+    public CompletionStage<Result> removeProject(final long projectId) {
         return this.projectsRepository.removeProject(projectId)
                 .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
                 .exceptionally(throwable -> {

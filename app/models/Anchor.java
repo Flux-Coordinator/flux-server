@@ -10,14 +10,14 @@ public class Anchor {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "anchor_seq_generator")
     @Column(name = "id")
     @SequenceGenerator(name = "anchor_seq_generator", sequenceName = "anchor_id_seq", allocationSize = 1)
-    private long anchorId;
+    private Long anchorId;
     private String networkId;
 
-    public long getAnchorId() {
+    public Long getAnchorId() {
         return anchorId;
     }
 
-    public void setAnchorId(final long anchorId) {
+    public void setAnchorId(final Long anchorId) {
         this.anchorId = anchorId;
     }
 
