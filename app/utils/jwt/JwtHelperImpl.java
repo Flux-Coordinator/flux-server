@@ -2,16 +2,17 @@ package utils.jwt;
 
 import com.typesafe.config.Config;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.checkerframework.checker.formatter.FormatUtil;
 import play.mvc.Http;
 
 import javax.inject.Inject;
+import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 
 public class JwtHelperImpl implements JwtHelper {
+    private final static TemporalAmount TIME_UNTIL_EXPIRATION = Period.ofWeeks(2);
 
     private final String signingKey;
 
@@ -23,8 +24,7 @@ public class JwtHelperImpl implements JwtHelper {
     @Override
     public String getJWT(final String username) {
         final Date now = new Date();
-        long t = now.getTime();
-        final Date expirationTime = new Date(t + 1300819380); // TODO: Change the expiration time to something human-readable
+        final Date expirationTime = Date.from(now.toInstant().plus(TIME_UNTIL_EXPIRATION));
 
         return Jwts.builder()
                 .setSubject(username)
