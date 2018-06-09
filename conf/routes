@@ -21,6 +21,7 @@ POST    /rooms/:roomId/measurements         controllers.MeasurementsController.a
 GET     /measurements/:measurementId        controllers.MeasurementsController.getMeasurementById(measurementId : Long)
 PUT     /measurements/active/:measurementId controllers.MeasurementsController.startMeasurement(measurementId : Long)
 DELETE  /measurements/active                controllers.MeasurementsController.stopMeasurement()
++ nocsrf
 POST    /measurements/active/readings       controllers.MeasurementsController.addReadings()
 DELETE  /measurements/:measurementId        controllers.MeasurementsController.removeMeasurement(measurementId: Long)
 GET     /streamMeasurements                 controllers.MeasurementsController.streamMeasurements
