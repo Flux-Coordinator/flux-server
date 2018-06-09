@@ -11,6 +11,10 @@ val guiceDeps = Seq(
   "com.google.inject" % "guice" % guiceVersion,
   "com.google.inject.extensions" % "guice-assistedinject" % guiceVersion
 )
+val java9 = Seq(
+  "javax.xml.bind" % "jaxb-api" % "2.3.0",
+  "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0"
+)
 
 libraryDependencies ++= Seq(
   guice,
@@ -20,7 +24,7 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-entitymanager" % "5.2.17.Final",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-hibernate5" % "2.9.5",
   "org.mindrot" % "jbcrypt" % "0.4"
-) ++ guiceDeps
+) ++ guiceDeps ++ java9
 
 PlayKeys.externalizeResources := false
 

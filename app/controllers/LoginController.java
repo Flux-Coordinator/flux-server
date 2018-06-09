@@ -5,7 +5,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import models.User;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -18,7 +17,7 @@ public class LoginController extends Controller {
     private final AuthenticationRepository authenticationRepository;
 
     @Inject
-    public LoginController(final HttpExecutionContext httpExecutionContext, final JwtHelperImpl jwtHelper, final AuthenticationRepository authenticationRepository) {
+    public LoginController(final JwtHelperImpl jwtHelper, final AuthenticationRepository authenticationRepository) {
         this.jwtHelper = jwtHelper;
         this.authenticationRepository = authenticationRepository;
     }
