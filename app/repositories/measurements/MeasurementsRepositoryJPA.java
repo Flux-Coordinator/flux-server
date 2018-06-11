@@ -117,9 +117,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
-        final Map<String, Object> hints = new HashMap<>();
-        hints.put("org.hibernate.readOnly", true);
-        hints.put("org.hibernate.fetchSize", 200);
         final TypedQuery<Measurement> queryMeasurement = em.createQuery("SELECT m FROM Measurement m " +
                 "WHERE m.measurementId = (:measurementId)", Measurement.class);
         queryMeasurement.setParameter("measurementId", measurementId);
