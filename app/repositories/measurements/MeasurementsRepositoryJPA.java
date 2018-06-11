@@ -106,12 +106,6 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
         return measurementEntityGraph;
     }
 
-    private static Map<String, Object> retrieveGraphWithReadingsHints(final EntityManager em) {
-        final Map<String, Object> hints = new HashMap<>();
-        hints.put("javax.persistence.loadgraph", retrieveGraphWithReadings(em));
-        return hints;
-    }
-
     private Set<Measurement> getMeasurements(final EntityManager em, final int limit) {
         final TypedQuery<Measurement> query = em.createQuery("SELECT m FROM Measurement m", Measurement.class);
 
@@ -123,7 +117,29 @@ public class MeasurementsRepositoryJPA implements MeasurementsRepository {
     }
 
     private Measurement getMeasurementById(final EntityManager em, final long measurementId) {
-        return em.find(Measurement.class, measurementId, retrieveGraphWithReadingsHints(em));
+        final Map<String, Object> hints = new HashMap<>();
+        hints.put("org.hibernate.readOnly", true);
+        hints.put("org.hibernate.fetchSize", 200);
+        final TypedQuery<Measurement> queryMeasurement = em.createQuery("SELECT m FROM Measurement m " +
+                "WHERE m.measurementId = (:measurementId)", Measurement.class);
+        queryMeasurement.setParameter("measurementId", measurementId);
+        queryMeasurement.setHint("readOnly", true);
+        final List<Measurement> measurements = queryMeasurement.getResultList();
+        Measurement foundMeasurement = null;
+        if(measurements.size() > 0) {
+            foundMeasurement = queryMeasurement.getResultList().get(0);
+
+            final TypedQuery<Reading> queryReadings = em.createQuery("SELECT r FROM Reading r WHERE r.measurement.measurementId = (:measurementId)", Reading.class);
+            queryReadings.setParameter("measurementId", measurementId);
+            queryReadings.setHint("readOnly", true);
+            queryReadings.setHint("fetchSize", 200);
+            final List<Reading> readings = queryReadings.getResultList();
+            em.flush();
+            em.clear();
+            foundMeasurement.setReadings(new HashSet<>(readings));
+        }
+
+        return foundMeasurement;
     }
 
     private Set<Measurement> getMeasurementsById(final EntityManager em, final List<Long> measurementIds) {
