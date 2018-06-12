@@ -1,7 +1,8 @@
 package repositories.generator;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import models.MeasurementState;
 import models.Project;
 import models.Reading;
 import models.Room;
+import org.joda.time.Period;
 
 /**
  * JpaHelper class to generate data more easily.
@@ -216,7 +218,8 @@ public class DataGenerator {
             reading.setXPosition(xPosition);
             reading.setYPosition(yPosition);
             reading.setZPosition(zPosition);
-            reading.setTimestamp(new Date());
+            Instant instant = Instant.now().plusSeconds(random.nextInt(300));
+            reading.setTimestamp(Date.from(instant));
             reading.setMeasurement(measurement);
 
             return reading;
