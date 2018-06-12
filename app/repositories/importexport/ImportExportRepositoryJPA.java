@@ -1,6 +1,7 @@
 package repositories.importexport;
 
 import models.Measurement;
+import models.MeasurementState;
 import models.Project;
 import models.Room;
 import play.db.jpa.JPAApi;
@@ -81,13 +82,20 @@ public class ImportExportRepositoryJPA implements ImportExportRepository {
                 CollectionHelper
                         .retainAllByComparator(currentRoom.getMeasurements(), questionableMeasurement
                                 -> containsByComparator(measurements, measurement
-                                -> measurement.getMeasurementId() == questionableMeasurement.getMeasurementId()));
+                                -> measurement.getMeasurementId().equals(questionableMeasurement.getMeasurementId())));
 
                 if (!currentRoom.getMeasurements().isEmpty()) {
                     final List<Long> measurementIds = currentRoom.getMeasurements().stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
                     final CompletableFuture future = this.measurementsRepository
                             .getMeasurementsById(measurementIds)
-                            .thenAccept(currentRoom::setMeasurements);
+                            .thenAccept(roomMeasurements -> {
+                                roomMeasurements.forEach(m -> {
+                                    if(m.getMeasurementState() == MeasurementState.RUNNING) {
+                                        m.setMeasurementState(MeasurementState.DONE);
+                                    }
+                                });
+                                currentRoom.setMeasurements(roomMeasurements);
+                            });
                     mergeMeasurementsTasks.add(future);
                     cleanedRooms.add(currentRoom);
                 }
