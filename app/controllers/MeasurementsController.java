@@ -7,16 +7,15 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Flow;
+import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import play.Logger;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.streams.ActorFlow;
-import play.mvc.BodyParser;
-import play.mvc.Controller;
-import play.mvc.Result;
-import play.mvc.WebSocket;
+import play.mvc.*;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.measurements.MeasurementsRepository;
 
 import javax.inject.Inject;
@@ -25,6 +24,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class MeasurementsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
@@ -75,10 +75,15 @@ public class MeasurementsController extends Controller {
     public CompletionStage<Result> addMeasurement(final long roomId) {
         final JsonNode json = request().body().asJson();
         final Measurement measurement = Json.fromJson(json, Measurement.class);
-        return measurementsRepository.addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
-            final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
-            return created(absoluteUrl);
-        }, httpExecutionContext.current());
+        return measurementsRepository
+                .addMeasurement(roomId, measurement).thenApplyAsync(measurementId -> {
+                    final String absoluteUrl = routes.MeasurementsController.getMeasurementById(measurementId).absoluteURL(request());
+                    return created(absoluteUrl);
+                }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("There was an error adding a measurement with the ID " + measurement.getMeasurementId() + ".", throwable);
+                    return badRequest("Die Messung konnte nicht erstellt werden.");
+                });
     }
 
     public CompletionStage<Result> startMeasurement(final long measurementId) {
@@ -141,6 +146,14 @@ public class MeasurementsController extends Controller {
                 .exceptionally(throwable -> {
                     Logger.error("Error getting the active measurement.", throwable);
                     return badRequest("Fehler beim Holen der aktiven Messung.");
+                });
+    }
+
+    public CompletionStage<Result> removeMeasurement(final long measurementId) {
+        return measurementsRepository.removeMeasurement(measurementId).thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Failed removing measurement with the id: " + measurementId, throwable);
+                    return badRequest("Die Messung konnte nicht gelöscht werden (Messung ID: " + measurementId  + ").");
                 });
     }
 

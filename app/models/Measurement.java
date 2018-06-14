@@ -2,8 +2,11 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.CreationTimestamp;
+import utils.DateHelper;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
@@ -14,22 +17,24 @@ public class Measurement {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "measurement_seq_generator")
     @Column(name="id")
     @SequenceGenerator(name = "measurement_seq_generator", sequenceName = "measurement_id_seq", allocationSize = 1)
-    private long measurementId;
+    private Long measurementId;
     private String name;
     private String description;
     private Date startDate;
     private Date endDate;
     private String creator;
-    private double targetHeight;
-    private double heightTolerance;
-    @Column(name = "measurementoffset")
-    private double offset;
-    private double factor;
+    @Column(name = "xoffset")
+    private double xOffset;
+    @Column(name = "yoffset")
+    private double yOffset;
+    private double scaleFactor;
+    @CreationTimestamp
+    private Timestamp createdDate;
 
     @Enumerated(EnumType.STRING)
     private MeasurementState measurementState;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "measurement", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
     private Set<Reading> readings;
 
@@ -42,15 +47,13 @@ public class Measurement {
     @JsonBackReference
     private Room room;
 
-    public Measurement() {
+    public Measurement() { }
 
-    }
-
-    public long getMeasurementId() {
+    public Long getMeasurementId() {
         return measurementId;
     }
 
-    public void setMeasurementId(long measurementId) {
+    public void setMeasurementId(final Long measurementId) {
         this.measurementId = measurementId;
     }
 
@@ -94,36 +97,42 @@ public class Measurement {
         this.creator = creator;
     }
 
-    public double getTargetHeight() {
-        return targetHeight;
+    public double getxOffset() {
+        return xOffset;
     }
 
-    public void setTargetHeight(double targetHeight) {
-        this.targetHeight = targetHeight;
+    public void setxOffset(double xOffset) {
+        this.xOffset = xOffset;
     }
 
-    public double getHeightTolerance() {
-        return heightTolerance;
+    public double getyOffset() {
+        return yOffset;
     }
 
-    public void setHeightTolerance(double heightTolerance) {
-        this.heightTolerance = heightTolerance;
+    public void setyOffset(double yOffset) {
+        this.yOffset = yOffset;
     }
 
-    public double getOffset() {
-        return offset;
+    public double getScaleFactor() {
+        return scaleFactor;
     }
 
-    public void setOffset(double offset) {
-        this.offset = offset;
+    public void setScaleFactor(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
     }
 
-    public double getFactor() {
-        return factor;
+    public Long getRoomId() {
+        if(room != null) {
+            return room.getRoomId();
+        }
+        return null;
     }
 
-    public void setFactor(double factor) {
-        this.factor = factor;
+    public Long getProjectId() {
+        if(room != null && room.getProjectId() != null) {
+            return room.getProjectId();
+        }
+        return null;
     }
 
     public Set<Reading> getReadings() {
@@ -158,26 +167,41 @@ public class Measurement {
         this.measurementState = measurementState;
     }
 
+    public Timestamp getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(final Timestamp createdDate) {
+        this.createdDate = createdDate;
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Measurement that = (Measurement) o;
-        return Double.compare(that.getTargetHeight(), getTargetHeight()) == 0 &&
-                Double.compare(that.getHeightTolerance(), getHeightTolerance()) == 0 &&
-                Double.compare(that.getOffset(), getOffset()) == 0 &&
-                Double.compare(that.getFactor(), getFactor()) == 0 &&
+        final Measurement that = (Measurement) o;
+        return Double.compare(that.getxOffset(), getxOffset()) == 0 &&
+                Double.compare(that.getyOffset(), getyOffset()) == 0 &&
+                Double.compare(that.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getDescription(), that.getDescription()) &&
-                getStartDate() != null && getEndDate() != null &&
-                getStartDate().compareTo(that.getStartDate()) == 0 && // Dont use the standard equals with dates! The database changes the type!!
-                getEndDate().compareTo(that.getEndDate()) == 0 &&
+                DateHelper.dateEquals(getStartDate(), that.getStartDate()) && // Dont use the standard equals with dates! The database changes the type!!
+                DateHelper.dateEquals(getEndDate(), that.getEndDate()) &&
                 Objects.equals(getCreator(), that.getCreator()) &&
+                DateHelper.dateEquals(getCreatedDate(), that.getCreatedDate()) &&
                 getMeasurementState() == that.getMeasurementState();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getTargetHeight(), getHeightTolerance(), getOffset(), getFactor(), getMeasurementState());
+        return Objects.hash(getName(), getDescription(), getStartDate(), getEndDate(), getCreator(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurementState());
     }
+
+    @PrePersist
+    void preInsert() {
+        if(this.getMeasurementState() == null) {
+            this.setMeasurementState(MeasurementState.READY);
+        }
+    }
+
 }

@@ -14,7 +14,13 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Measurement> getMeasurementbyId(final long measurementId);
 
+    CompletableFuture<Set<Measurement>> getMeasurementsById(final List<Long> measurementIds);
+
+    CompletableFuture<Set<Measurement>> getMeasurementsByNames(final List<String> measurementNames);
+
     CompletableFuture<Long> addMeasurement(final long roomId, final Measurement measurement);
+
+    CompletableFuture<Void> addMeasurements(final List<Measurement> measurements);
 
     CompletableFuture<Void> addReadings(final long measurementId, final List<Reading> readings);
 
@@ -22,7 +28,5 @@ public interface MeasurementsRepository {
 
     CompletableFuture<Set<Measurement>> getMeasurementsByState(final MeasurementState state);
 
-    void resetRepository();
-
-    void addMeasurements(final Set<Measurement> measurements);
+    CompletableFuture<Void> removeMeasurement(final long measurementId);
 }

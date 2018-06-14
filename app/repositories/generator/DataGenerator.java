@@ -1,7 +1,8 @@
 package repositories.generator;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,9 +16,10 @@ import models.MeasurementState;
 import models.Project;
 import models.Reading;
 import models.Room;
+import org.joda.time.Period;
 
 /**
- * Helper class to generate data more easily.
+ * JpaHelper class to generate data more easily.
  */
 public class DataGenerator {
     private static final Random random = new Random();
@@ -79,9 +81,6 @@ public class DataGenerator {
             room.setName("Room-" + random.nextInt(Integer.MAX_VALUE));
             room.setDescription("This is an example room and was automatically generated on " + getLocalDateTime() + ".");
             room.setFloorSpace(random.nextInt(1000));
-            room.setxOffset(1650);
-            room.setyOffset(300);
-            room.setScaleFactor(0.15);
             room.setProject(project);
 
             room.setMeasurements(new HashSet<>());
@@ -107,7 +106,7 @@ public class DataGenerator {
     }
 
     public static Measurement generateMeasurement() {
-        Room room = generateRoom();
+        final Room room = generateRoom();
         return generateMeasurement(room);
     }
 
@@ -118,13 +117,10 @@ public class DataGenerator {
             measurement.setName("Measurement-" + random.nextInt(Integer.MAX_VALUE));
             measurement.setDescription("This is an example measurement and was automatically generated on " + getLocalDateTime() + ".");
             measurement.setCreator("Hans Muster");
-            measurement.setFactor(random.nextDouble() * 10);
-            measurement.setOffset(random.nextDouble() * 100);
+            measurement.setxOffset(0);
+            measurement.setyOffset(0);
+            measurement.setScaleFactor(0.214);
             measurement.setMeasurementState(MeasurementState.READY);
-            measurement.setStartDate(new Date());
-            measurement.setEndDate(new Date());
-            measurement.setTargetHeight(1100);
-            measurement.setHeightTolerance(100);
             measurement.setRoom(room);
 
             measurement.setAnchorPositions(new HashSet<>());
@@ -154,7 +150,7 @@ public class DataGenerator {
         double luxBaseValue) {
         try {
             int amountOfLightSources = random.nextInt(5) + 3;
-            double intensity = 10;
+            double intensity = 1.01;
             double radius = xRange.getMax() < yRange.getMax() ? xRange.getMax() / 5 : yRange.getMax() / 5;
             final Set<SimulatedLightSource> simulatedLightSources = generateSimulatedLightSources(
                 amountOfLightSources, xRange, yRange, intensity, radius);
@@ -222,7 +218,8 @@ public class DataGenerator {
             reading.setXPosition(xPosition);
             reading.setYPosition(yPosition);
             reading.setZPosition(zPosition);
-            reading.setTimestamp(new Date());
+            Instant instant = Instant.now().plusSeconds(random.nextInt(300));
+            reading.setTimestamp(Date.from(instant));
             reading.setMeasurement(measurement);
 
             return reading;
@@ -242,6 +239,25 @@ public class DataGenerator {
             return anchorPositions;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a batch of anchor positions", ex);
+        }
+    }
+
+    public static AnchorPosition createAnchorPosition(final Measurement measurement, String networkId, int xPosition, int yPosition, int zPosition) {
+        try {
+            final AnchorPosition anchorPosition = new AnchorPosition();
+
+            anchorPosition.setXPosition(xPosition);
+            anchorPosition.setYPosition(yPosition);
+            anchorPosition.setZPosition(zPosition);
+            final Anchor anchor = new Anchor();
+            anchor.setNetworkId(networkId);
+            anchorPosition.setAnchor(anchor);
+            anchorPosition.setMeasurement(measurement);
+
+            return anchorPosition;
+        }
+        catch(final Exception ex) {
+            throw new DataGeneratorException("Failed creating a single anchor position", ex);
         }
     }
 
@@ -266,7 +282,7 @@ public class DataGenerator {
         try {
             final Anchor anchor = new Anchor();
             final int id = random.nextInt(0xefff) + 0x1000;
-            anchor.setNetworkid("0x" + Integer.toHexString(id) );
+            anchor.setNetworkId(Integer.toHexString(id) );
             return anchor;
         } catch(final Exception ex) {
             throw new DataGeneratorException("Failed generating a single anchor", ex);

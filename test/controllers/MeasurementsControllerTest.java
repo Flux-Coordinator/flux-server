@@ -14,23 +14,28 @@ import play.mvc.Result;
 import play.test.WithApplication;
 import repositories.generator.DataGenerator;
 import repositories.measurements.MeasurementsRepository;
-import repositories.projects.ProjectsRepository;
 import repositories.rooms.RoomsRepository;
+import startup.StartupManager;
+import startup.StartupManagerFake;
+import utils.jwt.JwtHelper;
+import utils.jwt.JwtHelperFake;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static play.inject.Bindings.bind;
 import static play.test.Helpers.*;
 
 public class MeasurementsControllerTest extends WithApplication {
     @Override
     protected Application provideApplication() {
         return new GuiceApplicationBuilder()
-            .build();
+                .overrides(bind(StartupManager.class).to(StartupManagerFake.class))
+                .overrides(bind(JwtHelper.class).to(JwtHelperFake.class))
+                .build();
     }
 
     @Before
@@ -113,12 +118,11 @@ public class MeasurementsControllerTest extends WithApplication {
         @SuppressWarnings("ConstantConditions")
         final Room parentRoom = roomsRepository.getRooms(1).get().stream().findFirst().get();
 
-        final CompletableFuture<Long> newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement);
-        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId.get()).get();
-        final long id = newMeasurementId.get();
+        final long newMeasurementId = measurementsRepository.addMeasurement(parentRoom.getRoomId(), measurement).get();
+        final Measurement expectedMeasurement = measurementsRepository.getMeasurementbyId(newMeasurementId).get();
         final Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/measurements/" + id);
+                .uri("/measurements/" + newMeasurementId);
         final Result result = route(app, request);
         assertEquals(OK, result.status());
         final Measurement actualMeasurement = Helpers.convertFromJSON(result, Measurement.class);
@@ -199,17 +203,16 @@ public class MeasurementsControllerTest extends WithApplication {
     }
 
     private Measurement getOrSetActiveMeasurement() throws ExecutionException, InterruptedException {
-        final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
-        final Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
+        Http.RequestBuilder getActiveRequest = new Http.RequestBuilder()
                 .method(GET)
                 .uri("/measurements/active");
-        final Result getResult = route(app, getActiveRequest);
+        Result getResult = route(app, getActiveRequest);
 
         Measurement measurement;
         if(getResult.status() == OK) {
             measurement = Helpers.convertFromJSON(getResult, Measurement.class);
         } else {
-            final ProjectsRepository projectsRepository = app.injector().instanceOf(ProjectsRepository.class);
+            final RoomsRepository roomsRepository = app.injector().instanceOf(RoomsRepository.class);
             final Room room = roomsRepository.getRooms(1).get().stream().findAny().get();
             measurement = room.getMeasurements().stream().findAny().get();
 
@@ -218,6 +221,12 @@ public class MeasurementsControllerTest extends WithApplication {
                     .uri("/measurements/active/" + measurement.getMeasurementId());
             final Result setActiveResult = route(app, setActiveRequest);
             assertEquals(OK, setActiveResult.status());
+
+            getActiveRequest = new Http.RequestBuilder()
+                    .method(GET)
+                    .uri("/measurements/active");
+            getResult = route(app, getActiveRequest);
+            measurement = Helpers.convertFromJSON(getResult, Measurement.class);
         }
 
         return measurement;

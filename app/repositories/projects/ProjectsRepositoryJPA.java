@@ -1,27 +1,19 @@
 package repositories.projects;
 
-import models.Measurement;
 import models.Project;
 import models.Room;
-import play.Logger;
 import play.db.jpa.JPAApi;
 import repositories.DatabaseExecutionContext;
-import repositories.utils.CollectionHelper;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.utils.SqlNativeHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-import static repositories.utils.Helper.wrap;
+import static repositories.utils.JpaHelper.wrap;
 
 @Singleton
 public class ProjectsRepositoryJPA implements ProjectsRepository {
@@ -61,29 +53,56 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
     }
 
     @Override
+    public CompletableFuture<Set<Project>> getProjectsByIds(final List<Long> projectIds) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi,
+                em -> getProjectsByIds(em, projectIds)), databaseExecutionContext);
+    }
+
+    @Override
+    public CompletableFuture<Set<Project>> getProjectsByName(final List<String> projectNames) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi,
+                em -> getProjectsByName(em, projectNames)), databaseExecutionContext);
+    }
+
+    @Override
     public CompletableFuture<Set<Room>> getProjectRooms(long projectId) {
         return CompletableFuture.supplyAsync(() -> wrap(jpaApi, entityManager -> getProjectRooms(entityManager, projectId)), databaseExecutionContext);
     }
 
     @Override
-    public CompletableFuture<Set<Project>> getRelatedProjects(final List<Measurement> measurements) {
-        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> getRelatedProjects(em, measurements)), databaseExecutionContext);
+    public CompletableFuture<Long> countProjectsByName(final String projectName) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> countProjectsByName(em, projectName)), databaseExecutionContext);
     }
 
     @Override
-    public CompletableFuture<Long> countProjects() {
-        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, this::countProjects), databaseExecutionContext);
+    public CompletableFuture<Void> removeProject(final long projectId) {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            removeProject(em, projectId);
+            return null;
+        }), databaseExecutionContext);
     }
 
     @Override
-    public void resetRepository() {
-        Logger.warn("Resetting the repository");
-        wrap(jpaApi, this::resetRepository);
+    public CompletableFuture<Void> resetRepository() {
+        return CompletableFuture.supplyAsync(() -> wrap(jpaApi, em -> {
+            this.resetRepository(em);
+            return null;
+        }), databaseExecutionContext);
     }
 
     private Project addProject(final EntityManager em, final Project project) {
-        em.persist(project);
-        return project;
+        if(project.getProjectId() != null) {
+            final EntityGraph graph = em.createEntityGraph(Room.class);
+            final Subgraph measurementsGraph = graph.addSubgraph("measurements");
+            measurementsGraph.addSubgraph("readings");
+
+            final TypedQuery<Room> roomTypedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.projectId = :projectId", Room.class);
+            roomTypedQuery.setHint("javax.persistence.loadgraph", graph);
+            roomTypedQuery.setParameter("projectId", project.getProjectId());
+            final HashSet<Room> rooms = new HashSet<>(roomTypedQuery.getResultList());
+            project.setRooms(rooms);
+        }
+        return em.merge(project);
     }
 
     private void addProjects(final EntityManager em, final List<Project> projects) {
@@ -103,52 +122,36 @@ public class ProjectsRepositoryJPA implements ProjectsRepository {
         return em.find(Project.class, projectId);
     }
 
-    private Set<Room> getProjectRooms(final EntityManager em, final long projectId) {
-        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.id = " + projectId, Room.class);
+    private Set<Project> getProjectsByIds(final EntityManager em, final List<Long> projectIds) {
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p WHERE p.projectId in (:projectIds)", Project.class);
+        typedQuery.setParameter("projectIds", projectIds);
         return new HashSet<>(typedQuery.getResultList());
     }
 
-    private Long countProjects(final EntityManager em) {
-        final TypedQuery<Long> typedQuery = em.createQuery("SELECT count(p) from Project p", Long.class);
+    private Set<Project> getProjectsByName(final EntityManager em, final List<String> projectNames) {
+        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p WHERE p.name in (:projectNames)", Project.class);
+        typedQuery.setParameter("projectNames", projectNames);
+        return new HashSet<>(typedQuery.getResultList());
+    }
+
+    private Set<Room> getProjectRooms(final EntityManager em, final long projectId) {
+        final TypedQuery<Room> typedQuery = em.createQuery("SELECT r FROM Room r WHERE r.project.projectId = " + projectId, Room.class);
+        return new HashSet<>(typedQuery.getResultList());
+    }
+
+    private Long countProjectsByName(final EntityManager em, final String projectName) {
+        final TypedQuery<Long> typedQuery = em.createQuery("SELECT COUNT(p) from Project p WHERE p.name LIKE (:projectName)", Long.class);
+        typedQuery.setParameter("projectName", projectName);
         return typedQuery.getSingleResult();
     }
 
-    private Set<Project> getRelatedProjects(final EntityManager em, final List<Measurement> measurements) {
-        final List<Long> ids = measurements.stream().map(Measurement::getMeasurementId).collect(Collectors.toList());
-        final TypedQuery<Project> typedQuery = em.createQuery("SELECT p FROM Project p INNER JOIN p.rooms as r INNER JOIN r.measurements as m WHERE m.id in (:measurementIds)", Project.class);
-        typedQuery.setParameter("measurementIds", ids);
-
-        final Set<Project> projects = new HashSet<>(typedQuery.getResultList());
-
-        // Clean up unnecessary rooms in the project that were retrieved from the database.
-        for (Project currentProject : projects) {
-            em.detach(currentProject);
-            final Set<Room> cleanedRooms = new HashSet<>();
-            final Iterator<Room> roomsIterator = currentProject.getRooms().iterator();
-
-            //noinspection WhileLoopReplaceableByForEach
-            while (roomsIterator.hasNext()) {
-                final Room currentRoom = roomsIterator.next();
-
-                // Retain only the measurements that are actually in the list of to-be-exported measurements.
-                CollectionHelper
-                        .retainAllByComparator(currentRoom.getMeasurements(), questionableMeasurement
-                                -> CollectionHelper.containsByComparator(measurements, measurement
-                                -> measurement.getMeasurementId() == questionableMeasurement.getMeasurementId()));
-
-                if (!currentRoom.getMeasurements().isEmpty()) {
-                    cleanedRooms.add(currentRoom);
-                }
-            }
-            currentProject.setRooms(cleanedRooms);
-        }
-
-        return projects;
+    private void removeProject(final EntityManager em, final long projectId) {
+        final Project projectReference = em.getReference(Project.class, projectId);
+        em.remove(projectReference);
     }
 
-    private Void resetRepository(final EntityManager em) {
+    private void resetRepository(final EntityManager em) {
         final Query q = em.createNativeQuery(SqlNativeHelper.getTruncateAllTables());
         q.executeUpdate();
-        return null;
     }
 }

@@ -1,5 +1,6 @@
 package controllers;
 
+import authentication.JWTAuthenticator;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Project;
 import play.Logger;
@@ -8,12 +9,15 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
+import repositories.exceptions.AlreadyExistsException;
 import repositories.projects.ProjectsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 
+@Security.Authenticated(value = JWTAuthenticator.class)
 @Singleton
 public class ProjectsController extends Controller {
     private final HttpExecutionContext httpExecutionContext;
@@ -60,9 +64,19 @@ public class ProjectsController extends Controller {
         return this.projectsRepository.addProject(project).thenApplyAsync(createdId -> {
             final String absoluteUrl = routes.ProjectsController.getProjectById(createdId).absoluteURL(request());
             return created(absoluteUrl);
-        }, httpExecutionContext.current()).exceptionally(throwable -> {
-            Logger.error("Error while creating a new project.", throwable);
-            return badRequest("Fehler beim Erstellen des neuen Projekts");
-        });
+        }, httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error while creating a new project.", throwable);
+                    return badRequest("Fehler beim Erstellen des neuen Projekts");
+                });
+    }
+
+    public CompletionStage<Result> removeProject(final long projectId) {
+        return this.projectsRepository.removeProject(projectId)
+                .thenApplyAsync(aVoid -> ok(""), httpExecutionContext.current())
+                .exceptionally(throwable -> {
+                    Logger.error("Error while removing the project with the id " + projectId, throwable);
+                    return badRequest("Fehler beim Entfernen des Projektes (Projekt ID: " + projectId + ").");
+                });
     }
 }

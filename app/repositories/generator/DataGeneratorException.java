@@ -1,7 +1,7 @@
 package repositories.generator;
 
-class DataGeneratorException extends RuntimeException {
-    DataGeneratorException(String message, Throwable innerException) {
+public class DataGeneratorException extends RuntimeException {
+    DataGeneratorException(final String message, final Throwable innerException) {
         super(message, innerException);
     }
 }

@@ -1,5 +1,6 @@
 package repositories.utils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import models.AnchorPosition;
@@ -17,13 +18,14 @@ public class DemoDataHelper {
     public static final int AMOUNT_OF_MEASUREMENTS_PER_ROOM = 2;
     public static final int AMOUNT_OF_READINGS_PER_MEASUREMENT = 1000;
     private static final int AMOUNT_OF_ANCHORS = 4;
-    private static final double X_MIN = -100;
-    private static final double Y_MIN = -1000;
+    private static final double X_MIN = 0;
+    private static final double Y_MIN = 0;
     private static final double Z_MIN = 0;
-    private static final double X_MAX = 8550;
-    private static final double Y_MAX = 13000;
+    private static final double X_MAX = 7000;
+    private static final double Y_MAX = 7000;
     private static final double Z_MAX = 3000;
     private static final double LUX_BASE_VALUE = 400;
+    private static final boolean FIX_DEMO_ANCHORS = true;
 
     public static List<Project> generateDemoData() {
         ValueRange xValueRange = new ValueRange(X_MIN, X_MAX);
@@ -38,9 +40,18 @@ public class DemoDataHelper {
                 final Set<Measurement> measurements = DataGenerator
                     .generateMeasurements(AMOUNT_OF_MEASUREMENTS_PER_ROOM, room);
                 measurements.forEach(measurement -> {
-                    final Set<AnchorPosition> anchorPositions = DataGenerator
-                        .generateAnchorPositions(AMOUNT_OF_ANCHORS, measurement, xValueRange,
-                            yValueRange, zValueRange);
+                    final Set<AnchorPosition> anchorPositions;
+                    if (FIX_DEMO_ANCHORS) {
+                        anchorPositions = new HashSet<>(4);
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e4e", 1000, 1000, 400));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6964", 6000, 1000, 2320));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e5f", 1000, 6000, 2320));
+                        anchorPositions.add(DataGenerator.createAnchorPosition(measurement, "6e62", 6000, 6000, 400));
+                    } else {
+                        anchorPositions = DataGenerator
+                            .generateAnchorPositions(AMOUNT_OF_ANCHORS, measurement, xValueRange,
+                                yValueRange, zValueRange);
+                    }
                     measurement.setAnchorPositions(anchorPositions);
 
                     final Set<Reading> readings = DataGenerator

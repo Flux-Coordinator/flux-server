@@ -12,19 +12,14 @@ import java.util.Set;
 public class Room {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "room_seq_generator") @Column(name = "id")
     @SequenceGenerator(name="room_seq_generator", sequenceName = "room_id_seq", allocationSize = 1)
-    private long roomId;
+    private Long roomId;
     private String name;
     private String description;
+    @Column(columnDefinition = "varchar")
     private String floorPlan;
     private double floorSpace;
-    @Column(name = "xoffset")
-    private double xOffset;
-    @Column(name = "yoffset")
-    private double yOffset;
-    private double scaleFactor;
 
-
-    @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "room", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Measurement> measurements;
 
@@ -36,11 +31,11 @@ public class Room {
     public Room() {
     }
 
-    public long getRoomId() {
+    public Long getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(long roomId) {
+    public void setRoomId(final Long roomId) {
         this.roomId = roomId;
     }
 
@@ -76,28 +71,11 @@ public class Room {
         this.floorSpace = floorSpace;
     }
 
-    public double getxOffset() {
-        return xOffset;
-    }
-
-    public void setxOffset(double xOffset) {
-        this.xOffset = xOffset;
-    }
-
-    public double getyOffset() {
-        return yOffset;
-    }
-
-    public void setyOffset(double yOffset) {
-        this.yOffset = yOffset;
-    }
-
-    public double getScaleFactor() {
-        return scaleFactor;
-    }
-
-    public void setScaleFactor(double scaleFactor) {
-        this.scaleFactor = scaleFactor;
+    public Long getProjectId() {
+        if(project != null) {
+            return project.getProjectId();
+        }
+        return null;
     }
 
     public Set<Measurement> getMeasurements() {
@@ -122,9 +100,6 @@ public class Room {
         if (o == null || getClass() != o.getClass()) return false;
         Room room = (Room) o;
         return Double.compare(room.getFloorSpace(), getFloorSpace()) == 0 &&
-                Double.compare(room.getxOffset(), getxOffset()) == 0 &&
-                Double.compare(room.getyOffset(), getyOffset()) == 0 &&
-                Double.compare(room.getScaleFactor(), getScaleFactor()) == 0 &&
                 Objects.equals(getName(), room.getName()) &&
                 Objects.equals(getDescription(), room.getDescription()) &&
                 Objects.equals(getFloorPlan(), room.getFloorPlan()) &&
@@ -134,6 +109,6 @@ public class Room {
     @Override
     public int hashCode() {
 
-        return Objects.hash(getName(), getDescription(), getFloorPlan(), getFloorSpace(), getxOffset(), getyOffset(), getScaleFactor(), getMeasurements());
+        return Objects.hash(getName(), getDescription(), getFloorPlan(), getFloorSpace(), getMeasurements());
     }
 }

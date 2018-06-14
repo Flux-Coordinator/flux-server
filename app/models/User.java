@@ -2,13 +2,13 @@ package models;
 
 import java.util.Objects;
 
-public class LoginRequest {
+public class User {
     private String username;
     private String password;
 
-    public LoginRequest() { }
+    public User() { }
 
-    public LoginRequest(final String username, final String password) {
+    public User(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
@@ -17,7 +17,7 @@ public class LoginRequest {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -25,15 +25,15 @@ public class LoginRequest {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LoginRequest that = (LoginRequest) o;
+        final User that = (User) o;
         return Objects.equals(getUsername(), that.getUsername()) &&
                 Objects.equals(getPassword(), that.getPassword());
     }

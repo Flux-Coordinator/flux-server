@@ -12,22 +12,22 @@ public class Project {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_seq_generator")
     @Column(name = "id")
     @SequenceGenerator(name = "project_seq_generator", sequenceName = "project_id_seq", allocationSize = 1)
-    private long projectId;
+    private Long projectId;
     private String name;
     private String description;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Room> rooms;
 
     public Project() {
     }
 
-    public long getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(final long projectId) {
+    public void setProjectId(final Long projectId) {
         this.projectId = projectId;
     }
 

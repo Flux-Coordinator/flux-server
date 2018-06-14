@@ -1,8 +1,6 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,8 +11,7 @@ import java.util.Objects;
 public class Reading {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reading_seq_generator") @Column(name = "id")
     @SequenceGenerator(name = "reading_seq_generator", sequenceName = "reading_id_seq", allocationSize = 1)
-    private long readingId;
-    @JsonSerialize(using = ToStringSerializer.class)
+    private Long readingId;
     private double luxValue;
     private Date timestamp;
     private double xPosition;
@@ -26,11 +23,11 @@ public class Reading {
     @JsonBackReference
     private Measurement measurement;
 
-    public long getReadingId() {
+    public Long getReadingId() {
         return readingId;
     }
 
-    public void setReadingId(long readingId) {
+    public void setReadingId(final Long readingId) {
         this.readingId = readingId;
     }
 

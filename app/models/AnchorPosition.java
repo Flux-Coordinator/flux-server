@@ -11,7 +11,7 @@ public class AnchorPosition {
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "anchorposition_seq_generator")
     @Column(name="id")
     @SequenceGenerator(name = "anchorposition_seq_generator", sequenceName = "anchorposition_id_seq", allocationSize = 1)
-    private long anchorPositionId;
+    private Long anchorPositionId;
     private double xPosition;
     private double yPosition;
     private double zPosition;
@@ -25,11 +25,11 @@ public class AnchorPosition {
     @JoinColumn(name = "anchorid")
     private Anchor anchor;
 
-    public long getAnchorPositionId() {
+    public Long getAnchorPositionId() {
         return anchorPositionId;
     }
 
-    public void setAnchorPositionId(final long anchorId) {
+    public void setAnchorPositionId(final Long anchorId) {
         this.anchorPositionId = anchorId;
     }
 
@@ -80,7 +80,8 @@ public class AnchorPosition {
         AnchorPosition that = (AnchorPosition) o;
         return Double.compare(that.xPosition, xPosition) == 0 &&
                 Double.compare(that.yPosition, yPosition) == 0 &&
-                Double.compare(that.zPosition, zPosition) == 0;
+                Double.compare(that.zPosition, zPosition) == 0 &&
+                Objects.equals(getAnchor(), that.getAnchor());
     }
 
     @Override

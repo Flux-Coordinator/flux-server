@@ -9,10 +9,20 @@
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
             <property name="hibernate.id.new_generator_mappings" value="true" />
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
             <property name="hibernate.event.merge.entity_copy_observer" value="allow"/>
-            <!--<property name="hibernate.hbm2dll.auto" value="update" />-->
+            <!--<property name="hibernate.hbm2ddl.auto" value="create"/>-->
+            <property name="hibernate.hbm2dll.auto" value="validate" />
         </properties>
     </persistence-unit>
 
+    <persistence-unit name="testPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <non-jta-data-source>DefaultDS</non-jta-data-source>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.id.new_generator_mappings" value="true" />
+            <property name="hibernate.event.merge.entity_copy_observer" value="allow"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
+        </properties>
+    </persistence-unit>
 </persistence>
