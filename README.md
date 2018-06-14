@@ -14,6 +14,8 @@ Running in production mode lets your application auto-compile when you have made
 
 IntelliJ IDEA offers an optional plugin for the Play Framework. Using this plugin, you can import the project as an sbt project into the IDE and let the IDE handle the interactions with the SBT shell.
 
+For more general informations (including a more detailed Getting Started Guide), please refer to the official [Play documentation](https://www.playframework.com/documentation/2.6.x/Installing).
+
 ## How to create a production build
 
 1. Run the SBT shell from the root folder of this repository.
