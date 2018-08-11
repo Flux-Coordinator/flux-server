@@ -31,7 +31,7 @@ CREATE TABLE "measurement" (
     "xoffset" decimal   NULL,
     "yoffset" decimal   NULL,
     "scalefactor" decimal   NULL,
-    "createddate" timestamp   NOT NULL,
+    "createddate" timestamp   NULL,
     CONSTRAINT "pk_measurement" PRIMARY KEY (
         "id"
      )
